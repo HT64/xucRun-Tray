@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Purpose: Rejects Tray builds whose required sibling repositories are unavailable. -->
+<Project>
+  <Target Name="ValidateXucRunTrayWorkspace" BeforeTargets="PrepareForBuild">
+    <Error Condition="!Exists('$(XucRunCoreRoot)\xucRunCore\xucRunCore.vcxproj')"
+      Text="The pinned sibling xucRun Core checkout is missing at $(XucRunCoreRoot)." />
+    <Error Condition="'$(SignTrayArtifacts)'=='true' and !Exists('$(XucRunDistributionRoot)\Sign-Executable.ps1')"
+      Text="Tray signing was requested, but Sign-Executable.ps1 was not found below $(XucRunDistributionRoot)." />
+  </Target>
+</Project>

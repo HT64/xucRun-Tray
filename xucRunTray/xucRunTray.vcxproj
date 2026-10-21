@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Purpose: Builds the optional Tray status and convenience executable. -->
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="TrayMain.cpp" />
+    <ClCompile Include="TrayBrokerStatus.cpp" />
+    <ClCompile Include="ClientStatusActions.cpp" />
+    <ClCompile Include="ClientStatusIcon.cpp" />
+    <ClCompile Include="ClientStatusMenu.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="TrayBrokerStatus.h" />
+    <ClInclude Include="ClientStatusActions.h" />
+    <ClInclude Include="ClientStatusActionRouting.h" />
+    <ClInclude Include="ClientStatusIcon.h" />
+    <ClInclude Include="ClientStatusMenu.h" />
+    <ClInclude Include="..\xucRunTrayResources\TrayLocalization.h" />
+    <ClInclude Include="..\xucRunTrayResources\TrayResourceIds.h" />
+    <None Include="..\xucRunTrayResources\TrayStringsDeDe.rcinc" />
+    <None Include="..\xucRunTrayResources\TrayStringsEnUs.rcinc" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="$(XucRunCoreRoot)\xucRunCore\xucRunCore.vcxproj">
+      <Project>{e6e73158-d76b-4b69-a637-6ed09c10c8e6}</Project>
+    </ProjectReference>
+    <ProjectReference Include="$(XucRunCoreRoot)\xucRunClientCommon\xucRunClientCommon.vcxproj">
+      <Project>{6d8f613b-052a-4b5d-9c76-2E0B646F7A12}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\xucRunTrayLanguageEnUs\xucRunTrayLanguageEnUs.vcxproj">
+      <Project>{4b7378b5-09f5-47b0-9976-c540923b8716}</Project>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="..\xucRunTrayLanguageDeDe\xucRunTrayLanguageDeDe.vcxproj">
+      <Project>{8825887a-a045-4de4-8c09-e8b3b424eb41}</Project>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="$(XucRunCoreRoot)\xucRunSharedResources\ClientResources.rc">
+      <PreprocessorDefinitions>XUCRUN_EXTERNAL_LANGUAGES;XUCRUN_TRAY_RESOURCE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(XucRunCoreRoot)\xucRunSharedResources;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>17.0</VCProjectVersion>
+    <ProjectGuid>{F2A96470-337F-4B88-9A4D-BA61E84C15A8}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>xucRunTray</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>$(DefaultPlatformToolset)</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>$(DefaultPlatformToolset)</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings" />
+  <ImportGroup Label="Shared" />
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props"
+      Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')"
+      Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props"
+      Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')"
+      Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LinkIncremental>true</LinkIncremental>
+    <OutDir>$(XucRunTrayOutputRoot)\</OutDir>
+    <IntDir>$(ProjectDir)x64\Debug\Intermediate\</IntDir>
+    <TargetName>xucRunTray</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LinkIncremental>false</LinkIncremental>
+    <OutDir>$(XucRunTrayOutputRoot)\</OutDir>
+    <IntDir>$(ProjectDir)x64\Release\Intermediate\</IntDir>
+    <TargetName>xucRunTray</TargetName>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>_DEBUG;_WINDOWS;XUCRUN_TRAY_BUILD;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <ControlFlowGuard>Guard</ControlFlowGuard>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\xucRunTrayResources;$(XucRunCoreRoot)\xucRunSharedResources;$(XucRunCoreRoot)\xucRunClientCommon;$(XucRunCoreRoot)\xucRunCore;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <AdditionalDependencies>Shell32.lib;Advapi32.lib;Credui.lib;Netapi32.lib;Bcrypt.lib;Crypt32.lib;Wintrust.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <UACExecutionLevel>AsInvoker</UACExecutionLevel>
+      <ControlFlowGuard>Guard</ControlFlowGuard>
+      <CETCompat>true</CETCompat>
+      <DataExecutionPrevention>true</DataExecutionPrevention>
+      <RandomizedBaseAddress>true</RandomizedBaseAddress>
+      <HighEntropyVA>true</HighEntropyVA>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>NDEBUG;_WINDOWS;XUCRUN_TRAY_BUILD;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <ControlFlowGuard>Guard</ControlFlowGuard>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\xucRunTrayResources;$(XucRunCoreRoot)\xucRunSharedResources;$(XucRunCoreRoot)\xucRunClientCommon;$(XucRunCoreRoot)\xucRunCore;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
+      <Optimization>MinSpace</Optimization>
+      <StringPooling>true</StringPooling>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <BufferSecurityCheck>true</BufferSecurityCheck>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <AdditionalDependencies>Shell32.lib;Advapi32.lib;Credui.lib;Netapi32.lib;Bcrypt.lib;Crypt32.lib;Wintrust.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <UACExecutionLevel>AsInvoker</UACExecutionLevel>
+      <ControlFlowGuard>Guard</ControlFlowGuard>
+      <CETCompat>true</CETCompat>
+      <DataExecutionPrevention>true</DataExecutionPrevention>
+      <RandomizedBaseAddress>true</RandomizedBaseAddress>
+      <HighEntropyVA>true</HighEntropyVA>
+    </Link>
+  </ItemDefinitionGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <Target Name="SignReleaseExecutable" AfterTargets="Link"
+    Condition="'$(Configuration)|$(Platform)'=='Release|x64' and '$(SignTrayArtifacts)'=='true'">
+    <Message Text="[Post-Build] Signiere xucRunTray.exe..." Importance="high" />
+    <Exec Command="powershell.exe -NoProfile -ExecutionPolicy Bypass -File &quot;$(XucRunDistributionRoot)\Sign-Executable.ps1&quot; -Path &quot;$(TargetPath)&quot;" />
+  </Target>
+</Project>

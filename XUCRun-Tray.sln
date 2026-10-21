@@ -1,0 +1,46 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "xucRunCore", "..\xucRun-Core\xucRunCore\xucRunCore.vcxproj", "{E6E73158-D76B-4B69-A637-6ED09C10C8E6}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "xucRunClientCommon", "..\xucRun-Core\xucRunClientCommon\xucRunClientCommon.vcxproj", "{6D8F613B-052A-4B5D-9C76-2E0B646F7A12}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "xucRunTray", "xucRunTray\xucRunTray.vcxproj", "{F2A96470-337F-4B88-9A4D-BA61E84C15A8}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "xucRunTrayLanguageEnUs", "xucRunTrayLanguageEnUs\xucRunTrayLanguageEnUs.vcxproj", "{4B7378B5-09F5-47B0-9976-C540923B8716}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "xucRunTrayLanguageDeDe", "xucRunTrayLanguageDeDe\xucRunTrayLanguageDeDe.vcxproj", "{8825887A-A045-4DE4-8C09-E8B3B424EB41}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Release|x64 = Release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{E6E73158-D76B-4B69-A637-6ED09C10C8E6}.Debug|x64.ActiveCfg = Debug|x64
+		{E6E73158-D76B-4B69-A637-6ED09C10C8E6}.Debug|x64.Build.0 = Debug|x64
+		{E6E73158-D76B-4B69-A637-6ED09C10C8E6}.Release|x64.ActiveCfg = Release|x64
+		{E6E73158-D76B-4B69-A637-6ED09C10C8E6}.Release|x64.Build.0 = Release|x64
+		{6D8F613B-052A-4B5D-9C76-2E0B646F7A12}.Debug|x64.ActiveCfg = Debug|x64
+		{6D8F613B-052A-4B5D-9C76-2E0B646F7A12}.Debug|x64.Build.0 = Debug|x64
+		{6D8F613B-052A-4B5D-9C76-2E0B646F7A12}.Release|x64.ActiveCfg = Release|x64
+		{6D8F613B-052A-4B5D-9C76-2E0B646F7A12}.Release|x64.Build.0 = Release|x64
+		{F2A96470-337F-4B88-9A4D-BA61E84C15A8}.Debug|x64.ActiveCfg = Debug|x64
+		{F2A96470-337F-4B88-9A4D-BA61E84C15A8}.Debug|x64.Build.0 = Debug|x64
+		{F2A96470-337F-4B88-9A4D-BA61E84C15A8}.Release|x64.ActiveCfg = Release|x64
+		{F2A96470-337F-4B88-9A4D-BA61E84C15A8}.Release|x64.Build.0 = Release|x64
+		{4B7378B5-09F5-47B0-9976-C540923B8716}.Debug|x64.ActiveCfg = Debug|x64
+		{4B7378B5-09F5-47B0-9976-C540923B8716}.Debug|x64.Build.0 = Debug|x64
+		{4B7378B5-09F5-47B0-9976-C540923B8716}.Release|x64.ActiveCfg = Release|x64
+		{4B7378B5-09F5-47B0-9976-C540923B8716}.Release|x64.Build.0 = Release|x64
+		{8825887A-A045-4DE4-8C09-E8B3B424EB41}.Debug|x64.ActiveCfg = Debug|x64
+		{8825887A-A045-4DE4-8C09-E8B3B424EB41}.Debug|x64.Build.0 = Debug|x64
+		{8825887A-A045-4DE4-8C09-E8B3B424EB41}.Release|x64.ActiveCfg = Release|x64
+		{8825887A-A045-4DE4-8C09-E8B3B424EB41}.Release|x64.Build.0 = Release|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

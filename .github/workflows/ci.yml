@@ -1,0 +1,79 @@
+# Purpose: Builds and packages the private xucRun Tray against its pinned public Core revision.
+name: xucRun Tray CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  XUCRUN_CORE_COMMIT: c85e632ec32d9ab2049d1453d2d97d7627fd9165
+
+jobs:
+  build-test-package:
+    runs-on: windows-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        configuration:
+          - Debug
+          - Release
+
+    steps:
+      - name: Check out Tray
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          path: xucRun-Tray
+
+      - name: Check out pinned Core
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          repository: HT64/xucRun
+          ref: ${{ env.XUCRUN_CORE_COMMIT }}
+          path: xucRun-Core
+
+      - name: Configure MSBuild
+        uses: microsoft/setup-msbuild@6fb02220983dee41ce7ae257b6f4d8f9bf5ed4ce # v2
+
+      - name: Verify Tray boundary
+        shell: powershell
+        working-directory: xucRun-Tray
+        run: .\Test-TrayArchitecture.ps1
+
+      - name: Build Tray
+        shell: powershell
+        working-directory: xucRun-Tray
+        run: |
+          msbuild.exe .\XUCRun-Tray.sln `
+            /t:Build `
+            /p:Configuration=${{ matrix.configuration }} `
+            /p:Platform=x64 `
+            /m `
+            /nologo `
+            /verbosity:minimal
+          if ($LASTEXITCODE -ne 0) {
+            throw "Tray build failed with exit code $LASTEXITCODE."
+          }
+
+      - name: Create exact Tray package
+        shell: powershell
+        working-directory: xucRun-Tray
+        run: |
+          .\New-xucRunTray-Package.ps1 `
+            -Configuration ${{ matrix.configuration }}
+
+      - name: Upload unsigned Tray package
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: xucRun-Tray-${{ matrix.configuration }}-unsigned
+          path: xucRun-Tray/artifacts/Package/${{ matrix.configuration }}
+          if-no-files-found: error
+          retention-days: 7
