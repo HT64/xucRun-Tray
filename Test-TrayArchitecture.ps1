@@ -130,6 +130,8 @@ foreach ($requiredContract in @(
     'same-as-installed-core',
     'requiredCoreProductVersion',
     'Register-ScheduledTask',
+    'Set-TrayUninstallRegistryAcl',
+    'RegistrySecurity',
     'xucRun Tray'
 )) {
     if (-not $machineInstaller.Contains($requiredContract)) {

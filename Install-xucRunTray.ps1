@@ -100,6 +100,26 @@ function Initialize-TaskFolder {
     }
 }
 
+function Set-TrayUninstallRegistryAcl {
+    $inheritance = [Security.AccessControl.InheritanceFlags]::ContainerInherit
+    $propagation = [Security.AccessControl.PropagationFlags]::None
+    $allow = [Security.AccessControl.AccessControlType]::Allow
+    $systemSid = [Security.Principal.SecurityIdentifier]::new('S-1-5-18')
+    $administratorsSid =
+        [Security.Principal.SecurityIdentifier]::new('S-1-5-32-544')
+    $usersSid = [Security.Principal.SecurityIdentifier]::new('S-1-5-32-545')
+    $acl = [Security.AccessControl.RegistrySecurity]::new()
+    $acl.SetAccessRuleProtection($true, $false)
+    $acl.SetOwner($administratorsSid)
+    $acl.AddAccessRule([Security.AccessControl.RegistryAccessRule]::new(
+        $systemSid, 'FullControl', $inheritance, $propagation, $allow))
+    $acl.AddAccessRule([Security.AccessControl.RegistryAccessRule]::new(
+        $administratorsSid, 'FullControl', $inheritance, $propagation, $allow))
+    $acl.AddAccessRule([Security.AccessControl.RegistryAccessRule]::new(
+        $usersSid, 'ReadKey', $inheritance, $propagation, $allow))
+    Set-Acl -LiteralPath $uninstallPath -AclObject $acl
+}
+
 function Assert-SelectableUser {
     param([Parameter(Mandatory)][string]$Sid)
 
@@ -367,6 +387,7 @@ try {
         Set-StatusTask -Sid $UserSid
 
         New-Item -Path $uninstallPath -Force | Out-Null
+        Set-TrayUninstallRegistryAcl
         New-ItemProperty -Path $uninstallPath -Name DisplayName `
             -PropertyType String -Value 'xucRun Tray' -Force | Out-Null
         New-ItemProperty -Path $uninstallPath -Name DisplayVersion `
