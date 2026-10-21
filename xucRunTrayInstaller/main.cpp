@@ -104,7 +104,8 @@ namespace
 
     DWORD RunInstaller(
         const std::filesystem::path& packageDirectory,
-        const std::filesystem::path& installerPath)
+        const std::filesystem::path& installerPath,
+        const std::filesystem::path& diagnosticLogPath)
     {
         wchar_t windowsDirectory[MAX_PATH] = {};
         const UINT length = GetWindowsDirectoryW(windowsDirectory, ARRAYSIZE(windowsDirectory));
@@ -116,7 +117,8 @@ namespace
         std::wstring commandLine = Quote(powershell.wstring()) +
             L" -NoProfile -ExecutionPolicy Bypass -File " + Quote(script.wstring()) +
             L" -PackageDirectory " + Quote(packageDirectory.wstring()) +
-            L" -InstallerPath " + Quote(installerPath.wstring());
+            L" -InstallerPath " + Quote(installerPath.wstring()) +
+            L" -DiagnosticLogPath " + Quote(diagnosticLogPath.wstring());
 
         STARTUPINFOW startup = {};
         startup.cb = sizeof(startup);
@@ -140,6 +142,20 @@ namespace
         }
         CloseHandle(process.hProcess);
         return exitCode;
+    }
+
+    std::filesystem::path GetDiagnosticLogPath()
+    {
+        const DWORD requiredLength = GetTempPathW(0, nullptr);
+        if (requiredLength == 0)
+            throw std::system_error(GetLastError(), std::system_category());
+        std::vector<wchar_t> buffer(requiredLength);
+        const DWORD length = GetTempPathW(
+            static_cast<DWORD>(buffer.size()), buffer.data());
+        if (length == 0 || length >= buffer.size())
+            throw std::system_error(GetLastError(), std::system_category());
+        return std::filesystem::path(buffer.data()) /
+            L"xucRun-Tray-Installer.log";
     }
 
     std::wstring RemoveTemporaryDirectory(const std::filesystem::path& directory)
@@ -174,7 +190,20 @@ int WINAPI wWinMain(HINSTANCE, HINSTANCE, PWSTR, int)
         for (const PayloadFile& file : files)
             ExtractResource(temporaryDirectory, file);
 
-        const DWORD exitCode = RunInstaller(temporaryDirectory, installerPath);
+        const std::filesystem::path diagnosticLogPath = GetDiagnosticLogPath();
+        std::error_code logCleanupError;
+        std::filesystem::remove(diagnosticLogPath, logCleanupError);
+        const DWORD exitCode = RunInstaller(
+            temporaryDirectory, installerPath, diagnosticLogPath);
+        if (exitCode != ERROR_SUCCESS && exitCode != ERROR_INSTALL_USEREXIT)
+        {
+            const std::wstring message =
+                L"xucRun Tray Installer ended unexpectedly.\n\nExit code: " +
+                std::to_wstring(exitCode) + L"\nDiagnostic log:\n" +
+                diagnosticLogPath.native();
+            MessageBoxW(nullptr, message.c_str(), L"xucRun Tray Installer",
+                MB_OK | MB_ICONERROR);
+        }
         const std::wstring cleanupWarning = RemoveTemporaryDirectory(temporaryDirectory);
         if (!cleanupWarning.empty())
         {

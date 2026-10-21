@@ -1,10 +1,28 @@
 # Purpose: Provides the localized graphical workflow for the xucRun Tray add-on installer.
 param(
     [Parameter(Mandatory)][string]$PackageDirectory,
-    [Parameter(Mandatory)][string]$InstallerPath
+    [Parameter(Mandatory)][string]$InstallerPath,
+    [Parameter(Mandatory)][string]$DiagnosticLogPath
 )
 
 $ErrorActionPreference = 'Stop'
+trap {
+    $details = ($_ | Out-String).Trim()
+    try {
+        Set-Content -LiteralPath $DiagnosticLogPath -Value $details `
+            -Encoding UTF8
+    }
+    catch {
+    }
+    try {
+        Add-Type -AssemblyName System.Windows.Forms
+        [Windows.Forms.MessageBox]::Show(
+            $details, 'xucRun Tray Installer', 'OK', 'Error') | Out-Null
+    }
+    catch {
+    }
+    exit 1603
+}
 Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
 [Windows.Forms.Application]::EnableVisualStyles()
@@ -28,7 +46,9 @@ $texts = @{
         Working = 'Paket, xucRun-Version und Signaturen werden geprüft ...'
         Signing = 'Das Tray wird mit dem vorhandenen lokalen xucRun-Zertifikat signiert ...'
         Installing = 'Tray-Dateien und Anmeldeaufgabe werden eingerichtet ...'
-        Success = 'xucRun Tray wurde erfolgreich installiert. Es startet für {0} bei der nächsten Anmeldung.'
+        SuccessStarted = 'xucRun Tray wurde erfolgreich installiert und für {0} gestartet.'
+        SuccessDeferred = 'xucRun Tray wurde erfolgreich installiert. Es startet für {0} bei der nächsten Anmeldung.'
+        SuccessStartFailed = 'xucRun Tray wurde installiert, konnte aber nicht sofort für {0} gestartet werden. Es startet bei der nächsten Anmeldung.'
         Failure = 'Die Installation ist fehlgeschlagen.'
         NoUsers = 'Es wurde kein auswählbares lokales Benutzerprofil gefunden.'
         CoreMissing = 'Eine unterstützte xucRun-Installation wurde nicht gefunden.'
@@ -58,7 +78,9 @@ Broker, gespeicherte Anmeldedaten und Freigaben werden nicht verändert. Die Dei
         Working = 'Validating package, xucRun version, and signatures ...'
         Signing = 'Signing Tray with the existing local xucRun certificate ...'
         Installing = 'Installing Tray files and logon task ...'
-        Success = 'xucRun Tray was installed successfully. It will start for {0} at the next logon.'
+        SuccessStarted = 'xucRun Tray was installed successfully and started for {0}.'
+        SuccessDeferred = 'xucRun Tray was installed successfully. It will start for {0} at the next logon.'
+        SuccessStartFailed = 'xucRun Tray was installed but could not be started immediately for {0}. It will start at the next logon.'
         Failure = 'Installation failed.'
         NoUsers = 'No selectable local user profile was found.'
         CoreMissing = 'A supported xucRun installation was not found.'
@@ -180,7 +202,8 @@ $form.MaximizeBox = $false
 
 $heading = [Windows.Forms.Label]::new()
 $heading.Text = $t.Heading
-$heading.Font = [Drawing.Font]::new($form.Font.FontFamily, 15, 'Bold')
+$heading.Font = [Drawing.Font]::new(
+    $form.Font.FontFamily, 15, [Drawing.FontStyle]::Bold)
 $heading.SetBounds(24, 20, 590, 34)
 $form.Controls.Add($heading)
 $description = [Windows.Forms.Label]::new()
@@ -277,9 +300,24 @@ $installButton.Add_Click({
         if ($installResult.ExitCode -ne 0) {
             throw "Tray installation failed.`r`n$($installResult.Details)"
         }
-        $status.Text = $t.Success -f $selected.DisplayName
+        $startDisposition = if ($installResult.Details -match
+            '(?m)^XUCRUN_TRAY_START_DISPOSITION=(Started|Deferred|Failed)\s*$') {
+            $Matches[1]
+        } else {
+            'Failed'
+        }
+        $status.Text = switch ($startDisposition) {
+            'Started' { $t.SuccessStarted -f $selected.DisplayName }
+            'Deferred' { $t.SuccessDeferred -f $selected.DisplayName }
+            default { $t.SuccessStartFailed -f $selected.DisplayName }
+        }
+        $messageIcon = if ($startDisposition -eq 'Failed') {
+            'Warning'
+        } else {
+            'Information'
+        }
         [Windows.Forms.MessageBox]::Show(
-            $status.Text, $t.Title, 'OK', 'Information') | Out-Null
+            $status.Text, $t.Title, 'OK', $messageIcon) | Out-Null
         $script:exitCode = 0
         $form.Close()
     }

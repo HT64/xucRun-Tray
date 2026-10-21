@@ -127,6 +127,60 @@ function Set-StatusTask {
         -Settings $settings -Force | Out-Null
 }
 
+function Test-TrayProcessForUser {
+    param([Parameter(Mandatory)][string]$Sid)
+
+    foreach ($process in @(Get-CimInstance -ClassName Win32_Process `
+        -Filter "Name='xucRunTray.exe'")) {
+        if (-not $process.ExecutablePath -or
+            -not [string]::Equals($process.ExecutablePath, $installedTray,
+                [StringComparison]::OrdinalIgnoreCase)) {
+            continue
+        }
+        $owner = Invoke-CimMethod -InputObject $process -MethodName GetOwnerSid
+        if ($owner.ReturnValue -eq 0 -and $owner.Sid -eq $Sid) {
+            return $true
+        }
+    }
+    return $false
+}
+
+function Test-InteractiveUserLoggedOn {
+    param([Parameter(Mandatory)][string]$Sid)
+
+    foreach ($process in @(Get-CimInstance -ClassName Win32_Process `
+        -Filter "Name='explorer.exe'")) {
+        $owner = Invoke-CimMethod -InputObject $process -MethodName GetOwnerSid
+        if ($owner.ReturnValue -eq 0 -and $owner.Sid -eq $Sid) {
+            return $true
+        }
+    }
+    return $false
+}
+
+function Start-StatusTaskIfUserLoggedOn {
+    param([Parameter(Mandatory)][string]$Sid)
+
+    if (-not (Test-InteractiveUserLoggedOn -Sid $Sid)) {
+        return 'Deferred'
+    }
+    try {
+        Start-ScheduledTask -TaskName ($taskPrefix + $Sid) -TaskPath $taskPath
+        $deadline = [DateTime]::UtcNow.AddSeconds(10)
+        do {
+            if (Test-TrayProcessForUser -Sid $Sid) {
+                return 'Started'
+            }
+            Start-Sleep -Milliseconds 200
+        } while ([DateTime]::UtcNow -lt $deadline)
+        Write-Warning "xucRun Tray did not start for the logged-on SID '$Sid'."
+    }
+    catch {
+        Write-Warning "xucRun Tray could not be started for SID '$Sid': $($_.Exception.Message)"
+    }
+    return 'Failed'
+}
+
 function Remove-StatusTasks {
     Get-ScheduledTask -TaskPath $taskPath -ErrorAction SilentlyContinue |
         Where-Object { $_.TaskName.StartsWith($taskPrefix) } |
@@ -263,6 +317,7 @@ $staging = Join-Path $programFiles (
     '.xucRun-Tray-staging-' + [Guid]::NewGuid().ToString('N'))
 $backup = Join-Path $programFiles (
     '.xucRun-Tray-backup-' + [Guid]::NewGuid().ToString('N'))
+$startDisposition = 'Deferred'
 New-Item -ItemType Directory -Path $staging | Out-Null
 try {
     foreach ($file in $payload) {
@@ -330,6 +385,7 @@ try {
             -PropertyType DWord -Value 1 -Force | Out-Null
         New-ItemProperty -Path $uninstallPath -Name NoRepair `
             -PropertyType DWord -Value 1 -Force | Out-Null
+        $startDisposition = Start-StatusTaskIfUserLoggedOn -Sid $UserSid
     }
     catch {
         foreach ($file in $payload) {
@@ -357,3 +413,4 @@ finally {
 }
 
 Write-Host "xucRun Tray $($manifest.productVersion) installed for SID $UserSid."
+Write-Host "XUCRUN_TRAY_START_DISPOSITION=$startDisposition"
