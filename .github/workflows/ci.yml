@@ -13,9 +13,6 @@ on:
 permissions:
   contents: read
 
-env:
-  XUCRUN_CORE_COMMIT: c85e632ec32d9ab2049d1453d2d97d7627fd9165
-
 jobs:
   build-test-package:
     runs-on: windows-latest
@@ -33,11 +30,33 @@ jobs:
         with:
           path: xucRun-Tray
 
+      - name: Read pinned xucRun dependency
+        id: core_dependency
+        shell: powershell
+        working-directory: xucRun-Tray
+        run: |
+          $dependency = Get-Content -LiteralPath .\Dependencies.json -Raw |
+            ConvertFrom-Json
+          if ($dependency.schemaVersion -ne 1 -or
+              $dependency.core.repository -ne 'HT64/xucRun' -or
+              $dependency.core.commit -notmatch '^[0-9a-f]{40}$') {
+            throw 'Dependencies.json does not contain a valid xucRun dependency.'
+          }
+          $utf8 = [Text.UTF8Encoding]::new($false)
+          [IO.File]::AppendAllText(
+            $env:GITHUB_OUTPUT,
+            "repository=$($dependency.core.repository)`n",
+            $utf8)
+          [IO.File]::AppendAllText(
+            $env:GITHUB_OUTPUT,
+            "commit=$($dependency.core.commit)`n",
+            $utf8)
+
       - name: Check out pinned xucRun
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
-          repository: HT64/xucRun
-          ref: ${{ env.XUCRUN_CORE_COMMIT }}
+          repository: ${{ steps.core_dependency.outputs.repository }}
+          ref: ${{ steps.core_dependency.outputs.commit }}
           path: xucRun-Core
 
       - name: Configure MSBuild

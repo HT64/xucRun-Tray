@@ -67,6 +67,7 @@ if (-not $buildTargets.Contains('$(XucRunSignScript)')) {
     throw 'Public Tray signing must use the explicitly supplied XucRunSignScript.'
 }
 foreach ($publicFile in @(
+    'Dependencies.json',
     'LICENSE',
     'NOTICE',
     'README.md',
@@ -79,6 +80,36 @@ foreach ($publicFile in @(
 )) {
     if (-not (Test-Path -LiteralPath (Join-Path $repositoryRoot $publicFile) -PathType Leaf)) {
         throw "Public Tray repository file is missing: $publicFile"
+    }
+}
+$dependencies = Get-Content -LiteralPath `
+    (Join-Path $repositoryRoot 'Dependencies.json') -Raw |
+    ConvertFrom-Json
+if ($dependencies.schemaVersion -ne 1 -or
+    $dependencies.core.repository -ne 'HT64/xucRun' -or
+    $dependencies.core.commit -notmatch '^[0-9a-f]{40}$') {
+    throw 'Dependencies.json does not contain a valid xucRun dependency.'
+}
+$workflow = [IO.File]::ReadAllText(
+    (Join-Path $repositoryRoot '.github\workflows\ci.yml'))
+foreach ($requiredContract in @(
+    'Dependencies.json',
+    'steps.core_dependency.outputs.repository',
+    'steps.core_dependency.outputs.commit'
+)) {
+    if (-not $workflow.Contains($requiredContract)) {
+        throw "Tray CI is missing dependency contract '$requiredContract'."
+    }
+}
+$packageScript = [IO.File]::ReadAllText(
+    (Join-Path $repositoryRoot 'New-xucRunTray-Package.ps1'))
+foreach ($requiredContract in @(
+    'Dependencies.json',
+    '$dependencies.core.commit',
+    '$coreCommit -ne $dependencies.core.commit'
+)) {
+    if (-not $packageScript.Contains($requiredContract)) {
+        throw "Tray package creation is missing dependency contract '$requiredContract'."
     }
 }
 

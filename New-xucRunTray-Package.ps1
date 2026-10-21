@@ -15,10 +15,28 @@ $payloadRoot = Join-Path $repositoryRoot "artifacts\Payload\$Configuration"
 $packageRoot = Join-Path $repositoryRoot "artifacts\Package\$Configuration"
 $versionHeaderPath = Join-Path $coreRoot 'xucRunSharedResources\BuildVersion.h'
 $contractsPath = Join-Path $coreRoot 'xucRunCore\BrokerContracts.h'
+$dependenciesPath = Join-Path $repositoryRoot 'Dependencies.json'
 
 if (-not (Test-Path -LiteralPath $versionHeaderPath -PathType Leaf) -or
     -not (Test-Path -LiteralPath $contractsPath -PathType Leaf)) {
     throw "The pinned sibling xucRun checkout is incomplete: $coreRoot"
+}
+if (-not (Test-Path -LiteralPath $dependenciesPath -PathType Leaf)) {
+    throw "Tray dependency contract is missing: $dependenciesPath"
+}
+$dependencies = Get-Content -LiteralPath $dependenciesPath -Raw | ConvertFrom-Json
+if ($dependencies.schemaVersion -ne 1 -or
+    $dependencies.core.repository -ne 'HT64/xucRun' -or
+    $dependencies.core.commit -notmatch '^[0-9a-f]{40}$') {
+    throw 'Dependencies.json does not contain a valid xucRun dependency.'
+}
+$coreCommit = (& git -c "safe.directory=$coreRoot" -C $coreRoot rev-parse HEAD 2>&1)
+if ($LASTEXITCODE -ne 0 -or $coreCommit -notmatch '^[0-9a-f]{40}$') {
+    throw "Could not determine the pinned xucRun commit: $coreCommit"
+}
+$coreCommit = $coreCommit.Trim()
+if ($coreCommit -ne $dependencies.core.commit) {
+    throw "xucRun is at $coreCommit; expected $($dependencies.core.commit)."
 }
 $versionHeader = [IO.File]::ReadAllText($versionHeaderPath)
 if ($versionHeader -notmatch '#define VERSION_STRING "(\d+\.\d+\.\d+\.\d+)"') {
@@ -37,10 +55,6 @@ if ($SkipInstaller) {
         throw 'Pinned xucRun BrokerContracts.h does not contain ProtocolVersion.'
     }
     $protocolVersion = [int]$matches[1]
-    $coreCommit = (& git -c "safe.directory=$coreRoot" -C $coreRoot rev-parse HEAD 2>&1)
-    if ($LASTEXITCODE -ne 0 -or $coreCommit -notmatch '^[0-9a-f]{40}$') {
-        throw "Could not determine the pinned xucRun commit: $coreCommit"
-    }
     $payloadFiles = [ordered]@{
         'xucRunTray.exe' = Join-Path $sourceRoot 'xucRunTray.exe'
         'Languages\xucRunTray.de-DE.dll' =
@@ -91,7 +105,7 @@ if ($SkipInstaller) {
         productVersion = $productVersion
         requiredCoreProductVersion = $productVersion
         protocolVersion = $protocolVersion
-        coreCommit = $coreCommit.Trim()
+        coreCommit = $coreCommit
         signingPolicy = 'same-as-installed-core'
         files = $manifestFiles
     } | ConvertTo-Json -Depth 5 |
