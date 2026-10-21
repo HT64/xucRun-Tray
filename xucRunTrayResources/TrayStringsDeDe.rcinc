@@ -1,4 +1,4 @@
-// Purpose: Proprietary German Tray-only string resources.
+// Purpose: German Tray-only string resources.
 	IDS_TOOLTIP_SERVICE, "Dienst: {0}"
 	IDS_TOOLTIP_CONNECTION, "Kommunikation: {0}"
 	IDS_TOOLTIP_ELEVATED, "Erhöht: {0}"

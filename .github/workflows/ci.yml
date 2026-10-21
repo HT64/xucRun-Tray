@@ -1,4 +1,4 @@
-# Purpose: Builds and packages the private xucRun Tray against its pinned public Core revision.
+# Purpose: Builds and packages public xucRun Tray against its pinned public xucRun revision.
 name: xucRun Tray CI
 
 on:
@@ -33,7 +33,7 @@ jobs:
         with:
           path: xucRun-Tray
 
-      - name: Check out pinned Core
+      - name: Check out pinned xucRun
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           repository: HT64/xucRun
@@ -68,6 +68,13 @@ jobs:
         working-directory: xucRun-Tray
         run: |
           .\New-xucRunTray-Package.ps1 `
+            -Configuration ${{ matrix.configuration }}
+
+      - name: Verify Tray add-on package
+        shell: powershell
+        working-directory: xucRun-Tray
+        run: |
+          .\Test-TrayAddonPackage.ps1 `
             -Configuration ${{ matrix.configuration }}
 
       - name: Upload unsigned Tray package

@@ -1,12 +1,12 @@
-# Purpose: Activates the version-controlled safety hooks for this private Tray clone.
+# Purpose: Activates the version-controlled safety hooks for this public Tray clone.
 [CmdletBinding()]
 param()
 
 $ErrorActionPreference = 'Stop'
 $repositoryRoot = $PSScriptRoot
 $hookPath = Join-Path $repositoryRoot '.githooks\pre-push'
-$privacyCheck = Join-Path $repositoryRoot 'Test-PrivateRepository.ps1'
-foreach ($requiredFile in @($hookPath, $privacyCheck)) {
+$repositoryCheck = Join-Path $repositoryRoot 'Test-PublicRepository.ps1'
+foreach ($requiredFile in @($hookPath, $repositoryCheck)) {
     if (-not (Test-Path -LiteralPath $requiredFile -PathType Leaf)) {
         throw "Required Git safety file was not found: $requiredFile"
     }
@@ -24,5 +24,5 @@ if ($LASTEXITCODE -ne 0 -or -not [IO.Path]::GetFullPath($actualRoot.Trim()).Equa
 if ($LASTEXITCODE -ne 0) {
     throw 'The version-controlled Git hook path could not be configured.'
 }
-& $privacyCheck -RepositoryRoot $repositoryRoot
+& $repositoryCheck -RepositoryRoot $repositoryRoot
 Write-Host 'Git safety hooks installed for this Tray clone: .githooks'

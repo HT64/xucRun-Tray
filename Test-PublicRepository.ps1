@@ -1,4 +1,4 @@
-# Purpose: Fails unless this worktree targets the private xucRun Tray repository.
+# Purpose: Fails unless this worktree targets the public xucRun Tray repository.
 [CmdletBinding()]
 param(
     [Parameter(Mandatory)]
@@ -91,8 +91,8 @@ $metadataJson = Invoke-NativeCommand -Executable $gh.Source -Arguments @(
     '--json', 'nameWithOwner,visibility,url'
 ) -Description 'GitHub repository visibility query'
 $metadata = $metadataJson | ConvertFrom-Json
-if ($metadata.visibility -ne 'PRIVATE') {
-    throw "GitHub repository '$expectedRepository' is '$($metadata.visibility)', not 'PRIVATE'."
+if ($metadata.visibility -ne 'PUBLIC') {
+    throw "GitHub repository '$expectedRepository' is '$($metadata.visibility)', not 'PUBLIC'."
 }
 
-Write-Host "Private repository verified: $($metadata.nameWithOwner) ($($metadata.visibility))"
+Write-Host "Public repository verified: $($metadata.nameWithOwner) ($($metadata.visibility))"

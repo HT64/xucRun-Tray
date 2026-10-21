@@ -1,4 +1,4 @@
-// Purpose: Classifies tray actions that must be delegated to the Core client.
+// Purpose: Classifies tray actions that must be delegated to the xucRun client.
 #pragma once
 
 #include <string_view>

@@ -161,6 +161,6 @@
   <Target Name="SignReleaseExecutable" AfterTargets="Link"
     Condition="'$(Configuration)|$(Platform)'=='Release|x64' and '$(SignTrayArtifacts)'=='true'">
     <Message Text="[Post-Build] Signiere xucRunTray.exe..." Importance="high" />
-    <Exec Command="powershell.exe -NoProfile -ExecutionPolicy Bypass -File &quot;$(XucRunDistributionRoot)\Sign-Executable.ps1&quot; -Path &quot;$(TargetPath)&quot;" />
+    <Exec Command="powershell.exe -NoProfile -ExecutionPolicy Bypass -File &quot;$(XucRunSignScript)&quot; -Path &quot;$(TargetPath)&quot;" />
   </Target>
 </Project>

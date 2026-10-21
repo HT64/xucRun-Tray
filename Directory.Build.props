@@ -1,11 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Purpose: Defines the sibling Core and private Distribution roots for Tray builds. -->
+<!-- Purpose: Defines public Tray build paths and optional external release signing. -->
 <Project>
   <PropertyGroup>
     <XucRunCoreRoot Condition="'$(XucRunCoreRoot)'==''">$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\xucRun-Core'))</XucRunCoreRoot>
     <XucRunTrayOutputRoot Condition="'$(XucRunTrayOutputRoot)'==''">$(MSBuildThisFileDirectory)artifacts\$(Configuration)</XucRunTrayOutputRoot>
-    <XucRunDistributionRoot Condition="'$(XucRunDistributionRoot)'=='' and Exists('$(MSBuildThisFileDirectory)..\xucRun-Distribution\Sign-Executable.ps1')">$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\xucRun-Distribution'))</XucRunDistributionRoot>
-    <XucRunDistributionRoot Condition="'$(XucRunDistributionRoot)'=='' and Exists('$(MSBuildThisFileDirectory)..\xucRun\Sign-Executable.ps1')">$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\xucRun'))</XucRunDistributionRoot>
     <SignTrayArtifacts Condition="'$(SignTrayArtifacts)'==''">false</SignTrayArtifacts>
   </PropertyGroup>
 </Project>

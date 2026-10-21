@@ -3,8 +3,8 @@
 <Project>
   <Target Name="ValidateXucRunTrayWorkspace" BeforeTargets="PrepareForBuild">
     <Error Condition="!Exists('$(XucRunCoreRoot)\xucRunCore\xucRunCore.vcxproj')"
-      Text="The pinned sibling xucRun Core checkout is missing at $(XucRunCoreRoot)." />
-    <Error Condition="'$(SignTrayArtifacts)'=='true' and !Exists('$(XucRunDistributionRoot)\Sign-Executable.ps1')"
-      Text="Tray signing was requested, but Sign-Executable.ps1 was not found below $(XucRunDistributionRoot)." />
+      Text="The pinned sibling xucRun checkout is missing at $(XucRunCoreRoot)." />
+    <Error Condition="'$(SignTrayArtifacts)'=='true' and !Exists('$(XucRunSignScript)')"
+      Text="Tray signing was requested, but XucRunSignScript does not identify an existing signing script." />
   </Target>
 </Project>

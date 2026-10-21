@@ -1,4 +1,4 @@
-// Purpose: Proprietary English Tray-only string resources.
+// Purpose: English Tray-only string resources.
 	IDS_TOOLTIP_SERVICE, "Service: {0}"
 	IDS_TOOLTIP_CONNECTION, "Communication: {0}"
 	IDS_TOOLTIP_ELEVATED, "Elevated: {0}"

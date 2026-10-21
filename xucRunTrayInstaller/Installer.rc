@@ -1,0 +1,57 @@
+// Purpose: Embeds the complete xucRun Tray add-on payload into the bootstrap installer.
+#pragma code_page(65001)
+
+#include <windows.h>
+#include "..\\..\\xucRun-Core\\xucRunSharedResources\\BuildVersion.h"
+#include "resource.h"
+
+IDI_INSTALLER ICON "..\\..\\xucRun-Core\\xucRunSharedResources\\xucRun.ico"
+IDR_GUI_SCRIPT RCDATA "Installer-Gui.ps1"
+#ifdef NDEBUG
+IDR_MACHINE_INSTALLER RCDATA "..\\artifacts\\Payload\\Release\\Install-xucRunTray.ps1"
+IDR_SIGN_PACKAGE RCDATA "..\\artifacts\\Payload\\Release\\Sign-xucRunTrayPackage.ps1"
+IDR_MANIFEST RCDATA "..\\artifacts\\Payload\\Release\\TrayPackage.json"
+IDR_TRAY RCDATA "..\\artifacts\\Payload\\Release\\xucRunTray.exe"
+IDR_TRAY_LANGUAGE_DE RCDATA "..\\artifacts\\Payload\\Release\\Languages\\xucRunTray.de-DE.dll"
+IDR_TRAY_LANGUAGE_EN RCDATA "..\\artifacts\\Payload\\Release\\Languages\\xucRunTray.en-US.dll"
+#else
+IDR_MACHINE_INSTALLER RCDATA "..\\artifacts\\Payload\\Debug\\Install-xucRunTray.ps1"
+IDR_SIGN_PACKAGE RCDATA "..\\artifacts\\Payload\\Debug\\Sign-xucRunTrayPackage.ps1"
+IDR_MANIFEST RCDATA "..\\artifacts\\Payload\\Debug\\TrayPackage.json"
+IDR_TRAY RCDATA "..\\artifacts\\Payload\\Debug\\xucRunTray.exe"
+IDR_TRAY_LANGUAGE_DE RCDATA "..\\artifacts\\Payload\\Debug\\Languages\\xucRunTray.de-DE.dll"
+IDR_TRAY_LANGUAGE_EN RCDATA "..\\artifacts\\Payload\\Debug\\Languages\\xucRunTray.en-US.dll"
+#endif
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION VERSION_MAJOR,VERSION_MINOR,VERSION_PATCH,BUILD_NUMBER
+ PRODUCTVERSION VERSION_MAJOR,VERSION_MINOR,VERSION_PATCH,BUILD_NUMBER
+ FILEFLAGSMASK 0x3fL
+#ifdef _DEBUG
+ FILEFLAGS 0x1L
+#else
+ FILEFLAGS 0x0L
+#endif
+ FILEOS VOS_NT_WINDOWS32
+ FILETYPE VFT_APP
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040704b0"
+        BEGIN
+            VALUE "CompanyName", "HT64"
+            VALUE "FileDescription", "xucRun Tray Add-on Installer"
+            VALUE "FileVersion", VERSION_STRING
+            VALUE "InternalName", "xucRunTray-Installer"
+            VALUE "LegalCopyright", "Copyright (C) 2024-2026"
+            VALUE "OriginalFilename", "xucRunTray-Installer.exe"
+            VALUE "ProductName", "xucRun Tray"
+            VALUE "ProductVersion", VERSION_STRING
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x407, 1200
+    END
+END

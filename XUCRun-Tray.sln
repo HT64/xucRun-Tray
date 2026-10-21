@@ -13,6 +13,13 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "xucRunTrayLanguageEnUs", "x
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "xucRunTrayLanguageDeDe", "xucRunTrayLanguageDeDe\xucRunTrayLanguageDeDe.vcxproj", "{8825887A-A045-4DE4-8C09-E8B3B424EB41}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "xucRunTrayInstaller", "xucRunTrayInstaller\xucRunTrayInstaller.vcxproj", "{8B1D4500-04C6-4AE2-A8EE-B25D27AA7D87}"
+	ProjectSection(ProjectDependencies) = postProject
+		{F2A96470-337F-4B88-9A4D-BA61E84C15A8} = {F2A96470-337F-4B88-9A4D-BA61E84C15A8}
+		{4B7378B5-09F5-47B0-9976-C540923B8716} = {4B7378B5-09F5-47B0-9976-C540923B8716}
+		{8825887A-A045-4DE4-8C09-E8B3B424EB41} = {8825887A-A045-4DE4-8C09-E8B3B424EB41}
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -39,6 +46,10 @@ Global
 		{8825887A-A045-4DE4-8C09-E8B3B424EB41}.Debug|x64.Build.0 = Debug|x64
 		{8825887A-A045-4DE4-8C09-E8B3B424EB41}.Release|x64.ActiveCfg = Release|x64
 		{8825887A-A045-4DE4-8C09-E8B3B424EB41}.Release|x64.Build.0 = Release|x64
+		{8B1D4500-04C6-4AE2-A8EE-B25D27AA7D87}.Debug|x64.ActiveCfg = Debug|x64
+		{8B1D4500-04C6-4AE2-A8EE-B25D27AA7D87}.Debug|x64.Build.0 = Debug|x64
+		{8B1D4500-04C6-4AE2-A8EE-B25D27AA7D87}.Release|x64.ActiveCfg = Release|x64
+		{8B1D4500-04C6-4AE2-A8EE-B25D27AA7D87}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
