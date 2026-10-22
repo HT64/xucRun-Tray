@@ -7,6 +7,12 @@ publication processes are not listed.
 
 ## [Unreleased]
 
+## [0.9.0.2] - 2026-10-21
+
+### Note
+
+- This is the initial public release of xucRun Tray.
+
 ### Changed
 
 - The installer now sizes and positions its version, certificate, user selection, details, status,
@@ -36,12 +42,6 @@ publication processes are not listed.
   required file replacement.
 - Tray uninstallation now shows a localized success confirmation listing removed components and
   the Core, certificate, and user data that explicitly remain unchanged.
-
-## [0.9.0.2] - 2026-10-21
-
-### Note
-
-- This is the initial public release of xucRun Tray.
 
 [Unreleased]: https://github.com/HT64/xucRun-Tray/compare/v0.9.0.2...HEAD
 [0.9.0.2]: https://github.com/HT64/xucRun-Tray/releases/tag/v0.9.0.2

@@ -7,6 +7,12 @@ relevant sind. Interne Entwicklungs- und Veröffentlichungsabläufe werden nicht
 
 ## [Unveröffentlicht]
 
+## [0.9.0.2] - 2026-10-21
+
+### Hinweis
+
+- Dies ist die erste öffentliche Veröffentlichung von xucRun Tray.
+
 ### Geändert
 
 - Der Installer passt Versionen, Zertifikatsangaben, Benutzerauswahl, Erläuterungen, Status und
@@ -36,12 +42,6 @@ relevant sind. Interne Entwicklungs- und Veröffentlichungsabläufe werden nicht
   erforderlichen Dateiaustausch wieder gestartet.
 - Die Tray-Deinstallation zeigt nun eine lokalisierte Erfolgsbestätigung mit den entfernten und
   den ausdrücklich unveränderten Core-, Zertifikats- und Benutzerdaten.
-
-## [0.9.0.2] - 2026-10-21
-
-### Hinweis
-
-- Dies ist die erste öffentliche Veröffentlichung von xucRun Tray.
 
 [Unveröffentlicht]: https://github.com/HT64/xucRun-Tray/compare/v0.9.0.2...HEAD
 [0.9.0.2]: https://github.com/HT64/xucRun-Tray/releases/tag/v0.9.0.2
