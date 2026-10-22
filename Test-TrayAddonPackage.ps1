@@ -45,6 +45,14 @@ foreach ($file in $manifest.files) {
             $manifest.productVersion) {
         throw "Manifested Tray version is invalid: $($file.path)"
     }
+    $versionInfo = (Get-Item -LiteralPath $path).VersionInfo
+    if ($versionInfo.CompanyName -ne 'HT64' -or
+        $versionInfo.FileVersion -ne $manifest.productVersion -or
+        $versionInfo.ProductVersion -ne $manifest.productVersion -or
+        [string]::IsNullOrWhiteSpace($versionInfo.FileDescription) -or
+        [string]::IsNullOrWhiteSpace($versionInfo.OriginalFilename)) {
+        throw "Manifested Tray file metadata is incomplete: $($file.path)"
+    }
 }
 foreach ($scriptName in @(
     'Install-xucRunTray.ps1',
@@ -60,6 +68,53 @@ foreach ($scriptName in @(
         throw "PowerShell parser error in '$scriptName': $($errors.Message -join '; ')"
     }
 }
+$machineInstaller = [IO.File]::ReadAllText(
+    (Join-Path $repositoryRoot 'Install-xucRunTray.ps1'))
+$graphicalInstaller = [IO.File]::ReadAllText(
+    (Join-Path $repositoryRoot 'xucRunTrayInstaller\Installer-Gui.ps1'))
+foreach ($requiredContract in @('InstallDate', 'InstallTimestampUtc')) {
+    if (-not $machineInstaller.Contains($requiredContract)) {
+        throw "Tray installation timestamp contract is missing '$requiredContract'."
+    }
+}
+foreach ($requiredContract in @(
+    'Get-InstalledTrayState',
+    'Get-CompatibleCoreState',
+    'InstallTimestampUtc',
+    'InstalledTray',
+    'CoreVersion',
+    'CoreCertificate',
+    'CertificateSuccess'
+)) {
+    if (-not $graphicalInstaller.Contains($requiredContract)) {
+        throw "Tray installer display contract is missing '$requiredContract'."
+    }
+}
+foreach ($requiredContract in @(
+    'Get-InstalledTrayProcessUserSids',
+    '$runningTrayUserSids + $UserSid',
+    'Start-StatusTaskIfUserLoggedOn -Sid $sid'
+)) {
+    if (-not $machineInstaller.Contains($requiredContract)) {
+        throw "Tray process restart contract is missing '$requiredContract'."
+    }
+}
+foreach ($requiredContract in @(
+    'Show-TrayUninstallSuccess',
+    'Write-TrayUninstallDiagnostic',
+    'Show-TrayUninstallFailure',
+    'InstallerLogs',
+    '-WindowStyle Hidden',
+    'Open log folder',
+    'xucRun Tray wurde erfolgreich deinstalliert.',
+    'xucRun Tray was uninstalled successfully.',
+    'das lokale xucRun-Zertifikat',
+    'stored credentials and approvals'
+)) {
+    if (-not $machineInstaller.Contains($requiredContract)) {
+        throw "Tray uninstall confirmation contract is missing '$requiredContract'."
+    }
+}
 $installer = Join-Path $repositoryRoot (
     "artifacts\$Configuration\xucRunTray-Installer.exe")
 if (-not (Test-Path -LiteralPath $installer -PathType Leaf)) {
@@ -73,6 +128,35 @@ $versionedInstaller = Join-Path $packageRoot (
     "xucRun-Tray-$($manifest.productVersion)-x64.exe")
 if (-not (Test-Path -LiteralPath $versionedInstaller -PathType Leaf)) {
     throw "Versioned Tray bootstrap installer is missing: $versionedInstaller"
+}
+$installerSignature =
+    Get-AuthenticodeSignature -LiteralPath $versionedInstaller
+$payloadSignatures = @(
+    foreach ($file in $manifest.files) {
+        Get-AuthenticodeSignature -LiteralPath (
+            Join-Path $payloadRoot ($file.path -replace '/', '\'))
+    }
+)
+if ($installerSignature.Status -eq [Management.Automation.SignatureStatus]::NotSigned) {
+    if (@($payloadSignatures | Where-Object {
+        $_.Status -ne [Management.Automation.SignatureStatus]::NotSigned
+    }).Count -ne 0) {
+        throw 'Unsigned Tray package contains a signed payload file.'
+    }
+}
+elseif ($installerSignature.Status.ToString() -in @('Valid', 'NotTrusted') -and
+    $installerSignature.SignerCertificate) {
+    if (@($payloadSignatures | Where-Object {
+        $_.Status.ToString() -notin @('Valid', 'NotTrusted') -or
+        -not $_.SignerCertificate -or
+        $_.SignerCertificate.Thumbprint -ne
+            $installerSignature.SignerCertificate.Thumbprint
+    }).Count -ne 0) {
+        throw 'Signed Tray package does not use one certificate for installer and payload.'
+    }
+}
+else {
+    throw "Tray package installer signature is invalid: $($installerSignature.Status)"
 }
 $checksums = Get-Content -LiteralPath (
     Join-Path $packageRoot 'SHA256SUMS.json') -Raw | ConvertFrom-Json
@@ -127,9 +211,9 @@ if ($installerScript -match
 $coreInstaller = [IO.File]::ReadAllText(
     (Join-Path $repositoryRoot '..\xucRun-Core\Install-xucRun.ps1'))
 foreach ($requiredContract in @(
-    'xucRun Tray add-on is installed',
-    'Remove xucRun Tray first',
-    'exactly matching Tray version'
+    'Assert-TrayCompatibleWithCorePackage',
+    'registeredTrayVersion -ne $ProductVersion',
+    'does not use the Core package signer'
 )) {
     if (-not $coreInstaller.Contains($requiredContract)) {
         throw "xucRun installer is missing Tray update contract '$requiredContract'."

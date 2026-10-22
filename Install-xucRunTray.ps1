@@ -28,6 +28,7 @@ $coreUninstallPath =
     'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\xucRun'
 $coreParametersPath =
     'HKLM:\SYSTEM\CurrentControlSet\Services\xucRunBroker\Parameters'
+$installerLogDirectory = Join-Path $env:ProgramData 'xucRun\InstallerLogs'
 
 function Assert-WindowsPowerShell {
     if ($PSVersionTable.PSEdition -ne 'Desktop' -or
@@ -147,9 +148,8 @@ function Set-StatusTask {
         -Settings $settings -Force | Out-Null
 }
 
-function Test-TrayProcessForUser {
-    param([Parameter(Mandatory)][string]$Sid)
-
+function Get-InstalledTrayProcessUserSids {
+    $sids = @{}
     foreach ($process in @(Get-CimInstance -ClassName Win32_Process `
         -Filter "Name='xucRunTray.exe'")) {
         if (-not $process.ExecutablePath -or
@@ -158,11 +158,18 @@ function Test-TrayProcessForUser {
             continue
         }
         $owner = Invoke-CimMethod -InputObject $process -MethodName GetOwnerSid
-        if ($owner.ReturnValue -eq 0 -and $owner.Sid -eq $Sid) {
-            return $true
+        if ($owner.ReturnValue -eq 0 -and
+            -not [string]::IsNullOrWhiteSpace($owner.Sid)) {
+            $sids[$owner.Sid] = $true
         }
     }
-    return $false
+    return @($sids.Keys)
+}
+
+function Test-TrayProcessForUser {
+    param([Parameter(Mandatory)][string]$Sid)
+
+    return $Sid -in @(Get-InstalledTrayProcessUserSids)
 }
 
 function Test-InteractiveUserLoggedOn {
@@ -221,6 +228,168 @@ function Remove-StatusTasks {
     }
 }
 
+function Set-InstallerLogDirectoryAcl {
+    param([Parameter(Mandatory)][string]$Path)
+
+    $inheritance =
+        [Security.AccessControl.InheritanceFlags]'ContainerInherit, ObjectInherit'
+    $propagation = [Security.AccessControl.PropagationFlags]::None
+    $allow = [Security.AccessControl.AccessControlType]::Allow
+    $systemSid = [Security.Principal.SecurityIdentifier]::new('S-1-5-18')
+    $administratorsSid =
+        [Security.Principal.SecurityIdentifier]::new('S-1-5-32-544')
+    $usersSid = [Security.Principal.SecurityIdentifier]::new('S-1-5-32-545')
+    $acl = [Security.AccessControl.DirectorySecurity]::new()
+    $acl.SetAccessRuleProtection($true, $false)
+    $acl.SetOwner($administratorsSid)
+    $acl.AddAccessRule([Security.AccessControl.FileSystemAccessRule]::new(
+        $systemSid, 'FullControl', $inheritance, $propagation, $allow))
+    $acl.AddAccessRule([Security.AccessControl.FileSystemAccessRule]::new(
+        $administratorsSid, 'FullControl', $inheritance, $propagation, $allow))
+    $acl.AddAccessRule([Security.AccessControl.FileSystemAccessRule]::new(
+        $usersSid, 'ReadAndExecute', $inheritance, $propagation, $allow))
+    Set-Acl -LiteralPath $Path -AclObject $acl
+}
+
+function Write-TrayUninstallDiagnostic {
+    param([Parameter(Mandatory)][Management.Automation.ErrorRecord]$ErrorRecord)
+
+    New-Item -ItemType Directory -Path $installerLogDirectory -Force | Out-Null
+    Set-InstallerLogDirectoryAcl -Path $installerLogDirectory
+    $logPath = Join-Path $installerLogDirectory (
+        'xucRunTray-Uninstall-' + (Get-Date -Format 'yyyyMMdd-HHmmss-fff') + '.log')
+    $lines = @(
+        "TimestampUtc=$([DateTimeOffset]::UtcNow.ToString('o'))",
+        'Component=xucRun Tray uninstall',
+        "Computer=$env:COMPUTERNAME",
+        "PowerShell=$($PSVersionTable.PSVersion)",
+        '',
+        'ExceptionType:',
+        $ErrorRecord.Exception.GetType().FullName,
+        '',
+        'Message:',
+        $ErrorRecord.Exception.Message,
+        '',
+        'Category:',
+        [string]$ErrorRecord.CategoryInfo,
+        '',
+        'FullyQualifiedErrorId:',
+        $ErrorRecord.FullyQualifiedErrorId,
+        '',
+        'Position:',
+        $ErrorRecord.InvocationInfo.PositionMessage,
+        '',
+        'ScriptStackTrace:',
+        $ErrorRecord.ScriptStackTrace
+    )
+    Set-Content -LiteralPath $logPath -Value $lines -Encoding UTF8
+    return $logPath
+}
+
+function Show-TrayUninstallFailure {
+    param(
+        [Parameter(Mandatory)][string]$Details,
+        [string]$LogPath,
+        [string]$LogError
+    )
+
+    Add-Type -AssemblyName System.Windows.Forms
+    Add-Type -AssemblyName System.Drawing
+    $german =
+        [Globalization.CultureInfo]::CurrentUICulture.TwoLetterISOLanguageName -eq 'de'
+    if ($german) {
+        $title = 'xucRun Tray deinstallieren'
+        $headingText = 'Die Deinstallation ist fehlgeschlagen.'
+        $detailsText = 'Fehlerdetails:'
+        $logText = 'Diagnoseprotokoll:'
+        $openText = 'Protokollordner ' + [char]0x00F6 + 'ffnen'
+        $closeText = 'Schlie' + [char]0x00DF + 'en'
+        $logUnavailable = 'Das Diagnoseprotokoll konnte nicht geschrieben werden.'
+        $openFailed = 'Der Protokollordner konnte nicht ge' +
+            [char]0x00F6 + 'ffnet werden.'
+    }
+    else {
+        $title = 'Uninstall xucRun Tray'
+        $headingText = 'Uninstall failed.'
+        $detailsText = 'Error details:'
+        $logText = 'Diagnostic log:'
+        $openText = 'Open log folder'
+        $closeText = 'Close'
+        $logUnavailable = 'The diagnostic log could not be written.'
+        $openFailed = 'The log folder could not be opened.'
+    }
+
+    $form = [Windows.Forms.Form]::new()
+    $form.Text = $title
+    $form.ClientSize = [Drawing.Size]::new(680, 330)
+    $form.FormBorderStyle = 'FixedDialog'
+    $form.MaximizeBox = $false
+    $form.MinimizeBox = $false
+    $form.StartPosition = 'CenterScreen'
+
+    $heading = [Windows.Forms.Label]::new()
+    $heading.AutoSize = $true
+    $heading.Font = [Drawing.Font]::new(
+        $form.Font, [Drawing.FontStyle]::Bold)
+    $heading.Location = [Drawing.Point]::new(20, 18)
+    $heading.Text = $headingText
+    $form.Controls.Add($heading)
+
+    $detailsLabel = [Windows.Forms.Label]::new()
+    $detailsLabel.SetBounds(20, 52, 640, 20)
+    $detailsLabel.Text = $detailsText
+    $form.Controls.Add($detailsLabel)
+    $detailsBox = [Windows.Forms.TextBox]::new()
+    $detailsBox.SetBounds(20, 74, 640, 86)
+    $detailsBox.Multiline = $true
+    $detailsBox.ReadOnly = $true
+    $detailsBox.ScrollBars = 'Vertical'
+    $detailsBox.Text = $Details
+    $form.Controls.Add($detailsBox)
+
+    $logLabel = [Windows.Forms.Label]::new()
+    $logLabel.SetBounds(20, 176, 640, 20)
+    $logLabel.Text = $logText
+    $form.Controls.Add($logLabel)
+    $logBox = [Windows.Forms.TextBox]::new()
+    $logBox.SetBounds(20, 198, 640, 24)
+    $logBox.ReadOnly = $true
+    $logBox.Text = if ($LogPath) {
+        $LogPath
+    } else {
+        "$logUnavailable $LogError".Trim()
+    }
+    $form.Controls.Add($logBox)
+
+    $openButton = [Windows.Forms.Button]::new()
+    $openButton.SetBounds(378, 274, 180, 34)
+    $openButton.Text = $openText
+    $openButton.Enabled = -not [string]::IsNullOrWhiteSpace($LogPath)
+    $openButton.Add_Click({
+        try {
+            [void][Diagnostics.Process]::Start(
+                'explorer.exe',
+                ('"{0}"' -f [IO.Path]::GetDirectoryName($LogPath)))
+        }
+        catch {
+            [Windows.Forms.MessageBox]::Show(
+                "$openFailed`r`n`r`n$($_.Exception.Message)",
+                $title, 'OK', 'Error') | Out-Null
+        }
+    })
+    $form.Controls.Add($openButton)
+
+    $closeButton = [Windows.Forms.Button]::new()
+    $closeButton.SetBounds(566, 274, 94, 34)
+    $closeButton.Text = $closeText
+    $closeButton.DialogResult = 'OK'
+    $form.AcceptButton = $closeButton
+    $form.CancelButton = $closeButton
+    $form.Controls.Add($closeButton)
+
+    [void]$form.ShowDialog()
+}
+
 function Remove-Tray {
     Stop-InstalledTray
     Remove-StatusTasks
@@ -237,12 +406,72 @@ function Remove-Tray {
     Remove-Item -LiteralPath $installedInstaller -Force -ErrorAction SilentlyContinue
 }
 
-Assert-WindowsPowerShell
-Assert-Administrator
+function Show-TrayUninstallSuccess {
+    $german =
+        [Globalization.CultureInfo]::CurrentUICulture.TwoLetterISOLanguageName -eq 'de'
+    if ($german) {
+        $title = 'xucRun Tray deinstallieren'
+        $message = @'
+xucRun Tray wurde erfolgreich deinstalliert.
+
+Entfernt wurden:
+- Tray-Programmdateien und Sprachressourcen
+- alle xucRun-Tray-Autostartaufgaben
+- Deinstallationseintrag xucRun Tray
+
+Beibehalten wurden:
+- xucRun Core und der Brokerdienst
+- das lokale xucRun-Zertifikat
+- gespeicherte Anmeldedaten und Freigaben
+'@
+    }
+    else {
+        $title = 'Uninstall xucRun Tray'
+        $message = @'
+xucRun Tray was uninstalled successfully.
+
+Removed:
+- Tray program files and language resources
+- all xucRun Tray autostart tasks
+- xucRun Tray uninstall entry
+
+Unchanged:
+- xucRun Core and the broker service
+- the local xucRun certificate
+- stored credentials and approvals
+'@
+    }
+    Add-Type -AssemblyName System.Windows.Forms
+    [Windows.Forms.MessageBox]::Show(
+        $message.Trim(), $title, 'OK', 'Information') | Out-Null
+}
+
 if ($Uninstall) {
-    Remove-Tray
+    try {
+        Assert-WindowsPowerShell
+        Assert-Administrator
+        Remove-Tray
+        Show-TrayUninstallSuccess
+    }
+    catch {
+        $uninstallError = $_
+        $logPath = $null
+        $logError = $null
+        try {
+            $logPath = Write-TrayUninstallDiagnostic -ErrorRecord $uninstallError
+        }
+        catch {
+            $logError = $_.Exception.Message
+        }
+        Show-TrayUninstallFailure -Details $uninstallError.Exception.Message `
+            -LogPath $logPath -LogError $logError
+        throw
+    }
     return
 }
+
+Assert-WindowsPowerShell
+Assert-Administrator
 
 $packageRoot = (Resolve-Path -LiteralPath $PackageDirectory).ProviderPath
 $manifestPath = Join-Path $packageRoot 'TrayPackage.json'
@@ -259,17 +488,18 @@ if (-not (Test-Path -LiteralPath $installedCore -PathType Leaf)) {
 }
 Assert-NotReparsePoint -Path $installDirectory
 Assert-NotReparsePoint -Path $languageDirectory
-if (-not (Test-Path -LiteralPath $coreUninstallPath) -or
-    -not (Test-Path -LiteralPath $coreParametersPath)) {
-    throw 'The supported xucRun installation registration is missing.'
+if (-not (Test-Path -LiteralPath $coreParametersPath)) {
+    throw 'The supported xucRun broker authorization is missing.'
 }
-$registeredCoreLocation =
-    (Get-Item -LiteralPath $coreUninstallPath).GetValue('InstallLocation', '')
-if (-not [string]::Equals(
-    [IO.Path]::GetFullPath([string]$registeredCoreLocation),
-    [IO.Path]::GetFullPath($installDirectory),
-    [StringComparison]::OrdinalIgnoreCase)) {
-    throw 'The registered xucRun installation path is invalid.'
+if (Test-Path -LiteralPath $coreUninstallPath) {
+    $registeredCoreLocation =
+        (Get-Item -LiteralPath $coreUninstallPath).GetValue('InstallLocation', '')
+    if (-not [string]::Equals(
+        [IO.Path]::GetFullPath([string]$registeredCoreLocation),
+        [IO.Path]::GetFullPath($installDirectory),
+        [StringComparison]::OrdinalIgnoreCase)) {
+        throw 'The registered xucRun installation path is invalid.'
+    }
 }
 if ((Test-Path -LiteralPath $installedTray -PathType Leaf) -and
     -not (Test-Path -LiteralPath $uninstallPath)) {
@@ -358,6 +588,7 @@ try {
     Copy-Item -LiteralPath (Join-Path $packageRoot 'Install-xucRunTray.ps1') `
         -Destination (Join-Path $staging 'Install-xucRunTray.ps1')
 
+    $runningTrayUserSids = @(Get-InstalledTrayProcessUserSids)
     Stop-InstalledTray
     New-Item -ItemType Directory -Path $backup | Out-Null
     foreach ($file in $payload) {
@@ -392,6 +623,14 @@ try {
             -PropertyType String -Value 'xucRun Tray' -Force | Out-Null
         New-ItemProperty -Path $uninstallPath -Name DisplayVersion `
             -PropertyType String -Value $manifest.productVersion -Force | Out-Null
+        New-ItemProperty -Path $uninstallPath -Name InstallDate `
+            -PropertyType String -Value (Get-Date -Format 'yyyyMMdd') -Force |
+            Out-Null
+        New-ItemProperty -Path $uninstallPath -Name InstallTimestampUtc `
+            -PropertyType String -Value (
+                [DateTimeOffset]::UtcNow.ToString(
+                    'o', [Globalization.CultureInfo]::InvariantCulture)) -Force |
+            Out-Null
         New-ItemProperty -Path $uninstallPath -Name Publisher `
             -PropertyType String -Value 'HT64' -Force | Out-Null
         New-ItemProperty -Path $uninstallPath -Name InstallLocation `
@@ -400,13 +639,19 @@ try {
             -PropertyType String -Value $installedTray -Force | Out-Null
         New-ItemProperty -Path $uninstallPath -Name UninstallString `
             -PropertyType String -Value (
-                'powershell.exe -NoProfile -ExecutionPolicy Bypass -File "' +
+                'powershell.exe -NoProfile -WindowStyle Hidden ' +
+                '-ExecutionPolicy Bypass -File "' +
                 $installedInstaller + '" -Uninstall') -Force | Out-Null
         New-ItemProperty -Path $uninstallPath -Name NoModify `
             -PropertyType DWord -Value 1 -Force | Out-Null
         New-ItemProperty -Path $uninstallPath -Name NoRepair `
             -PropertyType DWord -Value 1 -Force | Out-Null
-        $startDisposition = Start-StatusTaskIfUserLoggedOn -Sid $UserSid
+        foreach ($sid in @($runningTrayUserSids + $UserSid | Sort-Object -Unique)) {
+            $disposition = Start-StatusTaskIfUserLoggedOn -Sid $sid
+            if ($sid -eq $UserSid) {
+                $startDisposition = $disposition
+            }
+        }
     }
     catch {
         foreach ($file in $payload) {
@@ -424,6 +669,9 @@ try {
         if (Test-Path -LiteralPath $backupInstaller -PathType Leaf) {
             Copy-Item -LiteralPath $backupInstaller `
                 -Destination $installedInstaller -Force
+        }
+        foreach ($sid in $runningTrayUserSids) {
+            [void](Start-StatusTaskIfUserLoggedOn -Sid $sid)
         }
         throw
     }

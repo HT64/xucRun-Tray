@@ -89,6 +89,9 @@
   <Target Name="CreateTrayPayload" BeforeTargets="PrepareForBuild">
     <Exec Command="powershell.exe -NoProfile -ExecutionPolicy Bypass -File &quot;$(ProjectDir)..\New-xucRunTray-Package.ps1&quot; -Configuration $(Configuration) -SkipInstaller" />
   </Target>
+  <Target Name="ForceEmbeddedResourceCompilation" BeforeTargets="ResourceCompile">
+    <Delete Files="$(IntDir)Installer.res" />
+  </Target>
   <Target Name="SignReleaseInstaller" AfterTargets="Link"
     Condition="'$(Configuration)|$(Platform)'=='Release|x64' and '$(SignTrayArtifacts)'=='true'">
     <Exec Command="powershell.exe -NoProfile -ExecutionPolicy Bypass -File &quot;$(XucRunSignScript)&quot; -Path &quot;$(TargetPath)&quot;" />

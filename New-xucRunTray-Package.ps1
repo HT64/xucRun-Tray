@@ -128,6 +128,37 @@ if ((Get-Item -LiteralPath $installerSource).VersionInfo.ProductVersion -ne
     $productVersion) {
     throw 'Tray bootstrap installer version does not match the xucRun version.'
 }
+$installerSignature = Get-AuthenticodeSignature -LiteralPath $installerSource
+$payloadSignatures = @(
+    foreach ($relativePath in @(
+        'xucRunTray.exe',
+        'Languages\xucRunTray.de-DE.dll',
+        'Languages\xucRunTray.en-US.dll'
+    )) {
+        Get-AuthenticodeSignature -LiteralPath (Join-Path $payloadRoot $relativePath)
+    }
+)
+if ($installerSignature.Status -eq [Management.Automation.SignatureStatus]::NotSigned) {
+    if (@($payloadSignatures | Where-Object {
+        $_.Status -ne [Management.Automation.SignatureStatus]::NotSigned
+    }).Count -ne 0) {
+        throw 'An unsigned Tray installer must contain only unsigned payload files.'
+    }
+}
+elseif ($installerSignature.Status.ToString() -in @('Valid', 'NotTrusted') -and
+    $installerSignature.SignerCertificate) {
+    if (@($payloadSignatures | Where-Object {
+        $_.Status.ToString() -notin @('Valid', 'NotTrusted') -or
+        -not $_.SignerCertificate -or
+        $_.SignerCertificate.Thumbprint -ne
+            $installerSignature.SignerCertificate.Thumbprint
+    }).Count -ne 0) {
+        throw 'A signed Tray installer must contain payload files signed by the same certificate.'
+    }
+}
+else {
+    throw "Tray installer signature is invalid: $($installerSignature.Status)"
+}
 if (Test-Path -LiteralPath $destination) {
     Remove-Item -LiteralPath $destination -Recurse -Force
 }

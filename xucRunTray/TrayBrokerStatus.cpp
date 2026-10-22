@@ -196,6 +196,8 @@ namespace xucrun::broker_status
 			if (!QueryServiceStatusEx(brokerStatusServiceHandle, SC_STATUS_PROCESS_INFO,
 				reinterpret_cast<LPBYTE>(&status), sizeof(status), &bytesNeeded))
 			{
+				CloseServiceHandle(brokerStatusServiceHandle);
+				brokerStatusServiceHandle = nullptr;
 				return false;
 			}
 
@@ -218,8 +220,14 @@ namespace xucrun::broker_status
 			brokerServiceNotification.dwVersion = SERVICE_NOTIFY_STATUS_CHANGE;
 			brokerServiceNotification.pfnNotifyCallback = BrokerServiceStatusChanged;
 			brokerServiceNotificationWindow = window;
-			return NotifyServiceStatusChangeW(brokerStatusServiceHandle, notifyMask,
-				&brokerServiceNotification) == ERROR_SUCCESS;
+			if (NotifyServiceStatusChangeW(brokerStatusServiceHandle, notifyMask,
+				&brokerServiceNotification) == ERROR_SUCCESS)
+			{
+				return true;
+			}
+			CloseServiceHandle(brokerStatusServiceHandle);
+			brokerStatusServiceHandle = nullptr;
+			return false;
 		}
 
 		void CloseBrokerServiceStatusNotification()
@@ -267,6 +275,10 @@ namespace xucrun::broker_status
 				serviceState.status == BrokerServiceStatus::Disabled)
 			{
 				SetTimer(window, BROKER_STATUS_TIMER, BROKER_STATUS_IDLE_INTERVAL, nullptr);
+			}
+			else
+			{
+				SetTimer(window, BROKER_STATUS_TIMER, BROKER_STATUS_RETRY_INTERVAL, nullptr);
 			}
 		}
 

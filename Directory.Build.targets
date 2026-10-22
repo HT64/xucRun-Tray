@@ -7,4 +7,7 @@
     <Error Condition="'$(SignTrayArtifacts)'=='true' and !Exists('$(XucRunSignScript)')"
       Text="Tray signing was requested, but XucRunSignScript does not identify an existing signing script." />
   </Target>
+  <Target Name="ForceSharedResourceCompilation" BeforeTargets="ResourceCompile">
+    <Delete Files="$(IntDir)ClientResources.res" />
+  </Target>
 </Project>
