@@ -23,14 +23,14 @@ publication processes are not listed.
 - Both Tray language DLLs now include complete Windows file details with descriptions, product
   versions, and original file names.
 - The installer interface and success confirmation now show the name, validity period, and
-  thumbprint of the Core certificate used to sign the Tray files.
+  thumbprint of the Core certificate used to sign the xucRun Tray files.
 
 ### Fixed
 
 - Installation now locally signs the unsigned files from a public Tray package with the installed
   xucRun certificate instead of rejecting them before signing.
 - Package validation now rejects inconsistent installer and payload signatures.
-- The Tray now refreshes its broker status automatically after a Core installation or recreation
+- xucRun Tray now refreshes its broker status automatically after a Core installation or recreation
   of the broker service.
 - When another user is configured, previously running Tray instances are now restarted after the
   required file replacement.

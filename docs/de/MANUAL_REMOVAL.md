@@ -7,7 +7,7 @@ Entfernung. Verwende dieses Verfahren nur, wenn die normale Tray-Deinstallation 
 verwendet werden kann oder nicht erfolgreich abgeschlossen wird. Die normale Deinstallation ist
 der bevorzugte und sicherere Weg.
 
-Das Tray ist eine optionale Komponente von xucRun. Seine Entfernung darf weder den xucRun Core
+xucRun Tray ist eine optionale Komponente von xucRun. Seine Entfernung darf weder den xucRun Core
 noch Brokerdienst, Core-Konfiguration, Signaturzertifikat, gespeicherte Anmeldeinformationen,
 Freigaben, Sicherungen oder Brokerdaten entfernen.
 
@@ -35,7 +35,7 @@ Sicherheits- und Verwaltungssoftware.
 | Installer-Extraktion | `%ProgramData%\xucRun-Tray-Installer-<32 hexadezimale Zeichen>` | Wird normalerweise automatisch gelöscht |
 | Installer-Diagnose | `%TEMP%\xucRun-Tray-Installer.log` | Wird bei Fehlern des grafischen Installers verwendet und normalerweise vor einem neuen Lauf entfernt |
 
-Das Tray erzeugt weder ein Zertifikat noch einen Brokerdienst, Anmeldeinformationen, Freigaben
+xucRun Tray erzeugt weder ein Zertifikat noch einen Brokerdienst, Anmeldeinformationen, Freigaben
 oder ein eigenes Produktdatenverzeichnis. Seine Deinstallationsdiagnose wird in das zum Core
 gehörende Verzeichnis `%ProgramData%\xucRun\InstallerLogs` geschrieben. Entferne dieses
 Verzeichnis nicht, solange der Core installiert bleibt.
@@ -62,7 +62,7 @@ Get-CimInstance Win32_Process -Filter "Name = 'xucRunTray.exe'" |
     ForEach-Object { Stop-Process -Id $_.ProcessId -Force }
 ```
 
-Führe dies aus, solange alle Benutzersitzungen, in denen das Tray laufen kann, noch erreichbar
+Führe dies aus, solange alle Benutzersitzungen, in denen xucRun Tray laufen kann, noch erreichbar
 sind. Die Abfrage erfasst die für den erhöhten Administrator sichtbaren Prozesse aller Sitzungen.
 
 ### 2. Alle geplanten Tray-Aufgaben entfernen
@@ -73,7 +73,7 @@ Get-ScheduledTask -TaskPath '\xucRun\' -ErrorAction SilentlyContinue |
     Unregister-ScheduledTask -Confirm:$false
 ```
 
-Jeder Aufgabenname enthält die SID des Windows-Benutzers, für den das Tray gestartet wird.
+Jeder Aufgabenname enthält die SID des Windows-Benutzers, für den xucRun Tray gestartet wird.
 Entferne alle Aufgaben `BrokerStatus-<SID>`, nicht nur die Aufgabe des aktuell angemeldeten
 Benutzers.
 
@@ -116,7 +116,7 @@ foreach ($path in $trayFiles) {
 ```
 
 Lösche weder `%ProgramFiles%\xucRun` noch dessen Unterverzeichnis `Languages`, solange sie
-Core-Dateien enthalten. Das Tray nutzt diese Verzeichnisse gemeinsam mit xucRun.
+Core-Dateien enthalten. xucRun Tray nutzt diese Verzeichnisse gemeinsam mit xucRun.
 
 ### 4. Tray-Deinstallationseintrag entfernen
 

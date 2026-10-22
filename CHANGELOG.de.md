@@ -30,7 +30,7 @@ relevant sind. Interne Entwicklungs- und Veröffentlichungsabläufe werden nicht
 - Die Installation signiert unsignierte Dateien aus einem öffentlichen Tray-Paket nun mit dem
   installierten xucRun-Zertifikat, statt sie bereits vor der Signierung abzulehnen.
 - Die Paketprüfung lehnt inkonsistente Signaturen von Installer und Payload nun ab.
-- Das Tray aktualisiert seinen Brokerstatus nach einer Core-Installation beziehungsweise einer
+- xucRun Tray aktualisiert seinen Brokerstatus nach einer Core-Installation beziehungsweise einer
   Neuerstellung des Brokerdienstes wieder automatisch.
 - Bei der Einrichtung eines weiteren Benutzers werden zuvor laufende Tray-Instanzen nach dem
   erforderlichen Dateiaustausch wieder gestartet.

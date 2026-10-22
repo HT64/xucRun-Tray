@@ -6,7 +6,7 @@ This document lists the artifacts created by xucRun Tray and describes their man
 this procedure only if the normal Tray uninstaller cannot be used or does not complete
 successfully. The normal uninstaller is the preferred and safer method.
 
-The Tray is an optional component of xucRun. Removing it must not remove the xucRun Core, broker
+xucRun Tray is an optional component of xucRun. Removing it must not remove the xucRun Core, broker
 service, Core configuration, signing certificate, stored credentials, approvals, backups, or
 broker data.
 
@@ -33,7 +33,7 @@ records maintained by security and management software.
 | Installer extraction | `%ProgramData%\xucRun-Tray-Installer-<32 hexadecimal characters>` | Normally removed automatically |
 | Installer diagnostic | `%TEMP%\xucRun-Tray-Installer.log` | Used when the graphical installer cannot complete; normally removed before a new run |
 
-The Tray does not create a certificate, broker service, credentials, approvals, or a separate
+xucRun Tray does not create a certificate, broker service, credentials, approvals, or a separate
 product-data directory. Its uninstall diagnostics are written to the Core-owned
 `%ProgramData%\xucRun\InstallerLogs` directory; do not remove that directory while the Core remains
 installed.
@@ -60,7 +60,7 @@ Get-CimInstance Win32_Process -Filter "Name = 'xucRunTray.exe'" |
     ForEach-Object { Stop-Process -Id $_.ProcessId -Force }
 ```
 
-Run this while all user sessions that may contain the Tray are still accessible. The query covers
+Run this while all user sessions that may contain xucRun Tray are still accessible. The query covers
 processes in all sessions visible to the elevated administrator.
 
 ### 2. Remove all Tray scheduled tasks
@@ -71,7 +71,7 @@ Get-ScheduledTask -TaskPath '\xucRun\' -ErrorAction SilentlyContinue |
     Unregister-ScheduledTask -Confirm:$false
 ```
 
-Each task name contains the SID of the Windows user for whom it starts the Tray. Remove all
+Each task name contains the SID of the Windows user for whom it starts xucRun Tray. Remove all
 `BrokerStatus-<SID>` tasks, not only the task for the currently signed-in user.
 
 Remove the `\xucRun\` folder only if it contains no remaining tasks or subfolders:
@@ -113,9 +113,9 @@ foreach ($path in $trayFiles) {
 ```
 
 Do not delete `%ProgramFiles%\xucRun` or its `Languages` subdirectory while they contain Core files.
-The Tray shares these directories with xucRun.
+xucRun Tray shares these directories with xucRun.
 
-### 4. Remove the Tray uninstall entry
+### 4. Remove xucRun Tray uninstall entry
 
 ```powershell
 Remove-Item -LiteralPath `
@@ -175,4 +175,4 @@ certificate, credentials, and uninstall entry must still be present and unchange
 
 If the Core must also be removed, follow its separate
 [manual removal instructions](https://github.com/HT64/xucRun/blob/main/docs/en/MANUAL_REMOVAL.md)
-only after completing the Tray removal.
+only after completing xucRun Tray removal.
