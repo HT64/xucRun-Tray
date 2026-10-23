@@ -7,7 +7,7 @@ relevant sind. Interne Entwicklungs- und Veröffentlichungsabläufe werden nicht
 
 ## [Unveröffentlicht]
 
-## [0.9.0.2] - 2026-10-21
+## [0.9.0.2] - 2026-10-23
 
 ### Hinweis
 
@@ -15,6 +15,9 @@ relevant sind. Interne Entwicklungs- und Veröffentlichungsabläufe werden nicht
 
 ### Geändert
 
+- Der Installer wählt für den automatischen Tray-Start nun den interaktiv angemeldeten Benutzer
+  seiner Windows-Sitzung vor, auch wenn für UAC ein anderes Administratorkonto verwendet wird. Die
+  Auswahl bleibt änderbar.
 - Der Installer passt Versionen, Zertifikatsangaben, Benutzerauswahl, Erläuterungen, Status und
   Schaltflächen nun an den tatsächlichen Inhalt an und nutzt den verfügbaren Platz kompakter.
 - Die Deinstallation über Installierte Apps blendet nun das PowerShell-Fenster aus. Fehler bleiben

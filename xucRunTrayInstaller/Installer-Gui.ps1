@@ -218,6 +218,63 @@ function Get-SelectableUsers {
         } | Sort-Object DisplayName)
 }
 
+function Get-WtsSessionValue {
+    param(
+        [Parameter(Mandatory)][int]$SessionId,
+        [Parameter(Mandatory)][int]$InformationClass
+    )
+
+    if (-not ('Native.WtsSession' -as [type])) {
+        Add-Type -Namespace Native -Name WtsSession -MemberDefinition @'
+[DllImport("Wtsapi32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
+public static extern bool WTSQuerySessionInformation(
+    IntPtr server, int sessionId, int informationClass,
+    out IntPtr buffer, out int bytesReturned);
+
+[DllImport("Wtsapi32.dll")]
+public static extern void WTSFreeMemory(IntPtr buffer);
+'@
+    }
+
+    $buffer = [IntPtr]::Zero
+    $bytesReturned = 0
+    if (-not [Native.WtsSession]::WTSQuerySessionInformation(
+        [IntPtr]::Zero, $SessionId, $InformationClass,
+        [ref]$buffer, [ref]$bytesReturned)) {
+        $errorCode = [Runtime.InteropServices.Marshal]::GetLastWin32Error()
+        throw [ComponentModel.Win32Exception]::new(
+            $errorCode, 'The interactive Windows session could not be queried.')
+    }
+    try {
+        if ($buffer -eq [IntPtr]::Zero -or $bytesReturned -le 2) {
+            return ''
+        }
+        return [Runtime.InteropServices.Marshal]::PtrToStringUni($buffer)
+    }
+    finally {
+        if ($buffer -ne [IntPtr]::Zero) {
+            [Native.WtsSession]::WTSFreeMemory($buffer)
+        }
+    }
+}
+
+function Get-CurrentSessionUserSid {
+    $sessionId = [Diagnostics.Process]::GetCurrentProcess().SessionId
+    $userName = Get-WtsSessionValue -SessionId $sessionId -InformationClass 5
+    if ([string]::IsNullOrWhiteSpace($userName)) {
+        return $null
+    }
+    $domainName = Get-WtsSessionValue -SessionId $sessionId -InformationClass 7
+    $accountName = if ([string]::IsNullOrWhiteSpace($domainName)) {
+        $userName
+    }
+    else {
+        "$domainName\$userName"
+    }
+    return [Security.Principal.NTAccount]::new($accountName).Translate(
+        [Security.Principal.SecurityIdentifier]).Value
+}
+
 function Invoke-HiddenPowerShell {
     param([Parameter(Mandatory)][string[]]$Arguments)
     $powershell = Join-Path $env:SystemRoot `
@@ -451,7 +508,31 @@ $userBox.DropDownStyle = 'DropDownList'
 $userBox.DisplayMember = 'DisplayName'
 $userBox.SetBounds(24, 318, 590, 28)
 [void]$userBox.Items.AddRange($users)
-$userBox.SelectedIndex = 0
+$preferredUserSid = Get-CurrentSessionUserSid
+$preferredUserIndex = -1
+if ($preferredUserSid) {
+    for ($index = 0; $index -lt $users.Count; $index++) {
+        if ($users[$index].Sid -eq $preferredUserSid) {
+            $preferredUserIndex = $index
+            break
+        }
+    }
+}
+if ($preferredUserIndex -lt 0) {
+    $processUserSid = [Security.Principal.WindowsIdentity]::GetCurrent().User.Value
+    for ($index = 0; $index -lt $users.Count; $index++) {
+        if ($users[$index].Sid -eq $processUserSid) {
+            $preferredUserIndex = $index
+            break
+        }
+    }
+}
+$userBox.SelectedIndex = if ($preferredUserIndex -ge 0) {
+    $preferredUserIndex
+}
+else {
+    0
+}
 $form.Controls.Add($userBox)
 $details = [Windows.Forms.TextBox]::new()
 $details.Multiline = $true

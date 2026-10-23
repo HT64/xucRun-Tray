@@ -7,7 +7,7 @@ publication processes are not listed.
 
 ## [Unreleased]
 
-## [0.9.0.2] - 2026-10-21
+## [0.9.0.2] - 2026-10-23
 
 ### Note
 
@@ -15,6 +15,9 @@ publication processes are not listed.
 
 ### Changed
 
+- The installer now preselects the interactively signed-in user from its Windows session for
+  automatic Tray startup, even when a different administrator account is used for UAC. The
+  selection remains editable.
 - The installer now sizes and positions its version, certificate, user selection, details, status,
   and action areas according to their actual content for a more compact layout.
 - Uninstall from Installed apps now hides the PowerShell host. Failures remain visible in a
