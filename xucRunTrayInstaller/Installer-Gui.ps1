@@ -27,7 +27,7 @@ Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
 [Windows.Forms.Application]::EnableVisualStyles()
 
-$language = if (
+$script:language = if (
     [Globalization.CultureInfo]::CurrentUICulture.TwoLetterISOLanguageName -eq 'de') {
     'de'
 } else {
@@ -38,6 +38,7 @@ $texts = @{
         Title = 'xucRun Tray installieren'
         Heading = 'Optionales xucRun Tray-Add-on'
         Description = 'Installiert die zur vorhandenen xucRun-Version passende Status- und Komfortoberfläche.'
+        Language = 'Installationssprache'
         Version = 'Paketversion'
         CoreVersion = 'Installierte xucRun-Version: {0} (kompatibel)'
         CoreCertificate = "Core-Zertifikat für die Tray-Signierung:`r`nName: {0}`r`nGültig seit: {1}   Gültig bis: {2}`r`nFingerabdruck: {3}"
@@ -87,6 +88,7 @@ unverändert geblieben sind.
         Title = 'Install xucRun Tray'
         Heading = 'Optional xucRun Tray add-on'
         Description = 'Installs the status and convenience interface matching the existing xucRun version.'
+        Language = 'Installer language'
         Version = 'Package version'
         CoreVersion = 'Installed xucRun version: {0} (compatible)'
         CoreCertificate = "Core certificate used for Tray signing:`r`nName: {0}`r`nValid from: {1}   Valid until: {2}`r`nThumbprint: {3}"
@@ -131,7 +133,7 @@ credentials, and approvals remain unchanged.
 '@
     }
 }
-$t = $texts[$language]
+$script:t = $texts[$script:language]
 
 function Get-Signer {
     param(
@@ -432,15 +434,37 @@ if ($users.Count -eq 0) {
     exit 1603
 }
 $installedTrayState = Get-InstalledTrayState
-$certificateCulture = [Globalization.CultureInfo]::GetCultureInfo(
-    $(if ($language -eq 'de') { 'de-DE' } else { 'en-US' }))
 $certificateName = $coreState.Signer.GetNameInfo(
     [Security.Cryptography.X509Certificates.X509NameType]::SimpleName, $false)
-$certificateArguments = @(
-    $certificateName,
-    $coreState.Signer.NotBefore.ToString('g', $certificateCulture),
-    $coreState.Signer.NotAfter.ToString('g', $certificateCulture),
-    $coreState.Signer.Thumbprint)
+
+function Get-SelectedCulture {
+    return [Globalization.CultureInfo]::GetCultureInfo(
+        $(if ($script:language -eq 'de') { 'de-DE' } else { 'en-US' }))
+}
+
+function Get-CertificateArguments {
+    $culture = Get-SelectedCulture
+    return @(
+        $certificateName,
+        $coreState.Signer.NotBefore.ToString('g', $culture),
+        $coreState.Signer.NotAfter.ToString('g', $culture),
+        $coreState.Signer.Thumbprint)
+}
+
+function Get-InstalledTrayText {
+    if (-not $installedTrayState) {
+        return $t.TrayNotInstalled
+    }
+    $installedAtText = if ($installedTrayState.InstalledAt) {
+        $installedTrayState.InstalledAt.ToLocalTime().ToString(
+            'g', (Get-SelectedCulture))
+    } else {
+        $t.UnknownInstallTime
+    }
+    return $t.InstalledTray -f $installedTrayState.Version, $installedAtText
+}
+
+$script:certificateArguments = Get-CertificateArguments
 
 $form = [Windows.Forms.Form]::new()
 $form.Text = $t.Title
@@ -463,6 +487,18 @@ $description.Text = $t.Description
 $description.Location = [Drawing.Point]::new(24, 62)
 $description.MaximumSize = [Drawing.Size]::new(590, 0)
 $form.Controls.Add($description)
+$languageLabel = [Windows.Forms.Label]::new()
+$languageLabel.AutoSize = $true
+$languageLabel.Location = [Drawing.Point]::new(24, 108)
+$languageLabel.MaximumSize = [Drawing.Size]::new(180, 0)
+$form.Controls.Add($languageLabel)
+$languageCombo = [Windows.Forms.ComboBox]::new()
+$languageCombo.DropDownStyle = 'DropDownList'
+$languageCombo.SetBounds(210, 104, 404, 28)
+[void]$languageCombo.Items.Add('Deutsch')
+[void]$languageCombo.Items.Add('English')
+$languageCombo.SelectedIndex = if ($script:language -eq 'de') { 0 } else { 1 }
+$form.Controls.Add($languageCombo)
 $version = [Windows.Forms.Label]::new()
 $version.AutoSize = $true
 $version.Text = "$($t.Version): $($manifest.productVersion)"
@@ -483,17 +519,7 @@ $coreCertificate.MaximumSize = [Drawing.Size]::new(590, 0)
 $form.Controls.Add($coreCertificate)
 $installedTray = [Windows.Forms.Label]::new()
 $installedTray.AutoSize = $true
-$installedTray.Text = if ($installedTrayState) {
-    $installedAtText = if ($installedTrayState.InstalledAt) {
-        $installedTrayState.InstalledAt.ToLocalTime().ToString(
-            'g', [Globalization.CultureInfo]::CurrentCulture)
-    } else {
-        $t.UnknownInstallTime
-    }
-    $t.InstalledTray -f $installedTrayState.Version, $installedAtText
-} else {
-    $t.TrayNotInstalled
-}
+$installedTray.Text = Get-InstalledTrayText
 $installedTray.Location = [Drawing.Point]::new(24, 240)
 $installedTray.MaximumSize = [Drawing.Size]::new(590, 0)
 $form.Controls.Add($installedTray)
@@ -559,7 +585,9 @@ $form.Controls.Add($cancelButton)
 
 function Update-InstallerLayout {
     $description.Top = $heading.Bottom + 12
-    $version.Top = $description.Bottom + 18
+    $languageLabel.Top = $description.Bottom + 22
+    $languageCombo.Top = $languageLabel.Top - 4
+    $version.Top = $languageCombo.Bottom + 18
     $coreVersion.Top = $version.Bottom + 8
     $coreCertificate.Top = $coreVersion.Bottom + 8
     $installedTray.Top = $coreCertificate.Bottom + 14
@@ -573,12 +601,37 @@ function Update-InstallerLayout {
         634, $installButton.Bottom + 16)
 }
 
-Update-InstallerLayout
+function Update-Language {
+    $script:t = $texts[$script:language]
+    $script:certificateArguments = Get-CertificateArguments
+    $form.Text = $t.Title
+    $heading.Text = $t.Heading
+    $description.Text = $t.Description
+    $languageLabel.Text = $t.Language
+    $version.Text = "$($t.Version): $($manifest.productVersion)"
+    $coreVersion.Text = $t.CoreVersion -f $coreState.Version
+    $coreCertificate.Text = $t.CoreCertificate -f $certificateArguments
+    $installedTray.Text = Get-InstalledTrayText
+    $userLabel.Text = $t.User
+    $details.Text = $t.Details
+    $status.Text = $t.Ready
+    $installButton.Text = $t.Install
+    $cancelButton.Text = $t.Cancel
+    Update-InstallerLayout
+}
+
+$languageCombo.Add_SelectedIndexChanged({
+    $script:language = if ($languageCombo.SelectedIndex -eq 0) { 'de' } else { 'en' }
+    Update-Language
+})
+
+Update-Language
 
 $script:exitCode = 1602
 $installButton.Add_Click({
     $installButton.Enabled = $false
     $cancelButton.Enabled = $false
+    $languageCombo.Enabled = $false
     try {
         $status.Text = $t.Working
         [Windows.Forms.Application]::DoEvents()
@@ -666,6 +719,7 @@ $installButton.Add_Click({
             $_.Exception.Message, $t.Title, 'OK', 'Error') | Out-Null
         $installButton.Enabled = $true
         $cancelButton.Enabled = $true
+        $languageCombo.Enabled = $true
     }
 })
 

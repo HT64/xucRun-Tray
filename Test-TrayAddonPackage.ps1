@@ -84,7 +84,12 @@ foreach ($requiredContract in @(
     'InstalledTray',
     'CoreVersion',
     'CoreCertificate',
-    'CertificateSuccess'
+    'CertificateSuccess',
+    'Installationssprache',
+    'Installer language',
+    '$languageCombo.Add_SelectedIndexChanged',
+    '$script:certificateArguments = Get-CertificateArguments',
+    'Update-Language'
 )) {
     if (-not $graphicalInstaller.Contains($requiredContract)) {
         throw "Tray installer display contract is missing '$requiredContract'."
