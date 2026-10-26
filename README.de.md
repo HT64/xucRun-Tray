@@ -5,12 +5,14 @@
 **Dokumentation:** [Änderungsprotokoll](CHANGELOG.de.md) |
 [Manuelle Entfernung](docs/de/MANUAL_REMOVAL.md) | [xucRun](https://github.com/HT64/xucRun)
 
-> **Status:** xucRun Tray befindet sich in Entwicklung. Das aktuelle Installationspaket und seine
-> Prüfsummen stehen unter [Releases](https://github.com/HT64/xucRun-Tray/releases) bereit.
+> **Status:** xucRun Tray befindet sich in Entwicklung. Die Dokumentation beschreibt das
+> vorgesehene Verhalten. Der aktuelle Stand kann Fehler enthalten, davon abweichen und sich ändern.
+> Das aktuelle Installationspaket und seine Prüfsummen stehen unter
+> [Releases](https://github.com/HT64/xucRun-Tray/releases) bereit.
 
 ## Motivation und Zweck
 
-xucRun Tray ist eine optionale Status- und Komfortoberfläche für
+xucRun Tray ist eine optionale Status- und Bedienoberfläche für
 [xucRun](https://github.com/HT64/xucRun). Sein Symbol erscheint im Benachrichtigungsbereich der
 Windows-Taskleiste neben der Uhr. Von dort aus lassen sich wichtige Betriebsinformationen anzeigen
 und häufig verwendete xucRun-Verwaltungsfunktionen direkt aufrufen, ohne Befehle manuell eingeben
@@ -48,19 +50,20 @@ xucRun Tray unterstützt Windows 10 und Windows 11 auf x64-Systemen. Es benötig
 
 - ein installiertes, unterstütztes xucRun;
 - derzeit exakt dieselbe vierteilige Produktversion wie xucRun;
-- eine Signatur mit demselben vertrauenswürdigen Zertifikat wie das installierte xucRun;
+- eine Signatur mit demselben gültigen lokalen xucRun-Signaturzertifikat wie das installierte
+  xucRun;
 - ein vorhandenes lokales Windows-Benutzerprofil für den Autostart von xucRun Tray.
 
 xucRun Tray richtet sich wie xucRun an erfahrene Privatanwender und Entwickler auf selbst
 verwalteten Rechnern sowie in persönlichen Entwicklungs- und Testsystemen. Es ist nicht für
-unbeaufsichtigte Rechteverwaltung, zentrale Flottenverwaltung, Produktionsumgebungen oder besonders
-schutzbedürftige Systeme vorgesehen.
+unbeaufsichtigte oder zentrale Rechteverwaltung, Produktionsumgebungen oder Systeme mit erhöhtem
+Schutzbedarf vorgesehen.
 
 > **Wichtiger Sicherheitshinweis:** xucRun Tray zeigt Statusinformationen an und ruft vorhandene
 > Verwaltungsfunktionen von xucRun auf. Es erweitert oder ersetzt die Sicherheitsmechanismen von
 > xucRun nicht. Aus den angezeigten Informationen lässt sich keine Garantie für die Sicherheit des
 > Systems, der Anmeldedaten oder gestarteter Programme ableiten. Für Voraussetzungen,
-> Einsatzgrenzen und den sicheren Umgang mit xucRun beachte die Sicherheitshinweise im
+> Schutzmechanismen, Einsatzgrenzen und verbleibende Risiken beachte die Sicherheitshinweise im
 > [README von xucRun](https://github.com/HT64/xucRun#voraussetzungen-und-einsatzbereich).
 > Soweit gesetzlich zulässig, sind für xucRun Tray der Gewährleistungsausschluss und die
 > Haftungsbegrenzung der [Apache License 2.0](LICENSE) maßgeblich.
@@ -86,8 +89,8 @@ Authenticode-Signatur.
 ### Grafische Installation
 
 Vor dem Öffnen der Installationsoberfläche prüft der Installer, ob eine passende xucRun-
-Installation vorhanden ist. Er prüft, ob die installierte xucRun-Version vollständig,
-vertrauenswürdig und mit xucRun Tray kompatibel ist. Eine ordnungsgemäße manuelle Installation wird
+Installation vorhanden ist. Er prüft Vollständigkeit, Signaturen, Installationspfade und
+Kompatibilität der installierten xucRun-Version. Eine ordnungsgemäße manuelle Installation wird
 nicht allein wegen eines fehlenden Windows-Deinstallationseintrags abgelehnt. Bei fehlender,
 abweichender oder nicht überprüfbarer xucRun-Installation bricht der Installer mit einer
 Fehlermeldung ab.
@@ -111,9 +114,10 @@ Starte `xucRun-Tray-<Version>-x64.exe`. Die Benutzerkontensteuerung fordert Admi
 Der Installer:
 
 1. prüft eingebettetes Paket und Produktversion;
-2. prüft, ob das installierte xucRun vollständig, vertrauenswürdig und kompatibel ist;
-3. stellt sicher, dass xucRun Tray und xucRun mit demselben vertrauenswürdigen Zertifikat signiert
-   sind;
+2. prüft Vollständigkeit, Signaturen, Installationspfade und Kompatibilität des installierten
+   xucRun;
+3. prüft, ob xucRun Tray und xucRun mit demselben gültigen lokalen xucRun-Signaturzertifikat
+   signiert sind;
 4. fragt, für welchen vorhandenen lokalen Windows-Benutzer xucRun Tray automatisch starten soll;
 5. installiert `xucRunTray.exe` und beide Sprach-DLLs unter `%ProgramFiles%\xucRun`;
 6. erstellt die Anmeldeaufgabe des gewählten Benutzers;

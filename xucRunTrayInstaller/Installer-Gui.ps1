@@ -37,7 +37,7 @@ $texts = @{
     de = @{
         Title = 'xucRun Tray installieren'
         Heading = 'Optionales xucRun Tray-Add-on'
-        Description = 'Installiert die zur vorhandenen xucRun-Version passende Status- und Komfortoberfläche.'
+        Description = 'Installiert die zur vorhandenen xucRun-Version passende Status- und Bedienoberfläche.'
         Language = 'Installationssprache'
         Version = 'Paketversion'
         CoreVersion = 'Installierte xucRun-Version: {0} (kompatibel)'
@@ -87,7 +87,7 @@ unverändert geblieben sind.
     en = @{
         Title = 'Install xucRun Tray'
         Heading = 'Optional xucRun Tray add-on'
-        Description = 'Installs the status and convenience interface matching the existing xucRun version.'
+        Description = 'Installs the status and control interface matching the existing xucRun version.'
         Language = 'Installer language'
         Version = 'Package version'
         CoreVersion = 'Installed xucRun version: {0} (compatible)'

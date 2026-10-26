@@ -1,4 +1,4 @@
-// Purpose: Runs the optional xucRun status and convenience interface as a separate process.
+// Purpose: Runs the optional xucRun status and control interface as a separate process.
 #include <Windows.h>
 
 #include <string>
