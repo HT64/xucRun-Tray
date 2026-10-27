@@ -44,7 +44,7 @@ BEGIN
             VALUE "FileDescription", "xucRun Tray Add-on Installer"
             VALUE "FileVersion", VERSION_STRING
             VALUE "InternalName", "xucRunTray-Installer"
-            VALUE "LegalCopyright", "Copyright (C) 2024-2026"
+            VALUE "LegalCopyright", "Copyright (C) 2024-2026 Günther Thrum"
             VALUE "OriginalFilename", "xucRunTray-Installer.exe"
             VALUE "ProductName", "xucRun Tray"
             VALUE "ProductVersion", VERSION_STRING

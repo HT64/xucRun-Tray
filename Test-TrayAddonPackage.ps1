@@ -6,6 +6,10 @@ param(
 )
 
 $ErrorActionPreference = 'Stop'
+$expectedCopyright =
+    'Copyright (C) 2024-2026 G' + [char]0x00FC + 'nther Thrum'
+$expectedNoticeCopyright =
+    'Copyright 2024-2026 G' + [char]0x00FC + 'nther Thrum'
 $repositoryRoot = $PSScriptRoot
 $payloadRoot = Join-Path $repositoryRoot "artifacts\Payload\$Configuration"
 $packageRoot = Join-Path $repositoryRoot "artifacts\Package\$Configuration"
@@ -47,6 +51,7 @@ foreach ($file in $manifest.files) {
     }
     $versionInfo = (Get-Item -LiteralPath $path).VersionInfo
     if ($versionInfo.CompanyName -ne 'HT64' -or
+        $versionInfo.LegalCopyright -ne $expectedCopyright -or
         $versionInfo.FileVersion -ne $manifest.productVersion -or
         $versionInfo.ProductVersion -ne $manifest.productVersion -or
         [string]::IsNullOrWhiteSpace($versionInfo.FileDescription) -or
@@ -125,9 +130,11 @@ $installer = Join-Path $repositoryRoot (
 if (-not (Test-Path -LiteralPath $installer -PathType Leaf)) {
     throw "Tray bootstrap installer is missing: $installer"
 }
-if ((Get-Item -LiteralPath $installer).VersionInfo.ProductVersion -ne
-    $manifest.productVersion) {
-    throw 'Tray bootstrap installer version does not match the package manifest.'
+$installerVersionInfo = (Get-Item -LiteralPath $installer).VersionInfo
+if ($installerVersionInfo.CompanyName -ne 'HT64' -or
+    $installerVersionInfo.LegalCopyright -ne $expectedCopyright -or
+    $installerVersionInfo.ProductVersion -ne $manifest.productVersion) {
+    throw 'Tray bootstrap installer metadata does not match the package contract.'
 }
 $versionedInstaller = Join-Path $packageRoot (
     "xucRun-Tray-$($manifest.productVersion)-x64.exe")
@@ -179,6 +186,11 @@ foreach ($legalFileName in @('LICENSE', 'NOTICE')) {
     if ($checksums.$legalFileName -ne
         (Get-FileHash -LiteralPath $legalFile -Algorithm SHA256).Hash) {
         throw "Public Tray release checksum is invalid for $legalFileName."
+    }
+    if ($legalFileName -eq 'NOTICE' -and
+        -not ([IO.File]::ReadAllText($legalFile).Contains(
+            $expectedNoticeCopyright))) {
+        throw 'Tray release NOTICE does not identify the expected copyright holder.'
     }
 }
 $publishedFiles = @(
