@@ -132,6 +132,8 @@ foreach ($requiredContract in @(
     'Register-ScheduledTask',
     'Set-TrayUninstallRegistryAcl',
     'RegistrySecurity',
+    "Relative = 'Install-xucRunTray.ps1'",
+    'Get-FileHash -LiteralPath $file.Destination',
     'xucRun Tray'
 )) {
     if (-not $machineInstaller.Contains($requiredContract)) {

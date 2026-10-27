@@ -82,7 +82,8 @@ $certificate = $certificates[0]
 $relativePaths = @(
     'xucRunTray.exe',
     'Languages\xucRunTray.de-DE.dll',
-    'Languages\xucRunTray.en-US.dll'
+    'Languages\xucRunTray.en-US.dll',
+    'Install-xucRunTray.ps1'
 )
 $staging = New-ProtectedStagingDirectory
 try {

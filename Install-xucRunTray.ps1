@@ -474,6 +474,7 @@ Assert-WindowsPowerShell
 Assert-Administrator
 
 $packageRoot = (Resolve-Path -LiteralPath $PackageDirectory).ProviderPath
+Assert-NotReparsePoint -Path $packageRoot
 $manifestPath = Join-Path $packageRoot 'TrayPackage.json'
 if (-not (Test-Path -LiteralPath $manifestPath -PathType Leaf)) {
     throw "Tray package manifest is missing: $manifestPath"
@@ -533,6 +534,10 @@ $payload = @(
     @{
         Relative = 'Languages\xucRunTray.en-US.dll'
         Destination = Join-Path $languageDirectory 'xucRunTray.en-US.dll'
+    },
+    @{
+        Relative = 'Install-xucRunTray.ps1'
+        Destination = $installedInstaller
     }
 )
 foreach ($file in $payload) {
@@ -540,6 +545,7 @@ foreach ($file in $payload) {
     if (-not (Test-Path -LiteralPath $source -PathType Leaf)) {
         throw "Tray package file is missing: $source"
     }
+    Assert-NotReparsePoint -Path $source
     $entry = @($manifest.files | Where-Object {
         $_.path -eq $file.Relative.Replace('\', '/')
     })
@@ -569,6 +575,7 @@ $backup = Join-Path $programFiles (
     '.xucRun-Tray-backup-' + [Guid]::NewGuid().ToString('N'))
 $startDisposition = 'Deferred'
 New-Item -ItemType Directory -Path $staging | Out-Null
+Assert-NotReparsePoint -Path $staging
 try {
     foreach ($file in $payload) {
         $target = Join-Path $staging $file.Relative
@@ -585,12 +592,10 @@ try {
             throw "Protected Tray staging validation failed: $($file.Relative)"
         }
     }
-    Copy-Item -LiteralPath (Join-Path $packageRoot 'Install-xucRunTray.ps1') `
-        -Destination (Join-Path $staging 'Install-xucRunTray.ps1')
-
     $runningTrayUserSids = @(Get-InstalledTrayProcessUserSids)
     Stop-InstalledTray
     New-Item -ItemType Directory -Path $backup | Out-Null
+    Assert-NotReparsePoint -Path $backup
     foreach ($file in $payload) {
         if (Test-Path -LiteralPath $file.Destination -PathType Leaf) {
             $backupPath = Join-Path $backup $file.Relative
@@ -599,22 +604,20 @@ try {
             Copy-Item -LiteralPath $file.Destination -Destination $backupPath
         }
     }
-    if (Test-Path -LiteralPath $installedInstaller -PathType Leaf) {
-        Copy-Item -LiteralPath $installedInstaller `
-            -Destination (Join-Path $backup 'Install-xucRunTray.ps1')
-    }
-
     try {
         New-Item -ItemType Directory -Path $languageDirectory -Force | Out-Null
         foreach ($file in $payload) {
             Copy-Item -LiteralPath (Join-Path $staging $file.Relative) `
                 -Destination $file.Destination -Force
-            if ((Get-ValidSignerHash -Path $file.Destination) -ne $expectedSigner) {
-                throw "Installed Tray signature verification failed: $($file.Destination)"
+            $manifestEntry = @($manifest.files | Where-Object {
+                $_.path -eq $file.Relative.Replace('\', '/')
+            })[0]
+            if ((Get-FileHash -LiteralPath $file.Destination -Algorithm SHA256).
+                    Hash -ne $manifestEntry.sha256 -or
+                (Get-ValidSignerHash -Path $file.Destination) -ne $expectedSigner) {
+                throw "Installed Tray validation failed: $($file.Destination)"
             }
         }
-        Copy-Item -LiteralPath (Join-Path $staging 'Install-xucRunTray.ps1') `
-            -Destination $installedInstaller -Force
         Set-StatusTask -Sid $UserSid
 
         New-Item -Path $uninstallPath -Force | Out-Null
@@ -664,11 +667,6 @@ try {
                 Remove-Item -LiteralPath $file.Destination -Force `
                     -ErrorAction SilentlyContinue
             }
-        }
-        $backupInstaller = Join-Path $backup 'Install-xucRunTray.ps1'
-        if (Test-Path -LiteralPath $backupInstaller -PathType Leaf) {
-            Copy-Item -LiteralPath $backupInstaller `
-                -Destination $installedInstaller -Force
         }
         foreach ($sid in $runningTrayUserSids) {
             [void](Start-StatusTaskIfUserLoggedOn -Sid $sid)

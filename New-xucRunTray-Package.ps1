@@ -90,7 +90,8 @@ if ($SkipInstaller) {
         foreach ($relativePath in @(
             'xucRunTray.exe',
             'Languages\xucRunTray.de-DE.dll',
-            'Languages\xucRunTray.en-US.dll'
+            'Languages\xucRunTray.en-US.dll',
+            'Install-xucRunTray.ps1'
         )) {
             $path = Join-Path $destination $relativePath
             [ordered]@{
@@ -133,7 +134,8 @@ $payloadSignatures = @(
     foreach ($relativePath in @(
         'xucRunTray.exe',
         'Languages\xucRunTray.de-DE.dll',
-        'Languages\xucRunTray.en-US.dll'
+        'Languages\xucRunTray.en-US.dll',
+        'Install-xucRunTray.ps1'
     )) {
         Get-AuthenticodeSignature -LiteralPath (Join-Path $payloadRoot $relativePath)
     }

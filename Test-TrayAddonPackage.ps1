@@ -30,7 +30,8 @@ if ($manifest.schemaVersion -ne 1 -or
 $expectedPayload = @(
     'xucRunTray.exe',
     'Languages/xucRunTray.de-DE.dll',
-    'Languages/xucRunTray.en-US.dll'
+    'Languages/xucRunTray.en-US.dll',
+    'Install-xucRunTray.ps1'
 )
 $actualPayload = @($manifest.files.path | Sort-Object)
 if (($actualPayload -join "`n") -ne (($expectedPayload | Sort-Object) -join "`n")) {
@@ -49,14 +50,16 @@ foreach ($file in $manifest.files) {
             $manifest.productVersion) {
         throw "Manifested Tray version is invalid: $($file.path)"
     }
-    $versionInfo = (Get-Item -LiteralPath $path).VersionInfo
-    if ($versionInfo.CompanyName -ne 'HT64' -or
-        $versionInfo.LegalCopyright -ne $expectedCopyright -or
-        $versionInfo.FileVersion -ne $manifest.productVersion -or
-        $versionInfo.ProductVersion -ne $manifest.productVersion -or
-        [string]::IsNullOrWhiteSpace($versionInfo.FileDescription) -or
-        [string]::IsNullOrWhiteSpace($versionInfo.OriginalFilename)) {
-        throw "Manifested Tray file metadata is incomplete: $($file.path)"
+    if ($file.path -ne 'Install-xucRunTray.ps1') {
+        $versionInfo = (Get-Item -LiteralPath $path).VersionInfo
+        if ($versionInfo.CompanyName -ne 'HT64' -or
+            $versionInfo.LegalCopyright -ne $expectedCopyright -or
+            $versionInfo.FileVersion -ne $manifest.productVersion -or
+            $versionInfo.ProductVersion -ne $manifest.productVersion -or
+            [string]::IsNullOrWhiteSpace($versionInfo.FileDescription) -or
+            [string]::IsNullOrWhiteSpace($versionInfo.OriginalFilename)) {
+            throw "Manifested Tray file metadata is incomplete: $($file.path)"
+        }
     }
 }
 foreach ($scriptName in @(
@@ -103,7 +106,10 @@ foreach ($requiredContract in @(
 foreach ($requiredContract in @(
     'Get-InstalledTrayProcessUserSids',
     '$runningTrayUserSids + $UserSid',
-    'Start-StatusTaskIfUserLoggedOn -Sid $sid'
+    'Start-StatusTaskIfUserLoggedOn -Sid $sid',
+    "Relative = 'Install-xucRunTray.ps1'",
+    'Get-FileHash -LiteralPath $file.Destination',
+    'Get-ValidSignerHash -Path $file.Destination'
 )) {
     if (-not $machineInstaller.Contains($requiredContract)) {
         throw "Tray process restart contract is missing '$requiredContract'."
