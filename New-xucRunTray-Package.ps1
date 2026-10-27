@@ -4,7 +4,9 @@ param(
     [ValidateSet('Debug', 'Release')]
     [string]$Configuration = 'Release',
     [string]$DestinationDirectory,
-    [switch]$SkipInstaller
+    [switch]$SkipInstaller,
+    [switch]$SignPayloadScript,
+    [string]$SignScriptPath
 )
 
 $ErrorActionPreference = 'Stop'
@@ -16,6 +18,15 @@ $packageRoot = Join-Path $repositoryRoot "artifacts\Package\$Configuration"
 $versionHeaderPath = Join-Path $coreRoot 'xucRunSharedResources\BuildVersion.h'
 $contractsPath = Join-Path $coreRoot 'xucRunCore\BrokerContracts.h'
 $dependenciesPath = Join-Path $repositoryRoot 'Dependencies.json'
+
+if ($SignPayloadScript -and -not $SkipInstaller) {
+    throw 'SignPayloadScript is supported only when creating the embedded payload.'
+}
+if ($SignPayloadScript -and
+    (-not $SignScriptPath -or
+        -not (Test-Path -LiteralPath $SignScriptPath -PathType Leaf))) {
+    throw 'SignPayloadScript requires an existing SignScriptPath.'
+}
 
 if (-not (Test-Path -LiteralPath $versionHeaderPath -PathType Leaf) -or
     -not (Test-Path -LiteralPath $contractsPath -PathType Leaf)) {
@@ -85,6 +96,14 @@ if ($SkipInstaller) {
         New-Item -ItemType Directory -Path (Split-Path -Parent $target) `
             -Force | Out-Null
         Copy-Item -LiteralPath $entry.Value -Destination $target
+    }
+    if ($SignPayloadScript) {
+        powershell.exe -NoProfile -ExecutionPolicy Bypass `
+            -File $SignScriptPath `
+            -Path (Join-Path $destination 'Install-xucRunTray.ps1')
+        if ($LASTEXITCODE -ne 0) {
+            throw 'Signing the staged Tray installer script failed.'
+        }
     }
     $manifestFiles = @(
         foreach ($relativePath in @(

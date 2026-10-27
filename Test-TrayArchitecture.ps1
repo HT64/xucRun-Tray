@@ -118,7 +118,9 @@ $installerProject = [IO.File]::ReadAllText(
 foreach ($requiredContract in @(
     'New-xucRunTray-Package.ps1',
     'SignReleaseInstaller',
-    'SignTrayArtifacts'
+    'SignTrayArtifacts',
+    'SignPayloadScript',
+    'SignScriptPath'
 )) {
     if (-not $installerProject.Contains($requiredContract)) {
         throw "Tray installer project is missing contract '$requiredContract'."
