@@ -15,7 +15,7 @@
 	IDS_MENU_DELETE_CREDENTIAL, "Delete credentials..."
 	IDS_MENU_SHOW_APPROVALS, "Show program approvals ({0})"
 	IDS_MENU_RESET_APPROVALS, "Reset program approvals..."
-	IDS_MENU_RUN_SECURITY_AUDIT, "Run security audit"
+	IDS_MENU_RUN_SECURITY_AUDIT, "Run security diagnostics"
 	IDS_MENU_LANGUAGE, "Language"
 	IDS_MENU_LANGUAGE_GERMAN, "Deutsch"
 	IDS_MENU_LANGUAGE_ENGLISH, "English"

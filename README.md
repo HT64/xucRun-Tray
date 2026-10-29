@@ -34,7 +34,7 @@ The Tray application:
 - shows the current user context and whether the xucRun Tray process is elevated;
 - lists tracked elevated processes and their windows;
 - opens xucRun dialogs for managing credentials and program approvals;
-- starts the xucRun security audit and information views;
+- starts the xucRun security diagnostics and information views;
 - provides access to configured client log files;
 - switches the xucRun application language;
 - starts, enables, or disables the broker service through the existing xucRun interfaces.
@@ -87,8 +87,8 @@ publisher when it starts. Before starting it, compare its SHA-256 checksum with
 ### Graphical installation
 
 Before opening the installation interface, the installer checks for a compatible xucRun
-installation. It checks the installed xucRun version for completeness, signatures, installation
-paths, and compatibility. A properly configured manual installation is therefore not rejected
+installation. It checks the required installed xucRun files, their signatures, installation paths,
+version, and compatibility. A properly configured manual installation is therefore not rejected
 solely because its Windows uninstall entry is missing. The installer stops with an error if xucRun
 is missing, incompatible, or unverifiable.
 
@@ -110,7 +110,8 @@ Start `xucRun-Tray-<Version>-x64.exe`. User Account Control requests administrat
 installer then:
 
 1. verifies its embedded package and product version;
-2. checks the installed xucRun for completeness, signatures, installation paths, and compatibility;
+2. checks the required installed xucRun files, their signatures, installation paths, version, and
+   compatibility;
 3. checks whether xucRun Tray and xucRun are signed with the same valid local xucRun signing
    certificate;
 4. asks which existing local Windows user should start xucRun Tray automatically;
@@ -193,7 +194,7 @@ Depending on the current xucRun configuration and permissions, the menu provides
 - creating, listing, and deleting stored credentials;
 - listing and resetting program approvals;
 - an administrative view across users after the required elevation;
-- the xucRun security audit, help, and information;
+- the xucRun security diagnostics, help, and information;
 - displaying or deleting the current client log file;
 - deleting all client log files from the configured log directory after confirmation;
 - automatic, German, and English language selection;
@@ -274,8 +275,8 @@ and errors continue to use the Windows Application event log as documented by xu
   existing non-exportable private key to remain available on that computer. The installer rejects
   packages whose Tray files are only partially or inconsistently signed.
 - **Communication is shown as degraded:** Check the broker service state and run the xucRun security
-  audit from the xucRun Tray menu or with `xucRun.exe /audit`. The audit checks the installed Tray files
-  and signatures, uninstall registration, and per-user autostart tasks.
+  diagnostics from the xucRun Tray menu or with `xucRun.exe /audit`. The diagnostics check the
+  installed Tray files and signatures, uninstall registration, and per-user autostart tasks.
 - **Menu actions are unavailable:** The broker service may be stopped, communication may be
   unavailable, or the current account may lack the required permissions.
 - **Tray cannot start after a manual file copy:** Use the installer. Version, protected path,

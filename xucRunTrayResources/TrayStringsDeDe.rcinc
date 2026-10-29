@@ -15,7 +15,7 @@
 	IDS_MENU_DELETE_CREDENTIAL, "Anmeldedaten löschen..."
 	IDS_MENU_SHOW_APPROVALS, "Programmfreigaben anzeigen ({0})"
 	IDS_MENU_RESET_APPROVALS, "Programmfreigaben zurücksetzen..."
-	IDS_MENU_RUN_SECURITY_AUDIT, "Sicherheitsaudit ausführen"
+	IDS_MENU_RUN_SECURITY_AUDIT, "Sicherheitsdiagnose ausführen"
 	IDS_MENU_LANGUAGE, "Sprache"
 	IDS_MENU_LANGUAGE_GERMAN, "Deutsch"
 	IDS_MENU_LANGUAGE_ENGLISH, "English"

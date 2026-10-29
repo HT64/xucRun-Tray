@@ -35,7 +35,7 @@ Die Tray-Anwendung:
 - zeigt den aktuellen Benutzerkontext und eine mögliche Erhöhung des Tray-Prozesses;
 - listet verfolgte erhöhte Prozesse und deren Fenster;
 - öffnet xucRun-Dialoge zur Verwaltung von Anmeldedaten und Programmfreigaben;
-- startet Sicherheitsaudit und Informationsansichten von xucRun;
+- startet Sicherheitsdiagnose und Informationsansichten von xucRun;
 - ermöglicht den Zugriff auf konfigurierte Client-Logdateien;
 - wechselt die xucRun-Programmsprache;
 - startet, aktiviert oder deaktiviert den Brokerdienst über die vorhandenen xucRun-Schnittstellen.
@@ -89,11 +89,11 @@ Authenticode-Signatur.
 ### Grafische Installation
 
 Vor dem Öffnen der Installationsoberfläche prüft der Installer, ob eine passende xucRun-
-Installation vorhanden ist. Er prüft Vollständigkeit, Signaturen, Installationspfade und
-Kompatibilität der installierten xucRun-Version. Eine ordnungsgemäße manuelle Installation wird
-nicht allein wegen eines fehlenden Windows-Deinstallationseintrags abgelehnt. Bei fehlender,
-abweichender oder nicht überprüfbarer xucRun-Installation bricht der Installer mit einer
-Fehlermeldung ab.
+Installation vorhanden ist. Er prüft die erforderlichen installierten xucRun-Dateien, deren
+Signaturen, Installationspfade, Version und Kompatibilität. Eine ordnungsgemäße manuelle
+Installation wird nicht allein wegen eines fehlenden Windows-Deinstallationseintrags abgelehnt.
+Bei fehlender, abweichender oder nicht überprüfbarer xucRun-Installation bricht der Installer mit
+einer Fehlermeldung ab.
 
 ![Ablehnung bei fehlender unterstützter xucRun-Installation](docs/de/images/unsupported-core-installation.png)
 
@@ -114,8 +114,8 @@ Starte `xucRun-Tray-<Version>-x64.exe`. Die Benutzerkontensteuerung fordert Admi
 Der Installer:
 
 1. prüft eingebettetes Paket und Produktversion;
-2. prüft Vollständigkeit, Signaturen, Installationspfade und Kompatibilität des installierten
-   xucRun;
+2. prüft die erforderlichen installierten xucRun-Dateien, deren Signaturen, Installationspfade,
+   Version und Kompatibilität;
 3. prüft, ob xucRun Tray und xucRun mit demselben gültigen lokalen xucRun-Signaturzertifikat
    signiert sind;
 4. fragt, für welchen vorhandenen lokalen Windows-Benutzer xucRun Tray automatisch starten soll;
@@ -203,7 +203,7 @@ Abhängig von xucRun-Konfiguration und Berechtigungen bietet das Menü:
 - Anlegen, Anzeigen und Löschen gespeicherter Anmeldedaten;
 - Anzeigen und Zurücksetzen von Programmfreigaben;
 - eine administrative Ansicht über Benutzer hinweg nach der erforderlichen Erhöhung;
-- Sicherheitsaudit, Hilfe und Informationen von xucRun;
+- Sicherheitsdiagnose, Hilfe und Informationen von xucRun;
 - Anzeigen oder Löschen der aktuellen Client-Logdatei;
 - Löschen aller Client-Logdateien im konfigurierten Logverzeichnis nach Bestätigung;
 - automatische, deutsche und englische Sprachwahl;
@@ -290,7 +290,7 @@ dokumentiert in das Windows-Anwendungsereignislog geschrieben.
   bleiben. Der Installer lehnt Pakete ab, deren Tray-Dateien nur teilweise oder nicht einheitlich
   signiert sind.
 - **Die Kommunikation wird als gestört angezeigt:** Prüfe den Brokerdienst und führe über das
-  Tray-Menü oder mit `xucRun.exe /audit` das xucRun-Sicherheitsaudit aus. Das Audit prüft die
+  Tray-Menü oder mit `xucRun.exe /audit` die xucRun-Sicherheitsdiagnose aus. Die Diagnose prüft die
   installierten Tray-Dateien und Signaturen, die Deinstallationsregistrierung und die
   benutzerbezogenen Autostartaufgaben.
 - **Menüaktionen sind nicht verfügbar:** Der Brokerdienst kann beendet, die Kommunikation kann
