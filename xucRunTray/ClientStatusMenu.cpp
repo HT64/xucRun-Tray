@@ -26,6 +26,7 @@ namespace
 	constexpr UINT AdministrativeStatusCommand = 11;
 	constexpr UINT SetLanguageGermanCommand = 12;
 	constexpr UINT SetLanguageEnglishCommand = 13;
+	constexpr UINT SetLanguageAutomaticCommand = 18;
 	constexpr UINT ShowLogFileCommand = 14;
 	constexpr UINT DeleteLogFileCommand = 15;
 	constexpr UINT DeleteAllLogFilesCommand = 16;
@@ -282,6 +283,7 @@ namespace
 		case ShowInfoCommand: return Action::ShowInfo;
 		case SetLanguageGermanCommand: return Action::SetLanguageGerman;
 		case SetLanguageEnglishCommand: return Action::SetLanguageEnglish;
+		case SetLanguageAutomaticCommand: return Action::SetLanguageAutomatic;
 		case ServiceCommand: return Action::Service;
 		case ExitCommand: return Action::Exit;
 		default: return Action::None;
@@ -526,14 +528,23 @@ namespace xucrun::status_menu
 		HMENU languageMenu = CreatePopupMenu();
 		if (languageMenu)
 		{
+			const bool usesAutomatic =
+				localization::UsesAutomaticLanguage();
 			const bool usesGerman = localization::UsesGermanResources();
 			AppendMenuW(languageMenu,
-				MF_STRING | (usesGerman ? MF_CHECKED | MF_GRAYED : MF_UNCHECKED),
+				MF_STRING | (usesAutomatic ? MF_CHECKED | MF_GRAYED : MF_UNCHECKED),
+				SetLanguageAutomaticCommand,
+				localization::GetText(
+					localization::TrayTextId::MenuLanguageAutomatic).c_str());
+			AppendMenuW(languageMenu,
+				MF_STRING | (!usesAutomatic && usesGerman
+					? MF_CHECKED | MF_GRAYED : MF_UNCHECKED),
 				SetLanguageGermanCommand,
 				localization::GetText(
 					localization::TrayTextId::MenuLanguageGerman).c_str());
 			AppendMenuW(languageMenu,
-				MF_STRING | (!usesGerman ? MF_CHECKED | MF_GRAYED : MF_UNCHECKED),
+				MF_STRING | (!usesAutomatic && !usesGerman
+					? MF_CHECKED | MF_GRAYED : MF_UNCHECKED),
 				SetLanguageEnglishCommand,
 				localization::GetText(
 					localization::TrayTextId::MenuLanguageEnglish).c_str());

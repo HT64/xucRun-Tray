@@ -24,6 +24,7 @@ namespace xucrun::status_actions
 		DeleteAllLogFiles,
 		SetLanguageGerman,
 		SetLanguageEnglish,
+		SetLanguageAutomatic,
 		Service,
 		Exit,
 		ActivateStatusIcon,

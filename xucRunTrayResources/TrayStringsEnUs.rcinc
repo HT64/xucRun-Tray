@@ -19,6 +19,7 @@
 	IDS_MENU_LANGUAGE, "Language"
 	IDS_MENU_LANGUAGE_GERMAN, "Deutsch"
 	IDS_MENU_LANGUAGE_ENGLISH, "English"
+	IDS_MENU_LANGUAGE_AUTOMATIC, "Automatic (Windows display language)"
 	IDS_MENU_SHOW_LOG_FILE, "Show current log file"
 	IDS_MENU_DELETE_LOG_FILE, "Delete current log file..."
 	IDS_LOG_FILE_UNAVAILABLE, "No client log file is currently available."

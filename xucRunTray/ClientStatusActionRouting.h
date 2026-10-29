@@ -22,6 +22,7 @@ namespace xucrun::status_actions
 		case Action::ShowInfo: return L"/info";
 		case Action::SetLanguageGerman: return L"/set-language:de";
 		case Action::SetLanguageEnglish: return L"/set-language:en";
+		case Action::SetLanguageAutomatic: return L"/set-language:auto";
 		default: return {};
 		}
 	}
@@ -39,5 +40,7 @@ namespace xucrun::status_actions
 		L"/set-language:de");
 	static_assert(GetCoreClientArgument(Action::SetLanguageEnglish) ==
 		L"/set-language:en");
+	static_assert(GetCoreClientArgument(Action::SetLanguageAutomatic) ==
+		L"/set-language:auto");
 	static_assert(GetCoreClientArgument(Action::ActivateProcessWindow).empty());
 }

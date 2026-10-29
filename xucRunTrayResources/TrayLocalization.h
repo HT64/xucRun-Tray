@@ -45,6 +45,7 @@ namespace xucrun::localization
 		MenuLanguage = IDS_MENU_LANGUAGE,
 		MenuLanguageGerman = IDS_MENU_LANGUAGE_GERMAN,
 		MenuLanguageEnglish = IDS_MENU_LANGUAGE_ENGLISH,
+		MenuLanguageAutomatic = IDS_MENU_LANGUAGE_AUTOMATIC,
 		MenuDisableService = IDS_MENU_STOP_SERVICE,
 		MenuEnableService = IDS_MENU_ENABLE_SERVICE,
 		MenuStartService = IDS_MENU_START_SERVICE,

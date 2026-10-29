@@ -585,7 +585,9 @@ namespace xucrun::broker_status
 					else if (selection.action ==
 						status_actions::Action::SetLanguageGerman ||
 						selection.action ==
-						status_actions::Action::SetLanguageEnglish)
+						status_actions::Action::SetLanguageEnglish ||
+						selection.action ==
+						status_actions::Action::SetLanguageAutomatic)
 					{
 						if (status_actions::Execute(window, selection))
 						{

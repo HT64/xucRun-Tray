@@ -196,7 +196,7 @@ Depending on the current xucRun configuration and permissions, the menu provides
 - the xucRun security audit, help, and information;
 - displaying or deleting the current client log file;
 - deleting all client log files from the configured log directory after confirmation;
-- German and English language selection;
+- automatic, German, and English language selection;
 - starting, enabling, or disabling the broker service;
 - closing the current Tray instance.
 
@@ -213,9 +213,10 @@ menu.
 Unavailable actions are disabled. Operations that change credentials, approvals, or service state
 still require the permissions and confirmations enforced by xucRun and Windows.
 
-The language selection changes the machine-wide xucRun configuration. After a successful change,
-all Tray applications registered with the broker service restart so that icons in other user
-sessions use the same language immediately.
+The language selection changes the machine-wide xucRun configuration. **Automatic** follows each
+user's Windows display language, using German for a German display language and English otherwise.
+After a successful change, all Tray applications registered with the broker service restart so
+that icons in other user sessions use the configured language mode immediately.
 
 ## User account and autostart
 
@@ -255,8 +256,8 @@ xucRun Tray.
 
 ## Language and log files
 
-xucRun Tray uses the language configured for xucRun and can switch between German and English through
-its menu. A missing, invalid, or incorrectly signed language resource causes startup to fail
+xucRun Tray uses the language configured for xucRun and can select automatic, German, or English
+through its menu. A missing, invalid, or incorrectly signed language resource causes startup to fail
 instead of using an unverified language file as a substitute.
 
 Log-file menu entries refer to the client log directory configured by xucRun. If client file logging

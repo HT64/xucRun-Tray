@@ -292,7 +292,8 @@ namespace xucrun::status_actions
 		if (!coreArgument.empty())
 		{
 			if (selection.action == Action::SetLanguageGerman ||
-				selection.action == Action::SetLanguageEnglish)
+				selection.action == Action::SetLanguageEnglish ||
+				selection.action == Action::SetLanguageAutomatic)
 			{
 				return LaunchClientCommandAndWait(
 					owner, coreArgument.data(), false);

@@ -206,7 +206,7 @@ Abhängig von xucRun-Konfiguration und Berechtigungen bietet das Menü:
 - Sicherheitsaudit, Hilfe und Informationen von xucRun;
 - Anzeigen oder Löschen der aktuellen Client-Logdatei;
 - Löschen aller Client-Logdateien im konfigurierten Logverzeichnis nach Bestätigung;
-- deutsche und englische Sprachwahl;
+- automatische, deutsche und englische Sprachwahl;
 - Starten, Aktivieren oder Deaktivieren des Brokerdienstes;
 - Beenden der aktuellen Tray-Instanz.
 
@@ -224,9 +224,11 @@ Nicht verfügbare Aktionen sind deaktiviert. Änderungen an Anmeldedaten, Freiga
 Dienstzustand erfordern weiterhin die von xucRun und Windows vorgesehenen Berechtigungen und
 Bestätigungen.
 
-Die Sprachwahl ändert die computerweite xucRun-Konfiguration. Nach erfolgreicher Änderung starten
-alle beim Brokerdienst registrierten Tray-Anwendungen neu, sodass auch die Symbole in anderen
-Benutzersitzungen sofort dieselbe Sprache verwenden.
+Die Sprachwahl ändert die computerweite xucRun-Konfiguration. **Automatisch** folgt der
+Windows-Anzeigesprache des jeweiligen Benutzers und verwendet bei einer deutschen Anzeigesprache
+Deutsch, andernfalls Englisch. Nach erfolgreicher Änderung starten alle beim Brokerdienst
+registrierten Tray-Anwendungen neu, sodass auch die Symbole in anderen Benutzersitzungen sofort den
+konfigurierten Sprachmodus verwenden.
 
 ## Benutzerkonto und Autostart
 
@@ -266,8 +268,9 @@ xucRun dokumentierten Betriebsgrenzen und Restrisiken.
 
 ## Sprache und Logdateien
 
-xucRun Tray verwendet die für xucRun konfigurierte Sprache und kann über sein Menü zwischen Deutsch
-und Englisch wechseln. Eine fehlende, ungültige oder nicht passend signierte Sprachressource führt
+xucRun Tray verwendet die für xucRun konfigurierte Sprache und kann über sein Menü zwischen
+Automatisch, Deutsch und Englisch wechseln. Eine fehlende, ungültige oder nicht passend signierte
+Sprachressource führt
 zum Startabbruch, statt ersatzweise eine ungeprüfte Sprachdatei zu verwenden.
 
 Die Logdatei-Menüeinträge beziehen sich auf das von xucRun konfigurierte Client-Logverzeichnis. Ist
