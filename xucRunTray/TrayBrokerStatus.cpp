@@ -4,9 +4,11 @@
 #include "ClientBrokerStatus.h"
 
 #include <Windows.h>
+#include <WtsApi32.h>
 #include <winsvc.h>
 #include <shellapi.h>
 #include <sddl.h>
+
 
 #include <algorithm>
 #include <atomic>
@@ -55,6 +57,7 @@ namespace xucrun::broker_status
 		bool statusIconRegistryFailureReported = false;
 		ULONGLONG brokerActivationRefreshDeadline = 0;
 		bool restartStatusIcon = false;
+		std::wstring statusAccountSid;
 
 		std::wstring GetStatusIconActivationEventName(std::uint32_t processId)
 		{
@@ -71,6 +74,46 @@ namespace xucrun::broker_status
 		{
 			PostMessageW(
 				static_cast<HWND>(context), BROKER_STATUS_LANGUAGE_CHANGED, 0, 0);
+		}
+
+		void RefreshClientLoggingConfiguration()
+		{
+			std::wstring configuredLogDirectory;
+			std::wstring failedLogDirectory;
+			std::wstring configurationPath;
+			DWORD error = NO_ERROR;
+			if (!client_logging::Initialize(configuredLogDirectory,
+				failedLogDirectory, configurationPath, error))
+			{
+				ui::ReportWarning(localization::Format(
+					localization::TextId::ClientLogInitializationFailed,
+					{ configuredLogDirectory, failedLogDirectory, configurationPath,
+						windows_error::FormatWindowsError(error) }),
+					L"Refreshing Tray file logging configuration failed. Windows error: " +
+						std::to_wstring(error));
+			}
+		}
+
+		bool RestartForConfiguredLanguageChange(HWND window)
+		{
+			bool changeRequired = false;
+			std::wstring errorMessage;
+			if (!localization::CheckConfiguredLanguageChange(
+				changeRequired, errorMessage))
+			{
+				ui::ReportError(errorMessage,
+					L"Checking the Tray language configuration failed.");
+				return false;
+			}
+			if (!changeRequired)
+				return false;
+
+			client_logging::Write(L"Info",
+				L"Restarting the status icon after an external language "
+				L"configuration change.");
+			restartStatusIcon = true;
+			DestroyWindow(window);
+			return true;
 		}
 
 		struct StatusEventRegistration
@@ -168,6 +211,87 @@ namespace xucrun::broker_status
 			static const bool elevated =
 				account_identity::IsRunningAsAdministrator();
 			return elevated;
+		}
+
+		struct InteractiveSessionAccount
+		{
+			bool available = false;
+			bool matchesStatusAccount = false;
+		};
+
+		const InteractiveSessionAccount& GetInteractiveSessionAccount()
+		{
+			static const InteractiveSessionAccount account = [] {
+				InteractiveSessionAccount result;
+				DWORD sessionId = 0;
+				if (!ProcessIdToSessionId(GetCurrentProcessId(), &sessionId))
+				{
+					client_logging::Write(L"Warning",
+						L"Determining the status icon session failed. Windows error: " +
+						std::to_wstring(GetLastError()) + L".");
+					return result;
+				}
+
+				LPWSTR usernameBuffer = nullptr;
+				DWORD usernameBytes = 0;
+				if (!WTSQuerySessionInformationW(WTS_CURRENT_SERVER_HANDLE, sessionId,
+					WTSUserName, &usernameBuffer, &usernameBytes))
+				{
+					client_logging::Write(L"Warning",
+						L"Querying the interactive session username failed. Windows error: " +
+						std::to_wstring(GetLastError()) + L".");
+					return result;
+				}
+				const std::wstring username = usernameBuffer ? usernameBuffer : L"";
+				if (usernameBuffer)
+					WTSFreeMemory(usernameBuffer);
+				if (username.empty())
+				{
+					client_logging::Write(L"Warning",
+						L"The interactive session username is empty.");
+					return result;
+				}
+
+				LPWSTR domainBuffer = nullptr;
+				DWORD domainBytes = 0;
+				if (!WTSQuerySessionInformationW(WTS_CURRENT_SERVER_HANDLE, sessionId,
+					WTSDomainName, &domainBuffer, &domainBytes))
+				{
+					client_logging::Write(L"Warning",
+						L"Querying the interactive session domain failed. Windows error: " +
+						std::to_wstring(GetLastError()) + L".");
+					return result;
+				}
+				const std::wstring domain = domainBuffer ? domainBuffer : L"";
+				if (domainBuffer)
+					WTSFreeMemory(domainBuffer);
+
+				std::vector<BYTE> interactiveSid;
+				const std::wstring accountName =
+					domain.empty() ? username : domain + L"\\" + username;
+				if (!account_identity::ResolveAccountSid(accountName, interactiveSid))
+				{
+					client_logging::Write(L"Warning",
+						L"Resolving the interactive session account SID failed. Windows "
+						L"error: " + std::to_wstring(GetLastError()) + L".");
+					return result;
+				}
+				std::wstring interactiveSidString;
+				if (!account_identity::GetSidString(
+					interactiveSid.data(), interactiveSidString))
+				{
+					client_logging::Write(L"Warning",
+						L"Formatting the interactive session account SID failed. Windows "
+						L"error: " + std::to_wstring(GetLastError()) + L".");
+					return result;
+				}
+
+				result.available = true;
+				result.matchesStatusAccount =
+					interactiveSidString == statusAccountSid;
+				return result;
+			}();
+			return account;
 		}
 
 		void CALLBACK BrokerServiceStatusChanged(void*)
@@ -316,7 +440,8 @@ namespace xucrun::broker_status
 			BrokerServiceState& serviceState, std::uint32_t& elevatedProcessCount,
 			bool& brokerCommunicationAvailable, broker::ProductVersion& brokerVersion,
 			std::vector<broker::TrackedProcessListEntry>& trackedProcesses,
-			std::vector<broker::StatusIconListEntry>& statusIcons)
+			std::vector<broker::StatusIconListEntry>& statusIcons,
+			bool& statusIconListAvailable)
 		{
 			serviceState = QueryBrokerServiceState();
 			if (serviceState.status != BrokerServiceStatus::Running)
@@ -327,6 +452,7 @@ namespace xucrun::broker_status
 				brokerVersion = {};
 				trackedProcesses.clear();
 				statusIcons.clear();
+				statusIconListAvailable = false;
 				registeredStatusIconBrokerProcessId = 0;
 				statusIconRegistryFailureReported = false;
 			}
@@ -341,6 +467,7 @@ namespace xucrun::broker_status
 					elevatedProcessCount = health.elevatedProcessCount;
 					trackedProcesses.clear();
 					statusIcons.clear();
+					statusIconListAvailable = false;
 					broker::StatusIconListRequest iconRequest;
 					iconRequest.requestId = broker::GenerateBrokerRequestId();
 					iconRequest.clientVersion = {
@@ -356,6 +483,7 @@ namespace xucrun::broker_status
 							broker::CredentialListStatus::Succeeded)
 						{
 							statusIcons = iconResponse.result.entries;
+							statusIconListAvailable = true;
 							statusIconRegistryFailureReported = false;
 							if (registeredStatusIconBrokerProcessId !=
 								health.brokerProcessId)
@@ -402,6 +530,7 @@ namespace xucrun::broker_status
 				}
 				else
 				{
+					statusIconListAvailable = false;
 					consecutiveBrokerHealthFailures++;
 					if (!brokerCommunicationAvailable ||
 						consecutiveBrokerHealthFailures >= BROKER_STATUS_FAILURE_THRESHOLD)
@@ -418,14 +547,21 @@ namespace xucrun::broker_status
 
 			const bool elevatedProcessWindowActive =
 				status_menu::HasTrackedProcessWindow(trackedProcesses);
-			const bool otherStatusIconAvailable = std::any_of(
-				statusIcons.begin(), statusIcons.end(), [](const auto& icon) {
+			const bool otherStatusIconAvailable = statusIconListAvailable &&
+				std::any_of(statusIcons.begin(), statusIcons.end(), [](const auto& icon) {
 					return icon.processId != GetCurrentProcessId();
 				});
+			const InteractiveSessionAccount& interactiveAccount =
+				GetInteractiveSessionAccount();
+			const bool showStatusIdentity =
+				!statusIconListAvailable ||
+				otherStatusIconAvailable ||
+				!interactiveAccount.available ||
+				!interactiveAccount.matchesStatusAccount;
 			NOTIFYICONDATAW icon = status_icon::Build(window, BROKER_STATUS_CALLBACK,
 				serviceState, brokerCommunicationAvailable, elevatedProcessCount,
 				elevatedProcessWindowActive, brokerVersion, GetStatusAccount(),
-				IsStatusProcessElevated(), otherStatusIconAvailable);
+				IsStatusProcessElevated(), showStatusIdentity);
 			if (!iconVisible)
 			{
 				iconVisible = Shell_NotifyIconW(NIM_ADD, &icon) == TRUE;
@@ -449,13 +585,14 @@ namespace xucrun::broker_status
 			static broker::ProductVersion brokerVersion;
 			static std::vector<broker::TrackedProcessListEntry> trackedProcesses;
 			static std::vector<broker::StatusIconListEntry> statusIcons;
+			static bool statusIconListAvailable = false;
 			static const UINT taskbarCreated = RegisterWindowMessageW(L"TaskbarCreated");
 			if (message == taskbarCreated)
 			{
 				iconVisible = false;
 				UpdateBrokerStatusIcon(window, iconVisible, serviceState, elevatedProcessCount,
 					brokerCommunicationAvailable, brokerVersion, trackedProcesses,
-					statusIcons);
+					statusIcons, statusIconListAvailable);
 				ScheduleBrokerStatusTimer(window, serviceState, elevatedProcessCount);
 				return 0;
 			}
@@ -463,7 +600,8 @@ namespace xucrun::broker_status
 			{
 			case WM_CREATE:
 				UpdateBrokerStatusIcon(window, iconVisible, serviceState, elevatedProcessCount,
-					brokerCommunicationAvailable, brokerVersion, trackedProcesses, statusIcons);
+					brokerCommunicationAvailable, brokerVersion, trackedProcesses, statusIcons,
+					statusIconListAvailable);
 				ScheduleBrokerStatusTimer(window, serviceState, elevatedProcessCount);
 				ArmBrokerServiceStatusNotification(window);
 				return 0;
@@ -471,13 +609,15 @@ namespace xucrun::broker_status
 				if (wParam == BROKER_STATUS_TIMER)
 				{
 					UpdateBrokerStatusIcon(window, iconVisible, serviceState, elevatedProcessCount,
-						brokerCommunicationAvailable, brokerVersion, trackedProcesses, statusIcons);
+						brokerCommunicationAvailable, brokerVersion, trackedProcesses, statusIcons,
+						statusIconListAvailable);
 					ScheduleBrokerStatusTimer(window, serviceState, elevatedProcessCount);
 				}
 				return 0;
 			case BROKER_SERVICE_STATUS_CHANGED:
 				UpdateBrokerStatusIcon(window, iconVisible, serviceState, elevatedProcessCount,
-					brokerCommunicationAvailable, brokerVersion, trackedProcesses, statusIcons);
+					brokerCommunicationAvailable, brokerVersion, trackedProcesses, statusIcons,
+					statusIconListAvailable);
 				ScheduleBrokerStatusTimer(window, serviceState, elevatedProcessCount);
 				ArmBrokerServiceStatusNotification(window);
 				return 0;
@@ -497,8 +637,12 @@ namespace xucrun::broker_status
 			case BROKER_STATUS_CALLBACK:
 				if (LOWORD(lParam) == WM_CONTEXTMENU)
 				{
+					if (RestartForConfiguredLanguageChange(window))
+						return 0;
+					RefreshClientLoggingConfiguration();
 					UpdateBrokerStatusIcon(window, iconVisible, serviceState, elevatedProcessCount,
-						brokerCommunicationAvailable, brokerVersion, trackedProcesses, statusIcons);
+						brokerCommunicationAvailable, brokerVersion, trackedProcesses, statusIcons,
+						statusIconListAvailable);
 					ScheduleBrokerStatusTimer(window, serviceState, elevatedProcessCount);
 					const status_menu::Model menuModel{
 						serviceState,
@@ -572,7 +716,7 @@ namespace xucrun::broker_status
 						}
 						UpdateBrokerStatusIcon(window, iconVisible, serviceState,
 							elevatedProcessCount, brokerCommunicationAvailable, brokerVersion,
-							trackedProcesses, statusIcons);
+							trackedProcesses, statusIcons, statusIconListAvailable);
 						ScheduleBrokerStatusTimer(window, serviceState, elevatedProcessCount);
 					}
 					else if (selection.action == status_actions::Action::Exit)
@@ -630,6 +774,7 @@ namespace xucrun::broker_status
 				L"could not be determined.");
 			return 1;
 		}
+		statusAccountSid = accountSid;
 
 		const std::wstring descriptorText =
 			L"D:P(A;;GA;;;SY)(A;;GA;;;BA)(A;;GA;;;" + accountSid + L")";

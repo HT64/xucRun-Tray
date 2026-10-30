@@ -223,7 +223,10 @@ that icons in other user sessions use the configured language mode immediately.
 
 The installer deliberately selects an existing local user profile and creates the restricted
 logon task `\xucRun\BrokerStatus-<SID>` for that account. xucRun Tray then runs in that user's
-interactive session, not permanently as administrator.
+interactive session, not permanently as administrator. The icon tooltip identifies the account
+and indicates whether the Tray process is elevated whenever another Tray instance is present in
+the same session or the Tray runs as a different account than the interactively signed-in user.
+It omits this identity only when the sole instance and matching session account are both confirmed.
 
 The default selection is the interactively signed-in user of the Windows session from which the
 installer was started. This also applies when a different administrator account is used for the
@@ -262,8 +265,14 @@ through its menu. A missing, invalid, or incorrectly signed language resource ca
 instead of using an unverified language file as a substitute.
 
 Log-file menu entries refer to the client log directory configured by xucRun. If client file logging
-is disabled or no log file exists, the corresponding actions remain unavailable. Broker warnings
-and errors continue to use the Windows Application event log as documented by xucRun.
+is disabled or no log file exists, the corresponding actions remain unavailable. The Tray rereads
+the logging configuration whenever its context menu opens, so changes to the configured directory
+and newly created log files become available without restarting the Tray. It also checks the
+configured language before opening the menu. If a valid external change is detected, the Tray
+restarts itself and uses the new language; an invalid value or language resource is reported while
+the Tray remains active in its current language. Regardless of the selected UI language, technical
+Broker warnings and errors are always written in English to the Windows Application event log as
+documented by xucRun.
 
 ## Troubleshooting
 

@@ -119,6 +119,15 @@ namespace
 				std::to_wstring(brokerVersion.patch) + L"." +
 				std::to_wstring(brokerVersion.build);
 		}
+		if (showStatusIdentity)
+		{
+			tooltip += L"\r\n" + xucrun::localization::Format(
+				xucrun::localization::TrayTextId::TooltipStatusFor,
+				{ currentAccount,
+					xucrun::localization::GetText(currentProcessElevated
+						? xucrun::localization::TextId::InfoElevated
+						: xucrun::localization::TextId::InfoNotElevated) });
+		}
 		tooltip += L"\r\n" + xucrun::localization::Format(
 			xucrun::localization::TrayTextId::TooltipService,
 			{ GetServiceStatusLabel(serviceState) });
@@ -138,15 +147,6 @@ namespace
 			tooltip += L"\r\n" + xucrun::localization::Format(
 				xucrun::localization::TrayTextId::TooltipElevated,
 				{ std::to_wstring(elevatedProcessCount) });
-		}
-		if (showStatusIdentity)
-		{
-			tooltip += L"\r\n" + xucrun::localization::Format(
-				xucrun::localization::TrayTextId::TooltipStatusFor,
-				{ currentAccount,
-					xucrun::localization::GetText(currentProcessElevated
-						? xucrun::localization::TextId::InfoElevated
-						: xucrun::localization::TextId::InfoNotElevated) });
 		}
 		constexpr size_t MaximumTrayTooltipLength = 127;
 		if (tooltip.size() > MaximumTrayTooltipLength)

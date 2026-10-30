@@ -13,6 +13,15 @@ relevant sind. Interne Entwicklungs- und Veröffentlichungsabläufe werden nicht
 
 - Die Kompatibilitätsanforderung des Tray-Pakets und -Installers wurde auf xucRun Core 0.9.0.3
   aktualisiert.
+- Das Tray liest die Client-Logging-Konfiguration jetzt bei jedem Öffnen seines Kontextmenüs neu
+  ein, sodass geänderte Logverzeichnisse und neu angelegte Logdateien ohne Neustart des Trays
+  verfügbar werden.
+- Das Tray prüft extern geänderte Spracheinstellungen jetzt vor seinem Neustart in der neuen Sprache
+  und bleibt bei einem ungültigen Wert oder einer ungültigen Ressource in der bisherigen Sprache
+  aktiv.
+- Der Tooltip des Symbols nennt jetzt Traykonto und Erhöhungszustand, wenn mehrere Trayinstanzen
+  vorhanden sind, das Traykonto vom interaktiv angemeldeten Benutzer abweicht oder die Identität
+  nicht zuverlässig bestimmt werden kann.
 
 ## [0.9.0.2] - 2026-10-23
 

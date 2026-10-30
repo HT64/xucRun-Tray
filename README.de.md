@@ -234,7 +234,11 @@ konfigurierten Sprachmodus verwenden.
 
 Der Installer wählt bewusst ein vorhandenes lokales Benutzerprofil aus und erstellt für dieses
 Konto die eingeschränkte Anmeldeaufgabe `\xucRun\BrokerStatus-<SID>`. xucRun Tray läuft anschließend
-in der interaktiven Sitzung dieses Benutzers und nicht dauerhaft als Administrator.
+in der interaktiven Sitzung dieses Benutzers und nicht dauerhaft als Administrator. Der Tooltip des
+Symbols nennt das Konto und zeigt an, ob der Trayprozess erhöht ausgeführt wird, wenn in derselben
+Sitzung eine weitere Trayinstanz vorhanden ist oder das Tray unter einem anderen Konto als der
+interaktiv angemeldete Benutzer läuft. Er lässt diese Identität nur weg, wenn sowohl die einzige
+Instanz als auch das übereinstimmende Sitzungskonto bestätigt sind.
 
 Vorausgewählt wird der interaktiv angemeldete Benutzer der Windows-Sitzung, aus der der Installer
 gestartet wurde. Das gilt auch dann, wenn für die UAC-Abfrage ein anderes Administratorkonto
@@ -275,8 +279,14 @@ zum Startabbruch, statt ersatzweise eine ungeprüfte Sprachdatei zu verwenden.
 
 Die Logdatei-Menüeinträge beziehen sich auf das von xucRun konfigurierte Client-Logverzeichnis. Ist
 die Client-Dateiprotokollierung deaktiviert oder existiert keine Logdatei, bleiben die
-entsprechenden Aktionen deaktiviert. Brokerwarnungen und -fehler werden weiterhin wie von xucRun
-dokumentiert in das Windows-Anwendungsereignislog geschrieben.
+entsprechenden Aktionen deaktiviert. Das Tray liest die Logging-Konfiguration bei jedem Öffnen
+seines Kontextmenüs neu ein. Änderungen am konfigurierten Verzeichnis und neu angelegte Logdateien
+stehen daher ohne Neustart des Trays zur Verfügung. Vor dem Öffnen prüft es außerdem die
+konfigurierte Sprache. Erkennt es eine gültige externe Änderung, startet es sich selbst neu und
+verwendet danach die neue Sprache. Einen ungültigen Wert oder eine ungültige Sprachressource meldet
+es, bleibt aber in der bisherigen Sprache aktiv. Technische Brokerwarnungen und -fehler werden
+unabhängig von der gewählten UI-Sprache immer auf Englisch in das
+Windows-Anwendungsereignislog geschrieben, wie von xucRun dokumentiert.
 
 ## Fehlerdiagnose
 

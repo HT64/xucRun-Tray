@@ -12,6 +12,13 @@ publication processes are not listed.
 ### Changed
 
 - Updated the Tray package and installer compatibility requirement to xucRun Core 0.9.0.3.
+- The Tray now rereads the client logging configuration whenever its context menu opens, so changed
+  log directories and newly created log files become available without restarting the Tray.
+- The Tray now validates externally changed language settings before restarting itself in the new
+  language and remains active in its current language when the new setting or resource is invalid.
+- The icon tooltip now identifies the Tray account and elevation state when multiple Tray instances
+  are present, the Tray account differs from the interactively signed-in user, or the identity
+  cannot be determined reliably.
 
 ## [0.9.0.2] - 2026-10-23
 
