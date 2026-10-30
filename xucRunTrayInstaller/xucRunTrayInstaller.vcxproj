@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Purpose: Builds the self-contained graphical xucRun Tray add-on installer. -->
+<!--
+  Purpose: Builds the self-contained graphical xucRun Tray add-on installer.
+  Approach: Packages validated payload artifacts as resources, compiles the bootstrap, and optionally signs it.
+-->
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|x64"><Configuration>Debug</Configuration><Platform>x64</Platform></ProjectConfiguration>

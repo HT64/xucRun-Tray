@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Purpose: Builds the English Tray language resource DLL. -->
+<!--
+  Purpose: Builds the English Tray language resource DLL.
+  Approach: Compiles shared client resources with English Tray strings and optionally signs Release output.
+-->
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|x64"><Configuration>Debug</Configuration><Platform>x64</Platform></ProjectConfiguration>

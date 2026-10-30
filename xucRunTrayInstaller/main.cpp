@@ -1,4 +1,5 @@
 // Purpose: Extracts the protected Tray add-on payload and starts its graphical installer.
+// Approach: Writes embedded resources to a secured temporary directory, launches PowerShell, and cleans up.
 #include <Windows.h>
 #include <ShlObj.h>
 #include <sddl.h>

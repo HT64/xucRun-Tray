@@ -1,4 +1,5 @@
 // Purpose: Executes tray actions selected from the broker status menu.
+// Approach: Dispatches typed selections to xucRun commands, broker requests, and guarded log operations.
 #include "ClientStatusActions.h"
 #include "ClientStatusActionRouting.h"
 

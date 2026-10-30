@@ -1,4 +1,5 @@
 // Purpose: Embeds the complete xucRun Tray add-on payload into the bootstrap installer.
+// Approach: Assigns icons, scripts, binaries, language DLLs, and metadata to stable Win32 resource IDs.
 #pragma code_page(65001)
 
 #include <windows.h>

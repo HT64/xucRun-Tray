@@ -1,4 +1,5 @@
 // Purpose: Classifies tray actions that must be delegated to the xucRun client.
+// Approach: Maps each typed action to its corresponding command-line argument at compile time.
 #pragma once
 
 #include <string_view>

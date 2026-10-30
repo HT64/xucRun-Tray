@@ -1,4 +1,5 @@
 // Purpose: Defines the model and typed result of the tray context menu.
+// Approach: Carries status inputs into menu creation and represents the user's selection without raw IDs.
 #pragma once
 
 #include <Windows.h>

@@ -1,4 +1,49 @@
-# Purpose: Provides the localized graphical workflow for the xucRun Tray add-on installer.
+<#
+.SYNOPSIS
+Runs the localized graphical xucRun Tray installation workflow.
+
+.DESCRIPTION
+Validates the embedded package manifest and hashes, the installed xucRun
+version, signer, and broker authorization, then displays a German or English
+Windows Forms interface. It lists eligible local profiles, shows the Core
+certificate and existing Tray state, and lets the user choose the installer
+language and target account. When required, it invokes the bundled signing
+helper so the payload uses the installed Core identity, revalidates hashes,
+and invokes the machine installer first for validation and then installation.
+
+.PARAMETER PackageDirectory
+Mandatory directory containing TrayPackage.json, the complete payload, and
+Sign-xucRunTrayPackage.ps1. It is also used briefly for redirected helper
+output, which is removed after each helper invocation.
+
+.PARAMETER InstallerPath
+Mandatory path to the bootstrap installer executable. Its package signature
+is checked when local payload signing is required.
+
+.PARAMETER DiagnosticLogPath
+Mandatory path where an unhandled-error trap attempts to write diagnostic
+details before showing an error dialog and exiting with code 1603.
+
+.EXAMPLE
+.\Installer-Gui.ps1 -PackageDirectory 'C:\ProgramData\xucRunTrayPackage' `
+    -InstallerPath 'C:\Installers\xucRun-Tray.exe' `
+    -DiagnosticLogPath 'C:\ProgramData\xucRunTray-install.log'
+
+Opens the localized installer, validates the package and installed Core, and
+allows an eligible local user to be selected.
+
+.NOTES
+Intended for an elevated Windows installer process and requires Windows
+PowerShell, Windows Forms, CIM/WTS access, a supported installed xucRun, and
+the bundled machine installer and signing helper. It may sign payload files
+with the existing non-exportable local Core key, create short-lived output
+logs in PackageDirectory, and install Tray files, registry data, and a logon
+task through Install-xucRunTray.ps1. It does not modify Core or export keys.
+Exit code 0 means installation succeeded, 1602 means the user closed or
+cancelled the dialog before success, and 1603 means an unhandled validation
+or installation error; the error trap makes a best effort to write the
+diagnostic log and show the failure.
+#>
 param(
     [Parameter(Mandatory)][string]$PackageDirectory,
     [Parameter(Mandatory)][string]$InstallerPath,

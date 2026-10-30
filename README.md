@@ -1,9 +1,13 @@
+<!--
+Purpose: Describes xucRun Tray, its requirements, installation, operation, and development.
+Approach: Guides users from product context through safe use and removal to building from source.
+-->
 # xucRun Tray
 
 **Language:** [Deutsch](README.de.md) | English
 
-**Documentation:** [Changelog](CHANGELOG.md) | [Manual removal](docs/en/MANUAL_REMOVAL.md) |
-[xucRun](https://github.com/HT64/xucRun)
+**Documentation:** [File register](FILE_REGISTER.md) | [Changelog](CHANGELOG.md) |
+[Manual removal](docs/en/MANUAL_REMOVAL.md) | [xucRun](https://github.com/HT64/xucRun)
 
 > **Status:** xucRun Tray is under development. The documentation describes the intended behavior.
 > The current state may contain defects, differ from that behavior, and change. The current

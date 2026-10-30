@@ -1,4 +1,36 @@
-# Purpose: Verifies the Tray add-on package contract without changing the local installation.
+<#
+.SYNOPSIS
+Tests the built xucRun Tray payload and release package contract.
+
+.DESCRIPTION
+Validates the selected payload manifest, file set, SHA-256 hashes, versions,
+binary metadata, PowerShell syntax, installer behavior contracts, and
+signature consistency. It also verifies the bootstrap installer and public
+package contents, checks legal-file hashes and NOTICE attribution, rejects
+forbidden Core mutation patterns in the Tray installer, and confirms that the
+pinned sibling Core installer contains the required Tray update safeguards.
+The test reads artifacts and source files without changing the installation.
+
+.PARAMETER Configuration
+Artifact configuration to test. Allowed values are Debug and Release; the
+default is Release.
+
+.EXAMPLE
+.\Test-TrayAddonPackage.ps1 -Configuration Release
+
+Validates the Release payload, bootstrap installer, public package, and
+cross-repository update contracts.
+
+.NOTES
+Requires PowerShell, a complete previously built and packaged artifact set
+for the selected configuration, and the pinned sibling xucRun checkout.
+Authenticode status and Windows version-resource metadata are inspected.
+The test has no installation side effects and does not sign or rewrite
+artifacts. Normal completion returns 0 when run with powershell.exe -File.
+Any missing file, parser error, contract mismatch, unexpected package file,
+invalid hash, metadata, version, or signature state causes a terminating
+error and a nonzero process exit code.
+#>
 [CmdletBinding()]
 param(
     [ValidateSet('Debug', 'Release')]

@@ -1,4 +1,5 @@
 // Purpose: German Tray-only string resources.
+// Approach: Maps shared Tray string identifiers to localized German user-interface text.
 	IDS_TOOLTIP_SERVICE, "Dienst: {0}"
 	IDS_TOOLTIP_CONNECTION, "Kommunikation: {0}"
 	IDS_TOOLTIP_ELEVATED, "Erhöht: {0}"

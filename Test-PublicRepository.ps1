@@ -1,4 +1,45 @@
-# Purpose: Fails unless this worktree targets the public xucRun Tray repository.
+<#
+.SYNOPSIS
+Verifies that a worktree and optional push destination are the public Tray repository.
+
+.DESCRIPTION
+Resolves the supplied directory, confirms it is exactly the root of a Git
+worktree, and requires both the fetch and push URLs of origin to identify
+HT64/xucRun-Tray. If a prospective push remote name and URL are supplied, it
+validates that URL against the same repository. Finally, it queries GitHub
+with gh and requires the repository metadata to report PUBLIC visibility.
+
+.PARAMETER RepositoryRoot
+Mandatory path expected to be the exact root of the xucRun Tray Git
+worktree. Child directories and roots of other repositories are rejected.
+
+.PARAMETER PushRemoteName
+Optional display name of a prospective push remote. It is used in diagnostic
+messages and must be supplied together with PushRemoteUrl. The default is no
+separate push destination check.
+
+.PARAMETER PushRemoteUrl
+Optional GitHub HTTPS or SSH URL for a prospective push destination. It must
+be supplied together with PushRemoteName and resolve to HT64/xucRun-Tray.
+
+.EXAMPLE
+.\Test-PublicRepository.ps1 -RepositoryRoot $PSScriptRoot `
+    -PushRemoteName origin `
+    -PushRemoteUrl 'https://github.com/HT64/xucRun-Tray.git'
+
+Checks the worktree, origin URLs, proposed push URL, and live public GitHub
+visibility.
+
+.NOTES
+Requires git.exe, gh.exe, network access, and GitHub CLI authentication that
+can query HT64/xucRun-Tray. The script is read-only: it does not modify Git
+configuration, remotes, or GitHub. Only standard GitHub HTTPS,
+ssh://git@github.com, and SCP-style git@github.com URLs are accepted. Normal
+completion returns 0 when run with powershell.exe -File. Tool failures,
+unsupported or mismatched URLs, incomplete paired parameters, a mismatched
+worktree root, or non-public visibility cause a terminating error and a
+nonzero process exit code.
+#>
 [CmdletBinding()]
 param(
     [Parameter(Mandatory)]

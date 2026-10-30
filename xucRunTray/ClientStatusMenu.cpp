@@ -1,4 +1,5 @@
 // Purpose: Builds the tray context menu and maps commands to typed actions.
+// Approach: Collects status and process data, composes Win32 menus, and returns the selected model action.
 #include "ClientStatusMenu.h"
 
 #include <ShlObj.h>

@@ -1,4 +1,5 @@
-// Purpose: Defines stable resource identifiers used exclusively by the proprietary Tray.
+// Purpose: Defines stable string resource identifiers used by xucRun Tray.
+// Approach: Assigns fixed numeric constants shared by native code and both language resource tables.
 #pragma once
 
 #define IDS_TOOLTIP_SERVICE 1011

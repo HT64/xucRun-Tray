@@ -1,4 +1,5 @@
 // Purpose: Defines resource identifiers for the xucRun Tray add-on bootstrap installer.
+// Approach: Assigns fixed numeric IDs shared by the resource script and native extraction code.
 #ifndef XUCRUN_TRAY_INSTALLER_RESOURCE_H
 #define XUCRUN_TRAY_INSTALLER_RESOURCE_H
 

@@ -1,3 +1,7 @@
+<!--
+Purpose: Erläutert, wie Rückmeldungen und Sicherheitsmeldungen zum Projekt eingereicht werden.
+Approach: Nennt die aktuelle Beitragsregel und verweist Schwachstellen auf den vertraulichen Meldeweg.
+-->
 # Zu xucRun Tray beitragen
 
 **Sprache:** [English](CONTRIBUTING.md) | Deutsch

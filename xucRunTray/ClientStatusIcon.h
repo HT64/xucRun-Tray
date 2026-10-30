@@ -1,5 +1,5 @@
 // Purpose: Defines state and representation of the xucRun tray icon.
-// Behavior: Derives icon, tooltip, and menu state from broker state and runtime information.
+// Approach: Models broker and process state, then exposes helpers that derive icon, tooltip, and menu data.
 #pragma once
 
 #include <Windows.h>

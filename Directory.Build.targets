@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Purpose: Rejects Tray builds whose required sibling repositories are unavailable. -->
+<!--
+  Purpose: Enforces shared prerequisites and resource freshness for all Tray builds.
+  Approach: Validates sibling and signing paths before building and deletes stale resource output.
+-->
 <Project>
   <Target Name="ValidateXucRunTrayWorkspace" BeforeTargets="PrepareForBuild">
     <Error Condition="!Exists('$(XucRunCoreRoot)\xucRunCore\xucRunCore.vcxproj')"

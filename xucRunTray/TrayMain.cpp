@@ -1,4 +1,5 @@
 // Purpose: Runs the optional xucRun status and control interface as a separate process.
+// Approach: Initializes shared client services, handles integration-test mode, and enters the status-icon loop.
 #include <Windows.h>
 
 #include <string>

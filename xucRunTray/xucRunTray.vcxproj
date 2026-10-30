@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Purpose: Builds the optional Tray status and control executable. -->
+<!--
+  Purpose: Builds the optional Tray status and control executable.
+  Approach: Compiles native Tray sources, links pinned Core projects and resources, and optionally signs Release output.
+-->
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|x64">

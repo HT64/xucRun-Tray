@@ -1,4 +1,5 @@
 // Purpose: Queries broker-backed status data and presents it through the Tray interface.
+// Approach: Runs a hidden Win32 message window that observes service events, refreshes state, and drives the icon.
 #include "TrayBrokerStatus.h"
 
 #include "ClientBrokerStatus.h"

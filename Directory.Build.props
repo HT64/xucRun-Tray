@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Purpose: Defines public Tray build paths and optional external release signing. -->
+<!--
+  Purpose: Defines public Tray build paths and optional external release signing.
+  Approach: Supplies overridable repository, artifact, and signing properties to every MSBuild project.
+-->
 <Project>
   <PropertyGroup>
     <XucRunCoreRoot Condition="'$(XucRunCoreRoot)'==''">$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\xucRun-Core'))</XucRunCoreRoot>

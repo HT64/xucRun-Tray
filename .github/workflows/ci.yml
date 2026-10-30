@@ -1,4 +1,5 @@
 # Purpose: Builds and packages public xucRun Tray against its pinned public xucRun revision.
+# Approach: Resolves Dependencies.json, checks out both repositories, then builds and tests x64 artifacts.
 name: xucRun Tray CI
 
 on:

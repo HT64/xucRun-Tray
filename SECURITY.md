@@ -1,3 +1,7 @@
+<!--
+Purpose: Defines supported versions and the confidential vulnerability-reporting route.
+Approach: Separates public version support from private reporting steps and response expectations.
+-->
 # Security Policy
 
 **Language:** [Deutsch](SECURITY.de.md) | English

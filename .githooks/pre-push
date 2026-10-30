@@ -1,5 +1,6 @@
 #!/bin/sh
 # Purpose: Blocks pushes unless the public Tray repository and destination are verified.
+# Approach: Resolves the worktree root and delegates remote and visibility checks to PowerShell.
 
 repository_root=$(git rev-parse --show-toplevel) || exit 1
 powershell.exe -NoProfile -ExecutionPolicy Bypass \

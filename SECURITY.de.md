@@ -1,3 +1,7 @@
+<!--
+Purpose: Definiert unterstützte Versionen und den vertraulichen Meldeweg für Schwachstellen.
+Approach: Trennt öffentliche Versionsunterstützung von privaten Meldeschritten und Reaktionshinweisen.
+-->
 # Sicherheitsrichtlinie
 
 **Sprache:** [English](SECURITY.md) | Deutsch

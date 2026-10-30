@@ -1,4 +1,43 @@
-# Purpose: Re-signs the Tray payload with the installed xucRun signer's local private key.
+<#
+.SYNOPSIS
+Signs an xucRun Tray payload with the installed xucRun signing identity.
+
+.DESCRIPTION
+Locates the supported installed xucRun executable, requires its valid
+Authenticode signer to have exactly one matching private key in the local
+machine certificate store, and copies the four Tray payload files into a
+new ACL-protected ProgramData staging directory. It signs and verifies every
+staged file, replaces the package files only after all signatures succeed,
+then recalculates every hash in TrayPackage.json. The protected staging
+directory is removed in a finally block.
+
+.PARAMETER PackageDirectory
+Directory containing xucRunTray.exe, both language assemblies,
+Install-xucRunTray.ps1, and TrayPackage.json. The path is mandatory and must
+resolve to an accessible package directory.
+
+.PARAMETER TimestampServer
+Optional timestamp service URL passed to Set-AuthenticodeSignature for every
+payload file. The default is no timestamp server.
+
+.EXAMPLE
+.\Sign-xucRunTrayPackage.ps1 -PackageDirectory 'C:\Packages\xucRun-Tray' `
+    -TimestampServer 'http://timestamp.digicert.com'
+
+Signs all payload files with the installed xucRun certificate, timestamps
+them, verifies them, and refreshes the manifest hashes.
+
+.NOTES
+Requires elevated Windows PowerShell 5.1, an installed and validly signed
+xucRun at the supported Program Files path, and exactly one corresponding
+code-signing certificate with a private key in Cert:\LocalMachine\My.
+Signing uses an ACL-protected temporary directory under ProgramData and
+overwrites payload files and manifest hashes only after all staged
+signatures validate. It never exports the private key. Normal completion
+returns 0 when run with powershell.exe -File. Missing files or certificates,
+invalid signatures, signing failures, manifest errors, and access failures
+are terminating errors and produce a nonzero process exit code.
+#>
 [CmdletBinding()]
 param(
     [Parameter(Mandatory)][string]$PackageDirectory,

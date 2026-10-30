@@ -1,4 +1,69 @@
-# Purpose: Installs, updates, or removes the optional Tray add-on without changing xucRun.
+<#
+.SYNOPSIS
+Validates, installs, updates, or removes the xucRun Tray add-on.
+
+.DESCRIPTION
+In the Install parameter set, validates a Tray package manifest, hashes,
+versions, Authenticode signers, the installed xucRun version and broker
+authorization, and the selected local user. Unless ValidateOnly is specified,
+it stages and revalidates the payload, stops installed Tray processes, backs
+up replaced files, installs the Tray executable, language resources, and this
+installer, configures a per-user logon task, and writes a protected uninstall
+entry. Failed replacement is rolled back; previously running Tray instances
+are restarted where possible.
+
+In the Uninstall parameter set, it stops the installed Tray, removes all of
+its logon tasks, files, and uninstall registration, but leaves xucRun Core,
+the broker, certificates, credentials, and approvals unchanged. Uninstall
+success or failure is shown to the interactive user; failures are also
+written to a protected diagnostic-log directory when possible.
+
+.PARAMETER PackageDirectory
+Directory containing TrayPackage.json and the complete signed payload.
+Required for installation and validation. The directory and payload files
+must exist, must not be reparse points, and must satisfy the manifest and
+same-signer checks.
+
+.PARAMETER UserSid
+SID of the regular local Windows user whose Tray logon task is validated or
+created. Required for installation and validation; special profiles and SIDs
+without a local profile are rejected.
+
+.PARAMETER ValidateOnly
+Performs all package, installed-Core, broker-binding, signature, and user
+validation without staging files or changing the installation. Defaults to
+false and is valid only in the Install parameter set.
+
+.PARAMETER Uninstall
+Selects removal instead of installation. This mandatory switch for the
+Uninstall parameter set cannot be combined with PackageDirectory, UserSid,
+or ValidateOnly.
+
+.EXAMPLE
+.\Install-xucRunTray.ps1 -PackageDirectory 'C:\Packages\xucRun-Tray' `
+    -UserSid 'S-1-5-21-123456789-123456789-123456789-1001' -ValidateOnly
+
+Validates the package and target account without modifying the installed
+system.
+
+.EXAMPLE
+.\Install-xucRunTray.ps1 -Uninstall
+
+Removes only the Tray add-on and its autostart tasks.
+
+.NOTES
+Requires elevated Windows PowerShell 5.1 on Windows. Installation requires a
+supported xucRun installation in Program Files, matching product versions,
+trusted same-publisher signatures, an intact broker authorization, and
+permission to modify Program Files, HKLM, processes, and Task Scheduler.
+Security checks reject reparse points and mismatched hashes or signers.
+Installation changes Tray files, scheduled tasks, and the Tray uninstall
+key; removal deletes those resources and may create a diagnostic log under
+ProgramData. Normal completion returns 0 when run with powershell.exe -File.
+Validation, authorization, file, registry, task, or rollback failures are
+terminating errors and produce a nonzero process exit code; immediate Tray
+restart failure is reported as a warning and does not fail installation.
+#>
 [CmdletBinding(DefaultParameterSetName = 'Install')]
 param(
     [Parameter(Mandatory, ParameterSetName = 'Install')]

@@ -1,4 +1,5 @@
-// Purpose: Defines typed localization IDs used exclusively by the proprietary Tray.
+// Purpose: Defines typed localization IDs used by xucRun Tray.
+// Approach: Maps Tray-specific string resource constants into the shared localization type system.
 #pragma once
 
 #include "Localization.h"

@@ -1,4 +1,5 @@
 # Purpose: Excludes xucRun Tray build outputs, IDE state, and local configuration.
+# Approach: Ignores known Visual Studio, Windows, build, artifact, and solution-user by-products.
 .vs/
 *.user
 *.suo

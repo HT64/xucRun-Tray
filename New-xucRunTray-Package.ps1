@@ -1,4 +1,56 @@
-# Purpose: Creates the internal payload or complete public release package for xucRun Tray.
+<#
+.SYNOPSIS
+Creates an xucRun Tray payload or release package from built artifacts.
+
+.DESCRIPTION
+Verifies the pinned sibling xucRun checkout against Dependencies.json, reads
+the shared product and protocol versions, and packages Tray build outputs.
+With SkipInstaller, it copies the executable, language assemblies, installer
+and signing helper into a payload directory and writes TrayPackage.json with
+SHA-256 hashes. Otherwise it verifies version and signing consistency between
+the bootstrap installer and payload, copies the versioned installer plus
+LICENSE and NOTICE, and writes SHA256SUMS.json.
+
+.PARAMETER Configuration
+Build configuration whose artifacts are packaged. Allowed values are Debug
+and Release; the default is Release.
+
+.PARAMETER DestinationDirectory
+Output directory. If omitted or blank, the default is
+artifacts\Payload\<Configuration> with SkipInstaller and
+artifacts\Package\<Configuration> otherwise. An existing destination is
+deleted recursively before the package is written.
+
+.PARAMETER SkipInstaller
+Creates only the embedded payload and manifest instead of the public release
+package. Defaults to false.
+
+.PARAMETER SignPayloadScript
+Runs the script identified by SignScriptPath against the staged
+Install-xucRunTray.ps1 before hashing the payload. Defaults to false and is
+permitted only with SkipInstaller.
+
+.PARAMETER SignScriptPath
+Path to the signing script used when SignPayloadScript is set. It has no
+default and must name an existing file when signing is requested.
+
+.EXAMPLE
+.\New-xucRunTray-Package.ps1 -Configuration Release -SkipInstaller
+
+Recreates the default Release payload and its TrayPackage.json manifest from
+the Release build artifacts.
+
+.NOTES
+Requires PowerShell, Git, the pinned sibling xucRun checkout, a valid
+Dependencies.json, and already-built matching Tray artifacts. Authenticode
+inspection is performed for release packaging. The command removes and
+recreates its destination, so that location must not contain unrelated data.
+It does not sign binaries; optional signing applies only to the staged
+installer script through the explicitly supplied helper. Normal completion
+returns 0 when run with powershell.exe -File. Missing or mismatched
+dependencies, artifacts, versions, signatures, legal files, or a failed
+signing helper cause a terminating error and a nonzero process exit code.
+#>
 [CmdletBinding()]
 param(
     [ValidateSet('Debug', 'Release')]

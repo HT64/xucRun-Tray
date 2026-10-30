@@ -1,3 +1,7 @@
+<!--
+Purpose: Describes manual xucRun Tray removal when normal uninstallation is unavailable.
+Approach: Identifies Tray artifacts, removes them step by step, and explicitly protects xucRun data.
+-->
 # Manual removal
 
 **Language:** [Deutsch](../de/MANUAL_REMOVAL.md) | English

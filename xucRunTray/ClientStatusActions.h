@@ -1,4 +1,5 @@
 // Purpose: Defines typed tray actions selected from the broker status menu.
+// Approach: Models action kinds and selections, and exposes the command-launch and dispatch boundary.
 #pragma once
 
 #include <Windows.h>

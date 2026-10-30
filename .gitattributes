@@ -1,4 +1,5 @@
-# Purpose: Defines stable text handling for the private xucRun Tray repository.
+# Purpose: Defines stable text handling for files in the xucRun Tray repository.
+# Approach: Lets Git detect text while pinning Windows-oriented build and script files to CRLF.
 * text=auto
 *.sln text eol=crlf
 *.vcxproj text eol=crlf

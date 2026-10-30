@@ -1,3 +1,7 @@
+<!--
+Purpose: Beschreibt die manuelle Entfernung von xucRun Tray, wenn die Deinstallation nicht nutzbar ist.
+Approach: Identifiziert Tray-Artefakte, entfernt sie schrittweise und schützt ausdrücklich xucRun-Daten.
+-->
 # Manuelle Entfernung
 
 **Sprache:** Deutsch | [English](../en/MANUAL_REMOVAL.md)

@@ -1,3 +1,7 @@
+<!--
+Purpose: Explains how to submit project feedback and security reports.
+Approach: States the current contribution policy and directs vulnerabilities to confidential reporting.
+-->
 # Contributing to xucRun Tray
 
 **Language:** [Deutsch](CONTRIBUTING.de.md) | English

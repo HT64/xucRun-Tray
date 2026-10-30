@@ -1,5 +1,5 @@
 // Purpose: Builds visible data for the tray status icon.
-// Behavior: Combines service state, localized text, resource icons, and broker information.
+// Approach: Combines service state, localized text, resource icons, and broker information.
 #include "ClientStatusIcon.h"
 
 #include <algorithm>
