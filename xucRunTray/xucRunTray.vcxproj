@@ -17,12 +17,16 @@
   <ItemGroup>
     <ClCompile Include="TrayMain.cpp" />
     <ClCompile Include="TrayBrokerStatus.cpp" />
+    <ClCompile Include="AutostartControl.cpp" />
+    <ClCompile Include="TrayCommandViews.cpp" />
     <ClCompile Include="ClientStatusActions.cpp" />
     <ClCompile Include="ClientStatusIcon.cpp" />
     <ClCompile Include="ClientStatusMenu.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="TrayBrokerStatus.h" />
+    <ClInclude Include="AutostartControl.h" />
+    <ClInclude Include="TrayCommandViews.h" />
     <ClInclude Include="ClientStatusActions.h" />
     <ClInclude Include="ClientStatusActionRouting.h" />
     <ClInclude Include="ClientStatusIcon.h" />
@@ -119,7 +123,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>false</GenerateDebugInformation>
-      <AdditionalDependencies>Shell32.lib;Advapi32.lib;Credui.lib;Netapi32.lib;Bcrypt.lib;Crypt32.lib;Wintrust.lib;Wtsapi32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Shell32.lib;Ole32.lib;OleAut32.lib;Advapi32.lib;Credui.lib;Netapi32.lib;Bcrypt.lib;Crypt32.lib;Wintrust.lib;Wtsapi32.lib;Version.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <UACExecutionLevel>AsInvoker</UACExecutionLevel>
       <ControlFlowGuard>Guard</ControlFlowGuard>
       <CETCompat>true</CETCompat>
@@ -151,7 +155,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>false</GenerateDebugInformation>
-      <AdditionalDependencies>Shell32.lib;Advapi32.lib;Credui.lib;Netapi32.lib;Bcrypt.lib;Crypt32.lib;Wintrust.lib;Wtsapi32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Shell32.lib;Ole32.lib;OleAut32.lib;Advapi32.lib;Credui.lib;Netapi32.lib;Bcrypt.lib;Crypt32.lib;Wintrust.lib;Wtsapi32.lib;Version.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <UACExecutionLevel>AsInvoker</UACExecutionLevel>
       <ControlFlowGuard>Guard</ControlFlowGuard>
       <CETCompat>true</CETCompat>

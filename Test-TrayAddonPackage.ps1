@@ -112,7 +112,12 @@ $machineInstaller = [IO.File]::ReadAllText(
     (Join-Path $repositoryRoot 'Install-xucRunTray.ps1'))
 $graphicalInstaller = [IO.File]::ReadAllText(
     (Join-Path $repositoryRoot 'xucRunTrayInstaller\Installer-Gui.ps1'))
-foreach ($requiredContract in @('InstallDate', 'InstallTimestampUtc')) {
+foreach ($requiredContract in @(
+    'InstallDate',
+    'InstallTimestampUtc',
+    '$installationContractVersion = 1',
+    'InstallationContractVersion'
+)) {
     if (-not $machineInstaller.Contains($requiredContract)) {
         throw "Tray installation timestamp contract is missing '$requiredContract'."
     }

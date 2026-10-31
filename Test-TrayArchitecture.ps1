@@ -258,9 +258,11 @@ $buildProperties = [IO.File]::ReadAllText(
     (Join-Path $repositoryRoot 'Directory.Build.props'))
 $buildTargets = [IO.File]::ReadAllText(
     (Join-Path $repositoryRoot 'Directory.Build.targets'))
-if (($buildProperties + $buildTargets) -match
-    '(?i)XucRunDistributionRoot|xucRun-Distribution') {
-    throw 'Public Tray build files must not reference the private Distribution repository.'
+$privateRootProperty = 'XucRun' + 'DistributionRoot'
+$privateRepositoryName = 'xucRun-' + 'Distribution'
+if (($buildProperties + $buildTargets).Contains($privateRootProperty) -or
+    ($buildProperties + $buildTargets).Contains($privateRepositoryName)) {
+    throw 'Public Tray build files must not reference the private deployment repository.'
 }
 if (-not $buildTargets.Contains('$(XucRunSignScript)')) {
     throw 'Public Tray signing must use the explicitly supplied XucRunSignScript.'
@@ -313,6 +315,42 @@ foreach ($requiredContract in @(
     }
 }
 
+$forbiddenPublicTerms = @(
+    ('Install-xucRun' + '-Icon.ps1'),
+    ('combined ' + 'Distribution'),
+    ('kombinierte ' + 'Distribution'),
+    $privateRepositoryName
+)
+$publicTextFiles = @($repositoryFileNames | Where-Object {
+    [IO.Path]::GetExtension($_).ToLowerInvariant() -in
+        @('.cpp', '.h', '.md', '.ps1', '.rc', '.rcinc')
+})
+foreach ($relativePath in $publicTextFiles) {
+    $text = [IO.File]::ReadAllText((Join-Path $repositoryRoot $relativePath))
+    foreach ($forbiddenPublicTerm in $forbiddenPublicTerms) {
+        if ($text.Contains($forbiddenPublicTerm)) {
+            throw "Public Tray file '$relativePath' exposes private term '$forbiddenPublicTerm'."
+        }
+    }
+}
+$coreRoot = [IO.Path]::GetFullPath((Join-Path $repositoryRoot '..\xucRun-Core'))
+$coreTextFiles = Get-ChildItem -LiteralPath $coreRoot -Recurse -File |
+    Where-Object {
+        $_.FullName -notlike (Join-Path $coreRoot '.git\*') -and
+        $_.FullName -notlike (Join-Path $coreRoot 'artifacts\*') -and
+        $_.FullName -notmatch '\\x64\\' -and
+        $_.Extension.ToLowerInvariant() -in
+            @('.cpp', '.h', '.md', '.ps1', '.rc', '.rcinc')
+    }
+foreach ($coreTextFile in $coreTextFiles) {
+    $text = [IO.File]::ReadAllText($coreTextFile.FullName)
+    foreach ($forbiddenPublicTerm in $forbiddenPublicTerms) {
+        if ($text.Contains($forbiddenPublicTerm)) {
+            throw "Public Core file '$($coreTextFile.FullName)' exposes private term '$forbiddenPublicTerm'."
+        }
+    }
+}
+
 $installerProject = [IO.File]::ReadAllText(
     (Join-Path $repositoryRoot 'xucRunTrayInstaller\xucRunTrayInstaller.vcxproj'))
 foreach ($requiredContract in @(
@@ -332,6 +370,9 @@ foreach ($requiredContract in @(
     'same-as-installed-core',
     'requiredCoreProductVersion',
     'Register-ScheduledTask',
+    'EnableAutostart',
+    'DisableAutostart',
+    'Remove-StatusTask',
     'Set-TrayUninstallRegistryAcl',
     'RegistrySecurity',
     "Relative = 'Install-xucRunTray.ps1'",
@@ -340,6 +381,149 @@ foreach ($requiredContract in @(
 )) {
     if (-not $machineInstaller.Contains($requiredContract)) {
         throw "Tray machine installer is missing contract '$requiredContract'."
+    }
+}
+
+$coreInfoResourcesPath = [IO.Path]::GetFullPath((Join-Path $repositoryRoot `
+    '..\xucRun-Core\xucRunSharedResources\ClientResources.rc'))
+if (-not (Test-Path -LiteralPath $coreInfoResourcesPath -PathType Leaf)) {
+    throw "Pinned Core information resources are missing: $coreInfoResourcesPath"
+}
+$coreInfoResources = [IO.File]::ReadAllText($coreInfoResourcesPath)
+$trayInfoResources = [IO.File]::ReadAllText(
+    (Join-Path $repositoryRoot 'xucRunTrayResources\TrayStringsDeDe.rcinc')) +
+    [IO.File]::ReadAllText(
+        (Join-Path $repositoryRoot 'xucRunTrayResources\TrayStringsEnUs.rcinc'))
+foreach ($sharedInfoContract in @(
+    'Program\nVersion:',
+    'Programm\nVersion:',
+    'Copyright:',
+    'Architecture:',
+    'Architektur:',
+    'Signing certificate\n',
+    'Signierzertifikat\n',
+    'Current account\n',
+    'Aktuelles Konto\n',
+    'Elevation:',
+    ('Rechteerh' + [char]0x00F6 + 'hung:')
+)) {
+    if (-not $coreInfoResources.Contains($sharedInfoContract)) {
+        throw "Shared Core and Tray /info resources are missing '$sharedInfoContract'."
+    }
+    if ($trayInfoResources.Contains($sharedInfoContract)) {
+        throw "Tray-specific /info resources duplicate shared contract '$sharedInfoContract'."
+    }
+}
+$trayInfoSource = [IO.File]::ReadAllText(
+    (Join-Path $repositoryRoot 'xucRunTray\TrayCommandViews.cpp'))
+foreach ($requiredInfoSourceContract in @(
+    'ClientRuntimeInfo.h',
+    'runtime_info::Collect(maintenanceScript)',
+    'runtime_info::Format(commonInfo)'
+)) {
+    if (-not $trayInfoSource.Contains($requiredInfoSourceContract)) {
+        throw "Tray /info is missing source contract '$requiredInfoSourceContract'."
+    }
+}
+foreach ($requiredAutostartLabel in @(
+    ('Windows-Anmeldeaufgabe ohne erh' + [char]0x00F6 + 'hte Rechte'),
+    'Windows logon task without elevated privileges'
+)) {
+    if (-not $trayInfoResources.Contains($requiredAutostartLabel)) {
+        throw "Tray /info is missing autostart label '$requiredAutostartLabel'."
+    }
+}
+$trayMenuSource = [IO.File]::ReadAllText(
+    (Join-Path $repositoryRoot 'xucRunTray\ClientStatusMenu.cpp'))
+foreach ($requiredHelpMenuContract in @(
+    'HMENU helpMenu = CreatePopupMenu()',
+    'ShowCoreHelpCommand',
+    'ShowTrayHelpCommand',
+    'MenuShowCoreHelp',
+    'MenuShowTrayHelp'
+)) {
+    if (-not $trayMenuSource.Contains($requiredHelpMenuContract)) {
+        throw "Tray menu is missing help submenu contract '$requiredHelpMenuContract'."
+    }
+}
+foreach ($requiredLogMenuContract in @(
+    'ShowBrokerEventsCommand',
+    'MenuShowBrokerEvents',
+    'const bool logFileQuerySucceeded =',
+    'localization::TrayTextId::MenuDeleteAllLogFiles,',
+    '? std::to_wstring(logFiles.size()) : unavailable'
+)) {
+    if (-not $trayMenuSource.Contains($requiredLogMenuContract)) {
+        throw "Tray menu is missing event-log contract '$requiredLogMenuContract'."
+    }
+}
+foreach ($requiredLogFileCountLabel in @(
+    ('Alle Logdateien l' + [char]0x00F6 + 'schen... ({0})'),
+    'Delete all log files... ({0})'
+)) {
+    if (-not $trayInfoResources.Contains($requiredLogFileCountLabel)) {
+        throw "Tray resources are missing log-file count label '$requiredLogFileCountLabel'."
+    }
+}
+foreach ($requiredEventLogLabel in @(
+    'xucRun-Brokerereignisse anzeigen',
+    'Show xucRun Broker events'
+)) {
+    if (-not $trayInfoResources.Contains($requiredEventLogLabel)) {
+        throw "Tray resources are missing event-log label '$requiredEventLogLabel'."
+    }
+}
+$trayActionSource = [IO.File]::ReadAllText(
+    (Join-Path $repositoryRoot 'xucRunTray\ClientStatusActions.cpp'))
+foreach ($requiredTrayHelpContract in @(
+    'case Action::ShowTrayHelp:',
+    'tray_commands::ShowHelp(owner)'
+)) {
+    if (-not $trayActionSource.Contains($requiredTrayHelpContract)) {
+        throw "Tray menu is missing direct Tray help contract '$requiredTrayHelpContract'."
+    }
+}
+foreach ($requiredEventLogContract in @(
+    'ShowBrokerEvents(HWND owner)',
+    'GetSystemDirectoryW(',
+    'L"\\eventvwr.exe"',
+    '/c:Application /f:',
+    "Provider[@Name='xucRunBroker']",
+    'executeInfo.lpVerb = L"open"',
+    'BrokerEventsOpenFailed'
+)) {
+    if (-not $trayActionSource.Contains($requiredEventLogContract)) {
+        throw "Tray event-log action is missing contract '$requiredEventLogContract'."
+    }
+}
+$coreInfoSource = [IO.File]::ReadAllText([IO.Path]::GetFullPath(
+    (Join-Path $repositoryRoot '..\xucRun-Core\xucRun\ClientInfoCommand.cpp')))
+foreach ($requiredInfoSourceContract in @(
+    'ClientRuntimeInfo.h',
+    'runtime_info::Collect()',
+    'runtime_info::Format(commonInfo)'
+)) {
+    if (-not $coreInfoSource.Contains($requiredInfoSourceContract)) {
+        throw "Core /info is missing source contract '$requiredInfoSourceContract'."
+    }
+}
+$sharedInfoSource = [IO.File]::ReadAllText([IO.Path]::GetFullPath(
+    (Join-Path $repositoryRoot `
+        '..\xucRun-Core\xucRunClientCommon\ClientRuntimeInfo.cpp')))
+foreach ($requiredSharedInfoContract in @(
+    'LegalCopyright',
+    'VerifyWithSignerCertificate',
+    'GetSignerCertificateInfo',
+    'GetElevation()',
+    'L"x64"',
+    'GetLoadedLanguageResourcePath()',
+    'GetCurrentUserSID',
+    'ClientLogDirectory',
+    'Install-xucRun.ps1',
+    'maintenanceScriptPath'
+)) {
+    if (-not $sharedInfoSource.Contains($requiredSharedInfoContract)) {
+        throw "Shared client /info is missing source contract '$requiredSharedInfoContract'."
     }
 }
 

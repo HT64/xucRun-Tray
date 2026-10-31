@@ -40,7 +40,7 @@ Die Tray-Anwendung:
 - listet verfolgte erhöhte Prozesse und deren Fenster;
 - öffnet xucRun-Dialoge zur Verwaltung von Anmeldedaten und Programmfreigaben;
 - startet Sicherheitsdiagnose und Informationsansichten von xucRun;
-- ermöglicht den Zugriff auf konfigurierte Client-Logdateien;
+- ermöglicht den Zugriff auf konfigurierte Client-Logdateien und gefilterte xucRun-Brokerereignisse;
 - wechselt die xucRun-Programmsprache;
 - startet, aktiviert oder deaktiviert den Brokerdienst über die vorhandenen xucRun-Schnittstellen.
 
@@ -82,6 +82,12 @@ SHA256SUMS.json
 LICENSE
 NOTICE
 ```
+
+Das Release enthält bewusst kein separates Binär-ZIP mit `xucRunTray.exe` und den Sprach-DLLs.
+Die von GitHub automatisch angebotenen ZIP- und TAR.GZ-Archive enthalten den Quelltext, nicht ein
+installierbares Binärpaket. Der veröffentlichte Tray-Installer ist der unterstützte
+Installationsweg; ein manuelles Kopieren einzelner Tray-Dateien stellt weder die erforderliche
+gemeinsame Signiereridentität her noch richtet es die Anmeldeaufgabe ein.
 
 Lade alle Dateien aus demselben offiziellen
 [xucRun-Tray-GitHub-Release](https://github.com/HT64/xucRun-Tray/releases) herunter. Der
@@ -173,8 +179,9 @@ ist der im Dialog angezeigte Pfad.
 ## Schnellstart
 
 Ist der gewählte Benutzer aktuell angemeldet, startet der Installer xucRun Tray sofort über die
-eingeschränkte Benutzeraufgabe. Andernfalls startet xucRun Tray bei der nächsten Windows-Anmeldung
-dieses Benutzers. Für einen manuellen Start öffne eine Eingabeaufforderung und führe aus:
+Benutzeraufgabe ohne erhöhte Rechte. Andernfalls startet xucRun Tray bei der nächsten
+Windows-Anmeldung dieses Benutzers. Für einen manuellen Start öffne eine Eingabeaufforderung und
+führe aus:
 
 ```cmd
 "%ProgramFiles%\xucRun\xucRunTray.exe"
@@ -207,10 +214,11 @@ Abhängig von xucRun-Konfiguration und Berechtigungen bietet das Menü:
 - Anlegen, Anzeigen und Löschen gespeicherter Anmeldedaten;
 - Anzeigen und Zurücksetzen von Programmfreigaben;
 - eine administrative Ansicht über Benutzer hinweg nach der erforderlichen Erhöhung;
-- Sicherheitsdiagnose, Hilfe und Informationen von xucRun;
-- Anzeigen oder Löschen der aktuellen Client-Logdatei;
+- Sicherheitsdiagnose sowie Hilfe- und Informations-Untermenüs für xucRun und xucRun Tray;
+- Anzeigen oder Löschen der aktuellen Client-Logdatei sowie Anzeigen der xucRun-Brokerereignisse;
 - Löschen aller Client-Logdateien im konfigurierten Logverzeichnis nach Bestätigung;
 - automatische, deutsche und englische Sprachwahl;
+- Aktivieren oder Deaktivieren des automatischen Starts für das aktuelle Benutzerkonto;
 - Starten, Aktivieren oder Deaktivieren des Brokerdienstes;
 - Beenden der aktuellen Tray-Instanz.
 
@@ -237,8 +245,8 @@ konfigurierten Sprachmodus verwenden.
 ## Benutzerkonto und Autostart
 
 Der Installer wählt bewusst ein vorhandenes lokales Benutzerprofil aus und erstellt für dieses
-Konto die eingeschränkte Anmeldeaufgabe `\xucRun\BrokerStatus-<SID>`. xucRun Tray läuft anschließend
-in der interaktiven Sitzung dieses Benutzers und nicht dauerhaft als Administrator. Der Tooltip des
+Konto die Anmeldeaufgabe `\xucRun\BrokerStatus-<SID>` ohne erhöhte Rechte. xucRun Tray läuft
+anschließend in der interaktiven Sitzung dieses Benutzers und nicht dauerhaft als Administrator. Der Tooltip des
 Symbols nennt das Konto und zeigt an, ob der Trayprozess erhöht ausgeführt wird, wenn in derselben
 Sitzung eine weitere Trayinstanz vorhanden ist oder das Tray unter einem anderen Konto als der
 interaktiv angemeldete Benutzer läuft. Er lässt diese Identität nur weg, wenn sowohl die einzige
@@ -254,6 +262,41 @@ dieses Benutzerkonto aus. Bereits eingerichtete Benutzeraufgaben bleiben dabei e
 neu ausgewählte Benutzer angemeldet, startet xucRun Tray für diesen Benutzer sofort; andernfalls
 startet es bei seiner nächsten Windows-Anmeldung. Bei der Deinstallation werden die Aufgaben aller
 eingerichteten Benutzer gemeinsam entfernt.
+
+Der Menüeintrag zeigt abhängig vom aktuellen Zustand **Start bei Windows-Anmeldung aktivieren...**
+oder **Start bei Windows-Anmeldung deaktivieren...**. Das Ändern dieser Einstellung erfordert eine
+UAC-Bestätigung. Beim Deaktivieren läuft die aktuelle Tray-Instanz bis zum manuellen Beenden oder
+Abmelden weiter. Eine fehlende oder abweichende Aufgabe wird beim Aktivieren vollständig mit der
+vorgesehenen nicht erhöhten Konfiguration neu erstellt.
+
+Dieselben benutzerbezogenen Aktionen stehen für Skripte und Problembehebung als Aufrufparameter zur
+Verfügung:
+
+```cmd
+"%ProgramFiles%\xucRun\xucRunTray.exe" /enable-autostart
+"%ProgramFiles%\xucRun\xucRunTray.exe" /disable-autostart
+"%ProgramFiles%\xucRun\xucRunTray.exe" /autostart-status
+"%ProgramFiles%\xucRun\xucRunTray.exe" /info
+"%ProgramFiles%\xucRun\xucRunTray.exe" /help
+```
+
+`/autostart-status` zeigt den ermittelten Zustand an und beendet sich mit Exitcode `0`, wenn der
+Autostart vollständig gültig und aktiviert ist, mit `1`, wenn er fehlt, deaktiviert oder ungültig
+konfiguriert ist, und mit `2`, wenn der Zustand nicht zuverlässig ermittelt werden konnte. `/info`
+zeigt ausschließlich Informationen über Tray-Programm und -Installation. Die gemeinsamen
+Programm-, Signatur-, Konto- und Konfigurationsbereiche stammen aus derselben Implementierung wie
+bei `xucRun.exe /info` und nennen Version, Copyright, Pfad, Architektur, wirksame Sprache und
+geladene Sprach-DLL, Signierzertifikat, Konto, SID, Rechteerhöhung, Konfigurationsdatei und
+Client-Protokollierung. Der gemeinsame Konfigurationsabschnitt nennt außerdem das öffentliche
+Tray-Wartungsskript. Tray-spezifisch folgt die Windows-Anmeldeaufgabe ohne erhöhte Rechte zusammen
+mit ihrem Zustand. Angezeigt wird nur der Pfad der für diese Ausgabe geladenen
+Sprach-DLL; die andere installierte Sprach-DLL wird nicht aufgeführt. `/help` erläutert die
+öffentlichen Tray-Aufrufe und ihre Exitcodes. Das Hilfe-Untermenü öffnet wahlweise
+`xucRun.exe /help` oder die Tray-eigene Hilfe direkt in der laufenden Tray-Instanz. Das
+Informations-Untermenü öffnet wahlweise `xucRun.exe /info` oder die Tray-eigene Informationsansicht
+direkt in der laufenden Tray-Instanz. Andere Aufrufparameter werden mit einer Fehlermeldung und
+`ERROR_INVALID_PARAMETER` abgewiesen. Der interne Integrationstestparameter
+`/broker-policy-test` ist nicht für die normale Verwendung bestimmt.
 
 ## Sicherheitshinweise
 
@@ -274,23 +317,29 @@ vertrauenswürdig machen. Ausreichend privilegierte Schadsoftware kann Prozesse,
 Konfiguration oder angezeigte Informationen manipulieren. Deshalb gelten auch für xucRun Tray die für
 xucRun dokumentierten Betriebsgrenzen und Restrisiken.
 
-## Sprache und Logdateien
+## Sprache und Protokolle
 
 xucRun Tray verwendet die für xucRun konfigurierte Sprache und kann über sein Menü zwischen
 Automatisch, Deutsch und Englisch wechseln. Eine fehlende, ungültige oder nicht passend signierte
 Sprachressource führt
 zum Startabbruch, statt ersatzweise eine ungeprüfte Sprachdatei zu verwenden.
 
-Die Logdatei-Menüeinträge beziehen sich auf das von xucRun konfigurierte Client-Logverzeichnis. Ist
-die Client-Dateiprotokollierung deaktiviert oder existiert keine Logdatei, bleiben die
-entsprechenden Aktionen deaktiviert. Das Tray liest die Logging-Konfiguration bei jedem Öffnen
+Die Client-Logdatei-Menüeinträge beziehen sich auf das von xucRun konfigurierte
+Client-Logverzeichnis. Ist die Client-Dateiprotokollierung deaktiviert oder existiert keine
+Logdatei, bleiben die
+entsprechenden Aktionen deaktiviert. **Alle Logdateien löschen...** zeigt in Klammern die Anzahl
+der aktuell ermittelten löschbaren Client-Logdateien an. Das Tray liest die Logging-Konfiguration bei jedem Öffnen
 seines Kontextmenüs neu ein. Änderungen am konfigurierten Verzeichnis und neu angelegte Logdateien
 stehen daher ohne Neustart des Trays zur Verfügung. Vor dem Öffnen prüft es außerdem die
 konfigurierte Sprache. Erkennt es eine gültige externe Änderung, startet es sich selbst neu und
 verwendet danach die neue Sprache. Einen ungültigen Wert oder eine ungültige Sprachressource meldet
 es, bleibt aber in der bisherigen Sprache aktiv. Technische Brokerwarnungen und -fehler werden
 unabhängig von der gewählten UI-Sprache immer auf Englisch in das
-Windows-Anwendungsereignislog geschrieben, wie von xucRun dokumentiert.
+Windows-Anwendungsereignislog unter der Quelle `xucRunBroker` geschrieben, wie von xucRun
+dokumentiert. Der stets verfügbare Menüeintrag **xucRun-Brokerereignisse anzeigen** öffnet diesen
+Windows-Kanal ohne UAC-Abfrage und filtert die gestartete Ansicht vorübergehend auf genau diese
+Quelle. Andere Ansichten und spätere Aufrufe der Ereignisanzeige bleiben ungefiltert. Die Aktion
+speichert keine benutzerdefinierte Ansicht und löscht oder konfiguriert keine Ereignisse.
 
 ## Fehlerdiagnose
 

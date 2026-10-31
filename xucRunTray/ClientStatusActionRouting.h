@@ -19,8 +19,8 @@ namespace xucrun::status_actions
 		case Action::ResetApprovals: return L"/resetapprovals";
 		case Action::AdministrativeStatus: return L"/admin-status";
 		case Action::RunAudit: return L"/audit";
-		case Action::ShowHelp: return L"/help";
-		case Action::ShowInfo: return L"/info";
+		case Action::ShowCoreHelp: return L"/help";
+		case Action::ShowCoreInfo: return L"/info";
 		case Action::SetLanguageGerman: return L"/set-language:de";
 		case Action::SetLanguageEnglish: return L"/set-language:en";
 		case Action::SetLanguageAutomatic: return L"/set-language:auto";
@@ -35,8 +35,10 @@ namespace xucrun::status_actions
 	static_assert(GetCoreClientArgument(Action::ResetApprovals) == L"/resetapprovals");
 	static_assert(GetCoreClientArgument(Action::AdministrativeStatus) == L"/admin-status");
 	static_assert(GetCoreClientArgument(Action::RunAudit) == L"/audit");
-	static_assert(GetCoreClientArgument(Action::ShowHelp) == L"/help");
-	static_assert(GetCoreClientArgument(Action::ShowInfo) == L"/info");
+	static_assert(GetCoreClientArgument(Action::ShowCoreHelp) == L"/help");
+	static_assert(GetCoreClientArgument(Action::ShowTrayHelp).empty());
+	static_assert(GetCoreClientArgument(Action::ShowCoreInfo) == L"/info");
+	static_assert(GetCoreClientArgument(Action::ShowTrayInfo).empty());
 	static_assert(GetCoreClientArgument(Action::SetLanguageGerman) ==
 		L"/set-language:de");
 	static_assert(GetCoreClientArgument(Action::SetLanguageEnglish) ==

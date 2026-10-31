@@ -21,7 +21,7 @@ namespace
 	constexpr UINT ShowApprovalsCommand = 4;
 	constexpr UINT ResetApprovalsCommand = 5;
 	constexpr UINT RunAuditCommand = 6;
-	constexpr UINT ShowHelpCommand = 7;
+	constexpr UINT ShowCoreHelpCommand = 7;
 	constexpr UINT ServiceCommand = 8;
 	constexpr UINT CreateCredentialCommand = 9;
 	constexpr UINT AdministrativeStatusCommand = 11;
@@ -31,7 +31,11 @@ namespace
 	constexpr UINT ShowLogFileCommand = 14;
 	constexpr UINT DeleteLogFileCommand = 15;
 	constexpr UINT DeleteAllLogFilesCommand = 16;
-	constexpr UINT ShowInfoCommand = 17;
+	constexpr UINT ShowCoreInfoCommand = 17;
+	constexpr UINT AutostartCommand = 19;
+	constexpr UINT ShowTrayInfoCommand = 20;
+	constexpr UINT ShowTrayHelpCommand = 21;
+	constexpr UINT ShowBrokerEventsCommand = 22;
 	constexpr UINT StatusIconCommandBase = 500;
 	constexpr UINT ProcessCommandBase = 1000;
 
@@ -277,11 +281,14 @@ namespace
 		case ResetApprovalsCommand: return Action::ResetApprovals;
 		case AdministrativeStatusCommand: return Action::AdministrativeStatus;
 		case RunAuditCommand: return Action::RunAudit;
-		case ShowHelpCommand: return Action::ShowHelp;
+		case ShowCoreHelpCommand: return Action::ShowCoreHelp;
+		case ShowTrayHelpCommand: return Action::ShowTrayHelp;
 		case ShowLogFileCommand: return Action::ShowLogFile;
 		case DeleteLogFileCommand: return Action::DeleteLogFile;
 		case DeleteAllLogFilesCommand: return Action::DeleteAllLogFiles;
-		case ShowInfoCommand: return Action::ShowInfo;
+		case ShowBrokerEventsCommand: return Action::ShowBrokerEvents;
+		case ShowCoreInfoCommand: return Action::ShowCoreInfo;
+		case ShowTrayInfoCommand: return Action::ShowTrayInfo;
 		case SetLanguageGermanCommand: return Action::SetLanguageGerman;
 		case SetLanguageEnglishCommand: return Action::SetLanguageEnglish;
 		case SetLanguageAutomaticCommand: return Action::SetLanguageAutomatic;
@@ -507,8 +514,15 @@ namespace xucrun::status_menu
 			std::wstring logDirectory;
 			std::vector<std::wstring> logFiles;
 			DWORD logFileQueryError = ERROR_SUCCESS;
-			const bool logFilesAvailable = client_logging::GetExistingLogFiles(
-				logDirectory, logFiles, logFileQueryError) && !logFiles.empty();
+			const bool logFileQuerySucceeded =
+				client_logging::GetExistingLogFiles(
+					logDirectory, logFiles, logFileQueryError);
+			const bool logFilesAvailable =
+				logFileQuerySucceeded && !logFiles.empty();
+			const std::wstring deleteAllLogFilesLabel = localization::Format(
+				localization::TrayTextId::MenuDeleteAllLogFiles,
+				{ logFileQuerySucceeded
+					? std::to_wstring(logFiles.size()) : unavailable });
 			AppendMenuW(logFileMenu, currentLogFileFlags, ShowLogFileCommand,
 				localization::GetText(
 					localization::TrayTextId::MenuShowLogFile).c_str());
@@ -519,8 +533,12 @@ namespace xucrun::status_menu
 			AppendMenuW(logFileMenu,
 				logFilesAvailable ? MF_STRING : MF_STRING | MF_GRAYED,
 				DeleteAllLogFilesCommand,
+				deleteAllLogFilesLabel.c_str());
+			AppendMenuW(logFileMenu, MF_SEPARATOR, 0, nullptr);
+			AppendMenuW(logFileMenu, MF_STRING,
+				ShowBrokerEventsCommand,
 				localization::GetText(
-					localization::TrayTextId::MenuDeleteAllLogFiles).c_str());
+					localization::TrayTextId::MenuShowBrokerEvents).c_str());
 			AppendMenuItemWithIcon(menu, MF_POPUP,
 				reinterpret_cast<UINT_PTR>(logFileMenu),
 				localization::GetText(localization::TrayTextId::MenuLogFiles),
@@ -554,12 +572,49 @@ namespace xucrun::status_menu
 				localization::GetText(localization::TrayTextId::MenuLanguage),
 				SIID_APPLICATION, menuBitmaps);
 		}
-		AppendMenuItemWithIcon(menu, brokerCommandFlags, ShowHelpCommand,
-			localization::GetText(localization::TrayTextId::MenuShowHelp),
-			SIID_HELP, menuBitmaps);
-		AppendMenuItemWithIcon(menu, MF_STRING, ShowInfoCommand,
-			localization::GetText(localization::TrayTextId::MenuShowInfo),
-			SIID_INFO, menuBitmaps);
+		HMENU helpMenu = CreatePopupMenu();
+		if (helpMenu)
+		{
+			AppendMenuW(helpMenu, MF_STRING, ShowCoreHelpCommand,
+				localization::GetText(
+					localization::TrayTextId::MenuShowCoreHelp).c_str());
+			AppendMenuW(helpMenu, MF_STRING, ShowTrayHelpCommand,
+				localization::GetText(
+					localization::TrayTextId::MenuShowTrayHelp).c_str());
+			AppendMenuItemWithIcon(menu, MF_POPUP,
+				reinterpret_cast<UINT_PTR>(helpMenu),
+				localization::GetText(localization::TrayTextId::MenuShowHelp),
+				SIID_HELP, menuBitmaps);
+		}
+		HMENU informationMenu = CreatePopupMenu();
+		if (informationMenu)
+		{
+			AppendMenuW(informationMenu, MF_STRING, ShowCoreInfoCommand,
+				localization::GetText(
+					localization::TrayTextId::MenuShowCoreInfo).c_str());
+			AppendMenuW(informationMenu, MF_STRING, ShowTrayInfoCommand,
+				localization::GetText(
+					localization::TrayTextId::MenuShowTrayInfo).c_str());
+			AppendMenuItemWithIcon(menu, MF_POPUP,
+				reinterpret_cast<UINT_PTR>(informationMenu),
+				localization::GetText(localization::TrayTextId::MenuShowInfo),
+				SIID_INFO, menuBitmaps);
+		}
+		const bool autostartEnabled =
+			model.autostartStatus == autostart::Status::Enabled;
+		const UINT autostartFlags =
+			model.autostartStatus == autostart::Status::Unavailable
+				? MF_STRING | MF_GRAYED
+				: MF_STRING;
+		const localization::TrayTextId autostartText =
+			model.autostartStatus == autostart::Status::Unavailable
+				? localization::TrayTextId::MenuAutostartUnavailable
+				: autostartEnabled
+					? localization::TrayTextId::MenuDisableAutostart
+					: localization::TrayTextId::MenuEnableAutostart;
+		AppendMenuItemWithIcon(menu, autostartFlags, AutostartCommand,
+			localization::GetText(autostartText),
+			SIID_APPLICATION, menuBitmaps);
 		AppendMenuW(menu, MF_SEPARATOR, 0, nullptr);
 
 		using status_icon::BrokerServiceStatus;
@@ -621,6 +676,14 @@ namespace xucrun::status_menu
 				selection.action = status_actions::Action::ActivateStatusIcon;
 				selection.statusIconProcessId = statusIconProcessIds[index];
 			}
+			return selection;
+		}
+		if (command == AutostartCommand)
+		{
+			selection.action =
+				model.autostartStatus == autostart::Status::Enabled
+					? status_actions::Action::DisableAutostart
+					: status_actions::Action::EnableAutostart;
 			return selection;
 		}
 		selection.action = MapCommand(command);

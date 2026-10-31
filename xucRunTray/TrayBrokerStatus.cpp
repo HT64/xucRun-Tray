@@ -21,6 +21,7 @@
 #include "BrokerContracts.h"
 #include "BrokerPipeClient.h"
 #include "BuildVersion.h"
+#include "AutostartControl.h"
 #include "ClientAccountIdentity.h"
 #include "ClientLogging.h"
 #include "ClientStatusActions.h"
@@ -652,7 +653,8 @@ namespace xucrun::broker_status
 						&trackedProcesses,
 						&statusIcons,
 						GetStatusAccount(),
-						IsStatusProcessElevated()
+						IsStatusProcessElevated(),
+						autostart::QueryStatus()
 					};
 					const auto selection = status_menu::Show(window,
 						static_cast<short>(LOWORD(wParam)),

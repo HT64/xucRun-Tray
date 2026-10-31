@@ -9,6 +9,7 @@
 #include <vector>
 
 #include "BrokerContracts.h"
+#include "AutostartControl.h"
 #include "ClientStatusActions.h"
 #include "ClientStatusIcon.h"
 
@@ -23,6 +24,7 @@ namespace xucrun::status_menu
 		const std::vector<broker::StatusIconListEntry>* statusIcons = nullptr;
 		std::wstring currentAccount;
 		bool currentProcessElevated = false;
+		autostart::Status autostartStatus = autostart::Status::Unavailable;
 	};
 
 	bool HasTrackedProcessWindow(

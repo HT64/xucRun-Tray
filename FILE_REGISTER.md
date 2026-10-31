@@ -60,6 +60,10 @@ plain semantic data—are documented only here rather than being modified with i
 | `docs/en/images/uninstallation-success.png` | Documentation image | Shows the English successful-uninstallation message. |
 | `docs/en/images/unsupported-core-installation.png` | Documentation image | Shows the English unsupported-xucRun warning. |
 | `xucRunTray/ClientStatusActionRouting.h` | C++ header | Maps typed Tray actions to xucRun client arguments. |
+| `xucRunTray/AutostartControl.cpp` | C++ source | Validates and changes per-user Tray autostart through the non-elevated logon task created by the public installer. |
+| `xucRunTray/AutostartControl.h` | C++ header | Declares Tray autostart status and maintenance operations. |
+| `xucRunTray/TrayCommandViews.cpp` | C++ source | Shows localized Tray-specific command-line help and runtime information. |
+| `xucRunTray/TrayCommandViews.h` | C++ header | Declares Tray-specific command-line help and information views. |
 | `xucRunTray/ClientStatusActions.cpp` | C++ source | Executes menu actions and guarded log operations. |
 | `xucRunTray/ClientStatusActions.h` | C++ header | Defines typed Tray action selections and dispatch operations. |
 | `xucRunTray/ClientStatusIcon.cpp` | C++ source | Derives the visible Tray icon and tooltip data. |

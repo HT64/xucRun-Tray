@@ -9,7 +9,8 @@ authorization, and the selected local user. Unless ValidateOnly is specified,
 it stages and revalidates the payload, stops installed Tray processes, backs
 up replaced files, installs the Tray executable, language resources, and this
 installer, configures a per-user logon task, and writes a protected uninstall
-entry. Failed replacement is rolled back; previously running Tray instances
+entry including the contract version required by local development refreshes.
+Failed replacement is rolled back; previously running Tray instances
 are restarted where possible.
 
 In the Uninstall parameter set, it stops the installed Tray, removes all of
@@ -17,6 +18,11 @@ its logon tasks, files, and uninstall registration, but leaves xucRun Core,
 the broker, certificates, credentials, and approvals unchanged. Uninstall
 success or failure is shown to the interactive user; failures are also
 written to a protected diagnostic-log directory when possible.
+
+In the EnableAutostart and DisableAutostart parameter sets, it creates,
+repairs, or removes only the selected user's Tray logon task in an existing
+standalone Tray installation. These maintenance operations do not start or
+stop the running Tray process.
 
 .PARAMETER PackageDirectory
 Directory containing TrayPackage.json and the complete signed payload.
@@ -39,6 +45,14 @@ Selects removal instead of installation. This mandatory switch for the
 Uninstall parameter set cannot be combined with PackageDirectory, UserSid,
 or ValidateOnly.
 
+.PARAMETER EnableAutostart
+Creates or repairs the selected user's non-elevated Tray logon task in an
+existing standalone Tray installation.
+
+.PARAMETER DisableAutostart
+Removes only the selected user's Tray logon task from an existing standalone
+Tray installation.
+
 .EXAMPLE
 .\Install-xucRunTray.ps1 -PackageDirectory 'C:\Packages\xucRun-Tray' `
     -UserSid 'S-1-5-21-123456789-123456789-123456789-1001' -ValidateOnly
@@ -50,6 +64,18 @@ system.
 .\Install-xucRunTray.ps1 -Uninstall
 
 Removes only the Tray add-on and its autostart tasks.
+
+.EXAMPLE
+.\Install-xucRunTray.ps1 -EnableAutostart `
+    -UserSid 'S-1-5-21-123456789-123456789-123456789-1001'
+
+Creates or repairs the selected user's non-elevated Tray logon task.
+
+.EXAMPLE
+.\Install-xucRunTray.ps1 -DisableAutostart `
+    -UserSid 'S-1-5-21-123456789-123456789-123456789-1001'
+
+Removes only the selected user's Tray logon task.
 
 .NOTES
 Requires elevated Windows PowerShell 5.1 on Windows. Installation requires a
@@ -69,11 +95,17 @@ param(
     [Parameter(Mandatory, ParameterSetName = 'Install')]
     [string]$PackageDirectory,
     [Parameter(Mandatory, ParameterSetName = 'Install')]
+    [Parameter(Mandatory, ParameterSetName = 'EnableAutostart')]
+    [Parameter(Mandatory, ParameterSetName = 'DisableAutostart')]
     [string]$UserSid,
     [Parameter(ParameterSetName = 'Install')]
     [switch]$ValidateOnly,
     [Parameter(Mandatory, ParameterSetName = 'Uninstall')]
-    [switch]$Uninstall
+    [switch]$Uninstall,
+    [Parameter(Mandatory, ParameterSetName = 'EnableAutostart')]
+    [switch]$EnableAutostart,
+    [Parameter(Mandatory, ParameterSetName = 'DisableAutostart')]
+    [switch]$DisableAutostart
 )
 
 $ErrorActionPreference = 'Stop'
@@ -87,6 +119,7 @@ $installedInstaller = Join-Path $installDirectory 'Install-xucRunTray.ps1'
 $trayLanguageFiles = @('xucRunTray.de-DE.dll', 'xucRunTray.en-US.dll')
 $taskPath = '\xucRun\'
 $taskPrefix = 'BrokerStatus-'
+$installationContractVersion = 1
 $uninstallPath =
     'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\xucRun Tray'
 $coreUninstallPath =
@@ -277,6 +310,21 @@ function Remove-StatusTasks {
     Get-ScheduledTask -TaskPath $taskPath -ErrorAction SilentlyContinue |
         Where-Object { $_.TaskName.StartsWith($taskPrefix) } |
         Unregister-ScheduledTask -Confirm:$false
+    Remove-EmptyTaskFolder
+}
+
+function Remove-StatusTask {
+    param([Parameter(Mandatory)][string]$Sid)
+
+    $task = Get-ScheduledTask -TaskPath $taskPath `
+        -TaskName ($taskPrefix + $Sid) -ErrorAction SilentlyContinue
+    if ($task) {
+        $task | Unregister-ScheduledTask -Confirm:$false
+    }
+    Remove-EmptyTaskFolder
+}
+
+function Remove-EmptyTaskFolder {
     $scheduler = New-Object -ComObject 'Schedule.Service'
     $scheduler.Connect()
     try {
@@ -511,6 +559,31 @@ Unchanged:
         $message.Trim(), $title, 'OK', 'Information') | Out-Null
 }
 
+if ($EnableAutostart -or $DisableAutostart) {
+    Assert-WindowsPowerShell
+    Assert-Administrator
+    $resolvedScript = (Resolve-Path -LiteralPath $PSCommandPath).ProviderPath
+    if (-not [string]::Equals(
+        $resolvedScript, $installedInstaller,
+        [StringComparison]::OrdinalIgnoreCase)) {
+        throw "Autostart maintenance must use the installed Tray script: $installedInstaller"
+    }
+    if (-not (Test-Path -LiteralPath $installedTray -PathType Leaf)) {
+        throw "xucRun Tray is not installed at the supported path: $installedTray"
+    }
+    Assert-NotReparsePoint -Path $installDirectory
+    Assert-NotReparsePoint -Path $installedTray
+    $UserSid = ([Security.Principal.SecurityIdentifier]::new($UserSid)).Value
+    Assert-SelectableUser -Sid $UserSid
+    if ($EnableAutostart) {
+        Set-StatusTask -Sid $UserSid
+    }
+    else {
+        Remove-StatusTask -Sid $UserSid
+    }
+    return
+}
+
 if ($Uninstall) {
     try {
         Assert-WindowsPowerShell
@@ -569,8 +642,8 @@ if (Test-Path -LiteralPath $coreUninstallPath) {
 }
 if ((Test-Path -LiteralPath $installedTray -PathType Leaf) -and
     -not (Test-Path -LiteralPath $uninstallPath)) {
-    throw 'A combined xucRun Distribution installation is present. ' +
-        'Use its installer instead of the separate Tray add-on.'
+    throw 'An xucRun Tray installation not managed by this add-on is present. ' +
+        'Use the installer that manages the existing installation.'
 }
 $coreVersion = (Get-Item -LiteralPath $installedCore).VersionInfo.ProductVersion
 if ($coreVersion -ne $manifest.requiredCoreProductVersion) {
@@ -687,6 +760,9 @@ try {
 
         New-Item -Path $uninstallPath -Force | Out-Null
         Set-TrayUninstallRegistryAcl
+        New-ItemProperty -Path $uninstallPath `
+            -Name InstallationContractVersion -PropertyType DWord `
+            -Value $installationContractVersion -Force | Out-Null
         New-ItemProperty -Path $uninstallPath -Name DisplayName `
             -PropertyType String -Value 'xucRun Tray' -Force | Out-Null
         New-ItemProperty -Path $uninstallPath -Name DisplayVersion `

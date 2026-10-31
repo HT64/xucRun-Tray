@@ -39,7 +39,7 @@ The Tray application:
 - lists tracked elevated processes and their windows;
 - opens xucRun dialogs for managing credentials and program approvals;
 - starts the xucRun security diagnostics and information views;
-- provides access to configured client log files;
+- provides access to configured client log files and filtered xucRun Broker events;
 - switches the xucRun application language;
 - starts, enables, or disables the broker service through the existing xucRun interfaces.
 
@@ -81,6 +81,12 @@ SHA256SUMS.json
 LICENSE
 NOTICE
 ```
+
+The release intentionally provides no separate binary ZIP containing `xucRunTray.exe` and its
+language DLLs. The ZIP and TAR.GZ archives generated automatically by GitHub contain source code,
+not an installable binary package. The published Tray installer is the supported installation
+method; copying individual Tray files manually establishes neither the required common signer
+identity nor the logon task.
 
 Download all files from the same official
 [xucRun Tray GitHub release](https://github.com/HT64/xucRun-Tray/releases). The provided installer
@@ -166,8 +172,8 @@ information, but no stored passwords. The path shown in the dialog is authoritat
 ## Quick start
 
 If the selected user is currently signed in, the installer starts xucRun Tray immediately through
-the restricted user task. Otherwise, xucRun Tray starts at that user's next Windows logon. To start
-it manually, open Command Prompt and run:
+the non-elevated user task. Otherwise, xucRun Tray starts at that user's next Windows logon. To
+start it manually, open Command Prompt and run:
 
 ```cmd
 "%ProgramFiles%\xucRun\xucRunTray.exe"
@@ -198,10 +204,11 @@ Depending on the current xucRun configuration and permissions, the menu provides
 - creating, listing, and deleting stored credentials;
 - listing and resetting program approvals;
 - an administrative view across users after the required elevation;
-- the xucRun security diagnostics, help, and information;
-- displaying or deleting the current client log file;
+- the xucRun security diagnostics plus help and information submenus for xucRun and xucRun Tray;
+- displaying or deleting the current client log file and showing xucRun Broker events;
 - deleting all client log files from the configured log directory after confirmation;
 - automatic, German, and English language selection;
+- enabling or disabling automatic startup for the current user account;
 - starting, enabling, or disabling the broker service;
 - closing the current Tray instance.
 
@@ -225,7 +232,7 @@ that icons in other user sessions use the configured language mode immediately.
 
 ## User account and autostart
 
-The installer deliberately selects an existing local user profile and creates the restricted
+The installer deliberately selects an existing local user profile and creates the non-elevated
 logon task `\xucRun\BrokerStatus-<SID>` for that account. xucRun Tray then runs in that user's
 interactive session, not permanently as administrator. The icon tooltip identifies the account
 and indicates whether the Tray process is elevated whenever another Tray instance is present in
@@ -241,6 +248,40 @@ Run the installer again for each additional eligible local user and select that 
 Tasks already configured for other users remain in place. If the newly selected user is signed in,
 xucRun Tray starts immediately for that user; otherwise, it starts at their next Windows sign-in.
 Uninstalling xucRun Tray removes the tasks for all configured users together.
+
+Depending on the current state, the menu item shows **Enable startup at Windows logon...** or
+**Disable startup at Windows logon...**. Changing this setting requires UAC confirmation.
+Disabling autostart leaves the current Tray instance running until it is closed manually or the
+user signs out. Enabling autostart completely recreates a missing or divergent task with the
+required non-elevated configuration.
+
+The same per-user operations are available for scripts and troubleshooting through command-line
+arguments:
+
+```cmd
+"%ProgramFiles%\xucRun\xucRunTray.exe" /enable-autostart
+"%ProgramFiles%\xucRun\xucRunTray.exe" /disable-autostart
+"%ProgramFiles%\xucRun\xucRunTray.exe" /autostart-status
+"%ProgramFiles%\xucRun\xucRunTray.exe" /info
+"%ProgramFiles%\xucRun\xucRunTray.exe" /help
+```
+
+`/autostart-status` displays the detected state and exits with code `0` when autostart is fully
+valid and enabled, `1` when it is missing, disabled, or configured incorrectly, and `2` when its
+state cannot be determined reliably. `/info` displays only Tray program and installation details.
+Its shared program, signature, account, and configuration sections come from the same implementation
+as `xucRun.exe /info` and show version, copyright, path, architecture, effective language and loaded
+language DLL, signing certificate, account, SID, elevation, configuration file, and client logging.
+The common configuration section also identifies the public Tray maintenance script. The
+Tray-specific section then shows the Windows logon task without elevated privileges together with its state. Only
+the path of the language DLL loaded for that output is listed; the other
+installed language DLL is not. `/help` explains the public Tray commands and
+their exit codes. The Help submenu opens either `xucRun.exe /help` or the Tray-specific help
+directly in the running Tray instance. The information
+submenu opens either `xucRun.exe /info` or the Tray-specific information view directly in the
+running Tray instance. Other arguments are rejected with an error message and
+`ERROR_INVALID_PARAMETER`. The internal `/broker-policy-test` integration-test argument is not
+intended for normal use.
 
 ## Security considerations
 
@@ -268,15 +309,20 @@ xucRun Tray uses the language configured for xucRun and can select automatic, Ge
 through its menu. A missing, invalid, or incorrectly signed language resource causes startup to fail
 instead of using an unverified language file as a substitute.
 
-Log-file menu entries refer to the client log directory configured by xucRun. If client file logging
-is disabled or no log file exists, the corresponding actions remain unavailable. The Tray rereads
+Client log-file menu entries refer to the client log directory configured by xucRun. If client file
+logging is disabled or no log file exists, the corresponding actions remain unavailable. **Delete
+all log files...** shows the number of currently detected deletable client log files in parentheses.
+The Tray rereads
 the logging configuration whenever its context menu opens, so changes to the configured directory
 and newly created log files become available without restarting the Tray. It also checks the
 configured language before opening the menu. If a valid external change is detected, the Tray
 restarts itself and uses the new language; an invalid value or language resource is reported while
 the Tray remains active in its current language. Regardless of the selected UI language, technical
-Broker warnings and errors are always written in English to the Windows Application event log as
-documented by xucRun.
+Broker warnings and errors are always written in English to the Windows Application event log
+under the `xucRunBroker` source, as documented by xucRun. The always available **Show xucRun
+Broker events** menu item opens that Windows channel without a UAC prompt and temporarily filters
+the launched view to exactly that source. Other views and later Event Viewer launches remain
+unfiltered. The action does not save a custom view or delete or configure events.
 
 ## Troubleshooting
 

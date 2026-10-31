@@ -2,6 +2,7 @@
 // Approach: Dispatches typed selections to xucRun commands, broker requests, and guarded log operations.
 #include "ClientStatusActions.h"
 #include "ClientStatusActionRouting.h"
+#include "AutostartControl.h"
 
 #include <shellapi.h>
 
@@ -12,6 +13,7 @@
 #include "ClientUiCommon.h"
 #include "ClientWindowActivation.h"
 #include "ClientWindowsError.h"
+#include "TrayCommandViews.h"
 #include "TrayLocalization.h"
 
 namespace xucrun::status_actions
@@ -267,6 +269,47 @@ namespace xucrun::status_actions
 				MB_OK | MB_ICONERROR | MB_SETFOREGROUND | MB_TOPMOST);
 			return false;
 		}
+
+		bool ShowBrokerEvents(HWND owner)
+		{
+			DWORD error = ERROR_SUCCESS;
+			wchar_t systemDirectory[MAX_PATH] = {};
+			const UINT systemDirectoryLength = GetSystemDirectoryW(
+				systemDirectory, ARRAYSIZE(systemDirectory));
+			if (systemDirectoryLength == 0)
+			{
+				error = GetLastError();
+			}
+			else if (systemDirectoryLength >= ARRAYSIZE(systemDirectory))
+			{
+				error = ERROR_INSUFFICIENT_BUFFER;
+			}
+			else
+			{
+				std::wstring eventViewerPath(
+					systemDirectory, systemDirectoryLength);
+				eventViewerPath += L"\\eventvwr.exe";
+				SHELLEXECUTEINFOW executeInfo = { sizeof(executeInfo) };
+				executeInfo.fMask = SEE_MASK_FLAG_NO_UI;
+				executeInfo.hwnd = owner;
+				executeInfo.lpVerb = L"open";
+				executeInfo.lpFile = eventViewerPath.c_str();
+				executeInfo.lpParameters =
+					L"/c:Application /f:\"*[System[Provider[@Name='xucRunBroker']]]\"";
+				executeInfo.nShow = SW_SHOWNORMAL;
+				if (ShellExecuteExW(&executeInfo))
+					return true;
+				error = GetLastError();
+			}
+
+			ui::ShowMessageBox(owner, localization::Format(
+					localization::TrayTextId::BrokerEventsOpenFailed,
+					{ windows_error::FormatWindowsError(error) }),
+				ui::GetWindowTitle(localization::GetText(
+					localization::TextId::ErrorTitle)),
+				MB_OK | MB_ICONERROR | MB_SETFOREGROUND | MB_TOPMOST);
+			return false;
+		}
 	}
 
 	bool LaunchClientCommand(HWND owner, const wchar_t* argument, bool elevated)
@@ -304,12 +347,22 @@ namespace xucrun::status_actions
 
 		switch (selection.action)
 		{
+		case Action::ShowTrayHelp:
+			return tray_commands::ShowHelp(owner) == ERROR_SUCCESS;
+		case Action::ShowTrayInfo:
+			return tray_commands::ShowInfo(owner) == ERROR_SUCCESS;
 		case Action::ShowLogFile:
 			return ShowLogFile(owner);
 		case Action::DeleteLogFile:
 			return DeleteLogFile(owner);
 		case Action::DeleteAllLogFiles:
 			return DeleteAllLogFiles(owner);
+		case Action::ShowBrokerEvents:
+			return ShowBrokerEvents(owner);
+		case Action::EnableAutostart:
+			return autostart::SetEnabled(owner, true);
+		case Action::DisableAutostart:
+			return autostart::SetEnabled(owner, false);
 		case Action::ActivateProcessWindow:
 			window_activation::ActivateTrackedProcessWindow(
 				selection.process, selection.processWindow);

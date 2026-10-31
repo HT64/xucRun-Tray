@@ -6,13 +6,16 @@
 #include <vector>
 
 #include "BuildVersion.h"
+#include "AutostartControl.h"
 #include "BrokerPipeClient.h"
 #include "ClientAccountIdentity.h"
 #include "TrayBrokerStatus.h"
+#include "TrayCommandViews.h"
 #include "ClientLogging.h"
 #include "ClientUiCommon.h"
 #include "ClientWindowsError.h"
 #include "Localization.h"
+#include "TrayLocalization.h"
 
 #define XUCRUN_WIDEN_DETAIL(value) L##value
 #define XUCRUN_WIDEN(value) XUCRUN_WIDEN_DETAIL(value)
@@ -135,6 +138,28 @@ int WINAPI wWinMain(HINSTANCE instance, HINSTANCE, LPWSTR commandLine, int)
 	}
 	for (const std::wstring& warning : hardeningWarnings)
 		xucrun::client_logging::Write(L"Warning", warning);
+
+	if (_wcsicmp(normalizedCommandLine.c_str(), L"/enable-autostart") == 0)
+		return xucrun::autostart::SetEnabled(nullptr, true)
+			? ERROR_SUCCESS : ERROR_INSTALL_FAILURE;
+	if (_wcsicmp(normalizedCommandLine.c_str(), L"/disable-autostart") == 0)
+		return xucrun::autostart::SetEnabled(nullptr, false)
+			? ERROR_SUCCESS : ERROR_INSTALL_FAILURE;
+	if (_wcsicmp(normalizedCommandLine.c_str(), L"/autostart-status") == 0)
+		return xucrun::autostart::ShowStatus(nullptr);
+	if (_wcsicmp(normalizedCommandLine.c_str(), L"/help") == 0)
+		return xucrun::tray_commands::ShowHelp();
+	if (_wcsicmp(normalizedCommandLine.c_str(), L"/info") == 0)
+		return xucrun::tray_commands::ShowInfo();
+	if (!normalizedCommandLine.empty())
+	{
+		xucrun::ui::ShowMessageBox(nullptr,
+			xucrun::localization::Format(
+				xucrun::localization::TrayTextId::InvalidCommandLine,
+				{ normalizedCommandLine }),
+			xucrun::broker::ProductName, MB_OK | MB_ICONERROR);
+		return ERROR_INVALID_PARAMETER;
+	}
 
 	std::wstring userName;
 	std::wstring domain;
