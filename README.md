@@ -312,12 +312,14 @@ instead of using an unverified language file as a substitute.
 Client log-file menu entries refer to the client log directory configured by xucRun. If client file
 logging is disabled or no log file exists, the corresponding actions remain unavailable. **Delete
 all log files...** shows the number of currently detected deletable client log files in parentheses.
-The Tray rereads
-the logging configuration whenever its context menu opens, so changes to the configured directory
-and newly created log files become available without restarting the Tray. It also checks the
-configured language before opening the menu. If a valid external change is detected, the Tray
-restarts itself and uses the new language; an invalid value or language resource is reported while
-the Tray remains active in its current language. Regardless of the selected UI language, technical
+The Tray rereads the logging configuration and enumerates the existing log files whenever its
+context menu opens. If the configured directory, especially a network path, is unavailable,
+Windows file-system timeouts can therefore also delay the opening of the Tray context menu. Changes
+to the configured directory and newly created log files become available without restarting the
+Tray. It also checks the configured language before opening the menu. If a valid external change
+is detected, the Tray restarts itself and uses the new language; an invalid value or language
+resource is reported while the Tray remains active in its current language. Regardless of the
+selected UI language, technical
 Broker warnings and errors are always written in English to the Windows Application event log
 under the `xucRunBroker` source, as documented by xucRun. The always available **Show xucRun
 Broker events** menu item opens that Windows channel without a UAC prompt and temporarily filters

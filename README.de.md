@@ -326,14 +326,16 @@ zum Startabbruch, statt ersatzweise eine ungeprüfte Sprachdatei zu verwenden.
 
 Die Client-Logdatei-Menüeinträge beziehen sich auf das von xucRun konfigurierte
 Client-Logverzeichnis. Ist die Client-Dateiprotokollierung deaktiviert oder existiert keine
-Logdatei, bleiben die
-entsprechenden Aktionen deaktiviert. **Alle Logdateien löschen...** zeigt in Klammern die Anzahl
-der aktuell ermittelten löschbaren Client-Logdateien an. Das Tray liest die Logging-Konfiguration bei jedem Öffnen
-seines Kontextmenüs neu ein. Änderungen am konfigurierten Verzeichnis und neu angelegte Logdateien
-stehen daher ohne Neustart des Trays zur Verfügung. Vor dem Öffnen prüft es außerdem die
-konfigurierte Sprache. Erkennt es eine gültige externe Änderung, startet es sich selbst neu und
-verwendet danach die neue Sprache. Einen ungültigen Wert oder eine ungültige Sprachressource meldet
-es, bleibt aber in der bisherigen Sprache aktiv. Technische Brokerwarnungen und -fehler werden
+Logdatei, bleiben die entsprechenden Aktionen deaktiviert. **Alle Logdateien löschen...** zeigt in
+Klammern die Anzahl der aktuell ermittelten löschbaren Client-Logdateien an. Das Tray liest die
+Logging-Konfiguration bei jedem Öffnen seines Kontextmenüs neu ein und ermittelt dabei die
+vorhandenen Logdateien. Ist das konfigurierte Verzeichnis, insbesondere ein Netzwerkpfad, nicht
+erreichbar, können Windows-Dateisystemzeitüberschreitungen deshalb auch das Öffnen des
+Tray-Kontextmenüs verzögern. Änderungen am konfigurierten Verzeichnis und neu angelegte Logdateien
+stehen ohne Neustart des Trays zur Verfügung. Vor dem Öffnen prüft es außerdem die konfigurierte
+Sprache. Erkennt es eine gültige externe Änderung, startet es sich selbst neu und verwendet danach
+die neue Sprache. Einen ungültigen Wert oder eine ungültige Sprachressource meldet es, bleibt aber
+in der bisherigen Sprache aktiv. Technische Brokerwarnungen und -fehler werden
 unabhängig von der gewählten UI-Sprache immer auf Englisch in das
 Windows-Anwendungsereignislog unter der Quelle `xucRunBroker` geschrieben, wie von xucRun
 dokumentiert. Der stets verfügbare Menüeintrag **xucRun-Brokerereignisse anzeigen** öffnet diesen
