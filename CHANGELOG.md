@@ -7,6 +7,12 @@ publication processes are not listed.
 
 ## [Unreleased]
 
+## [0.9.1.1] - 2026-11-01
+
+### Changed
+
+- Updated the Tray package and installer compatibility requirement to xucRun Core 0.9.1.1.
+
 ## [0.9.1.0] - 2026-11-01
 
 ### Added
@@ -48,7 +54,8 @@ publication processes are not listed.
 
 - This is the initial public release of xucRun Tray.
 
-[Unreleased]: https://github.com/HT64/xucRun-Tray/compare/v0.9.1.0...HEAD
+[Unreleased]: https://github.com/HT64/xucRun-Tray/compare/v0.9.1.1...HEAD
+[0.9.1.1]: https://github.com/HT64/xucRun-Tray/releases/tag/v0.9.1.1
 [0.9.1.0]: https://github.com/HT64/xucRun-Tray/releases/tag/v0.9.1.0
 [0.9.0.3]: https://github.com/HT64/xucRun-Tray/releases/tag/v0.9.0.3
 [0.9.0.2]: https://github.com/HT64/xucRun-Tray/releases/tag/v0.9.0.2
