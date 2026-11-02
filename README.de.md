@@ -27,6 +27,11 @@ aus xucRun an und erleichtert den Zugriff auf dessen vorhandene Verwaltungsfunkt
 Programmstarts, gespeicherte Anmeldedaten, Freigaben, Kontowahl und Sicherheitsentscheidungen
 bleiben weiterhin Aufgaben von xucRun.
 
+Das Tray kann dauerhaft oder nur bei Bedarf verwendet werden. Es ist insbesondere bei der
+Inbetriebnahme, bei der Kontrolle des Betriebszustands und bei späteren Änderungen an
+Anmeldedaten, Freigaben oder Konfiguration hilfreich. xucRun und sein Brokerdienst bleiben
+vollständig nutzbar, während das Tray nicht läuft.
+
 ## Verhältnis zu xucRun
 
 Der zu xucRun gehörende Brokerdienst wird bei Bedarf automatisch gestartet und läuft anschließend
@@ -265,9 +270,16 @@ eingerichteten Benutzer gemeinsam entfernt.
 
 Der Menüeintrag zeigt abhängig vom aktuellen Zustand **Start bei Windows-Anmeldung aktivieren...**
 oder **Start bei Windows-Anmeldung deaktivieren...**. Das Ändern dieser Einstellung erfordert eine
-UAC-Bestätigung. Beim Deaktivieren läuft die aktuelle Tray-Instanz bis zum manuellen Beenden oder
-Abmelden weiter. Eine fehlende oder abweichende Aufgabe wird beim Aktivieren vollständig mit der
-vorgesehenen nicht erhöhten Konfiguration neu erstellt.
+UAC-Bestätigung. Wird das Tray nach der Einrichtung nicht dauerhaft benötigt, kann zunächst
+**Start bei Windows-Anmeldung deaktivieren...** und anschließend für die aktuelle Instanz
+**Beenden** gewählt werden. Allein durch das Deaktivieren läuft die aktuelle Tray-Instanz bis zum
+manuellen Beenden oder Abmelden weiter. Nach dem Beenden verschwindet ihr Symbol aus dem
+Benachrichtigungsbereich und der Tray-Prozess wird beendet; xucRun bleibt vollständig nutzbar. Das
+Tray kann später wie unter [Schnellstart](#schnellstart) beschrieben manuell gestartet und der
+Start bei Windows-Anmeldung bei Bedarf über das Menü wieder aktiviert werden. Bei nur
+gelegentlicher Verwendung kann der Autostart deaktiviert bleiben. Eine fehlende oder abweichende
+Aufgabe wird beim Aktivieren vollständig mit der vorgesehenen nicht erhöhten Konfiguration neu
+erstellt.
 
 Dieselben benutzerbezogenen Aktionen stehen für Skripte und Problembehebung als Aufrufparameter zur
 Verfügung:

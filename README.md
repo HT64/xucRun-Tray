@@ -26,6 +26,10 @@ from xucRun and provides easier access to existing xucRun management functions. 
 stored credentials, approvals, account selection, and security decisions remain xucRun
 responsibilities.
 
+The Tray can run continuously or only when needed. It is particularly helpful during initial
+setup, when checking the operating state, and when later changing credentials, approvals, or
+configuration. xucRun and its broker service remain fully usable while the Tray is not running.
+
 ## Relationship to xucRun
 
 The broker service belongs to xucRun. It starts automatically when needed and then runs in the
@@ -251,9 +255,14 @@ Uninstalling xucRun Tray removes the tasks for all configured users together.
 
 Depending on the current state, the menu item shows **Enable startup at Windows logon...** or
 **Disable startup at Windows logon...**. Changing this setting requires UAC confirmation.
-Disabling autostart leaves the current Tray instance running until it is closed manually or the
-user signs out. Enabling autostart completely recreates a missing or divergent task with the
-required non-elevated configuration.
+If the Tray is no longer needed continuously after setup, first select **Disable startup at
+Windows logon...** and then close the current instance through **Exit**. Disabling autostart alone
+leaves the current Tray instance running until it is closed manually or the user signs out. After
+it is closed, its icon disappears from the notification area and the Tray process ends; xucRun
+remains fully usable. The Tray can later be started manually as described under
+[Quick start](#quick-start), and startup at Windows logon can optionally be enabled again through
+the menu. For occasional use, autostart can remain disabled. Enabling autostart completely
+recreates a missing or divergent task with the required non-elevated configuration.
 
 The same per-user operations are available for scripts and troubleshooting through command-line
 arguments:
