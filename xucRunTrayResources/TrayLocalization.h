@@ -60,7 +60,6 @@ namespace xucrun::localization
 		CommandHelpTitle = IDS_COMMAND_HELP_TITLE,
 		CommandHelpHeading = IDS_COMMAND_HELP_HEADING,
 		CommandHelpContent = IDS_COMMAND_HELP_CONTENT,
-		CommandInfoTitle = IDS_COMMAND_INFO_TITLE,
 		CommandInfoHeading = IDS_COMMAND_INFO_HEADING,
 		CommandInfoContent = IDS_COMMAND_INFO_CONTENT,
 		InfoNonElevatedLogonTask = IDS_INFO_NON_ELEVATED_LOGON_TASK,

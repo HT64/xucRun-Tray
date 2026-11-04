@@ -310,6 +310,8 @@ direkt in der laufenden Tray-Instanz. Andere Aufrufparameter werden mit einer Fe
 `ERROR_INVALID_PARAMETER` abgewiesen. Der interne Integrationstestparameter
 `/broker-policy-test` ist nicht für die normale Verwendung bestimmt.
 
+![xucRun-Tray-Laufzeitinformationen](docs/de/images/runtime-information.png)
+
 ## Sicherheitshinweise
 
 Installiere zuerst die passende xucRun-Version und danach xucRun Tray ausschließlich mit dem

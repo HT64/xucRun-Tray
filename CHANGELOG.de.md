@@ -7,6 +7,18 @@ relevant sind. Interne Entwicklungs- und Veröffentlichungsabläufe werden nicht
 
 ## [Unveröffentlicht]
 
+## [0.9.1.2] - 2026-11-04
+
+### Geändert
+
+- Die Kompatibilitätsanforderung des Tray-Pakets und -Installers wurde auf xucRun Core 0.9.1.2
+  aktualisiert.
+- Der Titel der Tray-Laufzeitinformationen enthält jetzt den Computernamen; die Dokumentation
+  zeigt die aktuelle Laufzeitinformationsansicht.
+- Die Dokumentation stellt jetzt klar, dass xucRun ohne Tray funktioniert, und beschreibt das
+  Deaktivieren beziehungsweise erneute Aktivieren des Tray-Starts bei der Windows-Anmeldung sowie
+  das manuelle Beenden und erneute Starten des Trays.
+
 ## [0.9.1.1] - 2026-11-01
 
 ### Geändert
@@ -60,7 +72,8 @@ relevant sind. Interne Entwicklungs- und Veröffentlichungsabläufe werden nicht
 
 - Dies ist die erste öffentliche Veröffentlichung von xucRun Tray.
 
-[Unveröffentlicht]: https://github.com/HT64/xucRun-Tray/compare/v0.9.1.1...HEAD
+[Unveröffentlicht]: https://github.com/HT64/xucRun-Tray/compare/v0.9.1.2...HEAD
+[0.9.1.2]: https://github.com/HT64/xucRun-Tray/releases/tag/v0.9.1.2
 [0.9.1.1]: https://github.com/HT64/xucRun-Tray/releases/tag/v0.9.1.1
 [0.9.1.0]: https://github.com/HT64/xucRun-Tray/releases/tag/v0.9.1.0
 [0.9.0.3]: https://github.com/HT64/xucRun-Tray/releases/tag/v0.9.0.3

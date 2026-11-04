@@ -34,7 +34,6 @@
 	IDS_COMMAND_HELP_TITLE, "xucRun Tray - Help"
 	IDS_COMMAND_HELP_HEADING, "xucRunTray.exe command-line arguments"
 	IDS_COMMAND_HELP_CONTENT, "Usage:\n\nxucRunTray.exe\n    Starts the status icon.\n\nxucRunTray.exe /enable-autostart\n    Enables or repairs startup at Windows logon for the current user account.\n\nxucRunTray.exe /disable-autostart\n    Disables startup at Windows logon for the current user account. The running Tray instance remains open.\n\nxucRunTray.exe /autostart-status\n    Displays the detected autostart state.\n\nxucRunTray.exe /info\n    Displays information about the Tray installation.\n\nxucRunTray.exe /help\n    Displays this help.\n\nExit codes:\n\n0    Successful or autostart enabled\n1    Autostart disabled, missing, or configured incorrectly\n2    Autostart state cannot be determined reliably\n87   Unsupported command-line argument\n1603 Changing autostart failed"
-	IDS_COMMAND_INFO_TITLE, "xucRun Tray - Information"
 	IDS_COMMAND_INFO_HEADING, "xucRun Tray runtime information"
 	IDS_COMMAND_INFO_CONTENT, "\n\nAutostart\n{0}: {1}"
 	IDS_INFO_NON_ELEVATED_LOGON_TASK, "Windows logon task without elevated privileges"

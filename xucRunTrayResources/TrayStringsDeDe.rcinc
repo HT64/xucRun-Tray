@@ -34,7 +34,6 @@
 	IDS_COMMAND_HELP_TITLE, "xucRun Tray - Hilfe"
 	IDS_COMMAND_HELP_HEADING, "Aufrufparameter von xucRunTray.exe"
 	IDS_COMMAND_HELP_CONTENT, "Aufruf:\n\nxucRunTray.exe\n    Startet das Statussymbol.\n\nxucRunTray.exe /enable-autostart\n    Aktiviert oder repariert den Start bei Windows-Anmeldung für das aktuelle Benutzerkonto.\n\nxucRunTray.exe /disable-autostart\n    Deaktiviert den Start bei Windows-Anmeldung für das aktuelle Benutzerkonto. Die laufende Tray-Instanz bleibt geöffnet.\n\nxucRunTray.exe /autostart-status\n    Zeigt den ermittelten Autostartstatus an.\n\nxucRunTray.exe /info\n    Zeigt Informationen über die Tray-Installation an.\n\nxucRunTray.exe /help\n    Zeigt diese Hilfe an.\n\nExitcodes:\n\n0    Erfolgreich beziehungsweise Autostart aktiviert\n1    Autostart deaktiviert, nicht vorhanden oder ungültig konfiguriert\n2    Autostartstatus nicht zuverlässig ermittelbar\n87   Nicht unterstützter Aufrufparameter\n1603 Änderung des Autostarts fehlgeschlagen"
-	IDS_COMMAND_INFO_TITLE, "xucRun Tray - Informationen"
 	IDS_COMMAND_INFO_HEADING, "xucRun-Tray-Laufzeitinformationen"
 	IDS_COMMAND_INFO_CONTENT, "\n\nAutostart\n{0}: {1}"
 	IDS_INFO_NON_ELEVATED_LOGON_TASK, "Windows-Anmeldeaufgabe ohne erhöhte Rechte"

@@ -49,6 +49,7 @@ plain semantic data—are documented only here rather than being modified with i
 | `docs/de/images/elevated-processes.png` | Documentation image | Shows the German elevated-processes menu. |
 | `docs/de/images/installation-success.png` | Documentation image | Shows the German successful-installation message. |
 | `docs/de/images/installer.png` | Documentation image | Shows the German graphical installer. |
+| `docs/de/images/runtime-information.png` | Documentation image | Shows the German Tray runtime information. |
 | `docs/de/images/tray-menu.png` | Documentation image | Shows the German Tray context menu. |
 | `docs/de/images/uninstallation-success.png` | Documentation image | Shows the German successful-uninstallation message. |
 | `docs/de/images/unsupported-core-installation.png` | Documentation image | Shows the German unsupported-xucRun warning. |
@@ -56,6 +57,7 @@ plain semantic data—are documented only here rather than being modified with i
 | `docs/en/images/elevated-processes.png` | Documentation image | Shows the English elevated-processes menu. |
 | `docs/en/images/installation-success.png` | Documentation image | Shows the English successful-installation message. |
 | `docs/en/images/installer.png` | Documentation image | Shows the English graphical installer. |
+| `docs/en/images/runtime-information.png` | Documentation image | Shows the English Tray runtime information. |
 | `docs/en/images/tray-menu.png` | Documentation image | Shows the English Tray context menu. |
 | `docs/en/images/uninstallation-success.png` | Documentation image | Shows the English successful-uninstallation message. |
 | `docs/en/images/unsupported-core-installation.png` | Documentation image | Shows the English unsupported-xucRun warning. |

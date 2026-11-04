@@ -9,6 +9,7 @@
 #include "AutostartControl.h"
 #include "ClientRuntimeInfo.h"
 #include "ClientTextDialog.h"
+#include "ClientUiCommon.h"
 #include "Localization.h"
 #include "TrayLocalization.h"
 
@@ -44,7 +45,9 @@ namespace xucrun::tray_commands
 			runtime_info::Collect(maintenanceScript);
 
 		text_dialog::Show(
-			localization::GetText(localization::TrayTextId::CommandInfoTitle),
+			ui::GetProductComputerContextWindowTitle(
+				L"xucRun Tray",
+				localization::GetText(localization::TextId::InfoTitle)),
 			localization::GetText(localization::TrayTextId::CommandInfoHeading),
 			runtime_info::Format(commonInfo) +
 				localization::Format(localization::TrayTextId::CommandInfoContent,

@@ -292,6 +292,8 @@ running Tray instance. Other arguments are rejected with an error message and
 `ERROR_INVALID_PARAMETER`. The internal `/broker-policy-test` integration-test argument is not
 intended for normal use.
 
+![xucRun Tray runtime information](docs/en/images/runtime-information.png)
+
 ## Security considerations
 
 Install the matching xucRun version first and then install xucRun Tray only with its installer.

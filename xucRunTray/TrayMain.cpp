@@ -14,6 +14,7 @@
 #include "ClientLogging.h"
 #include "ClientUiCommon.h"
 #include "ClientWindowsError.h"
+#include "DocumentationNameMapping.h"
 #include "Localization.h"
 #include "TrayLocalization.h"
 
@@ -118,6 +119,14 @@ int WINAPI wWinMain(HINSTANCE instance, HINSTANCE, LPWSTR commandLine, int)
 		xucrun::ui::ShowMessageBox(nullptr, localizationError,
 			L"xucRun Tray - Localization error", MB_OK | MB_ICONERROR);
 		return ERROR_RESOURCE_LANG_NOT_FOUND;
+	}
+	std::wstring documentationNameError;
+	if (!xucrun::documentation_names::Initialize(documentationNameError))
+	{
+		xucrun::ui::ShowMessageBox(nullptr, documentationNameError,
+			L"xucRun Tray - Documentation name mapping error",
+			MB_OK | MB_ICONERROR);
+		return ERROR_INVALID_DATA;
 	}
 	const std::vector<std::wstring> hardeningWarnings =
 		ApplyEarlyProcessHardening();

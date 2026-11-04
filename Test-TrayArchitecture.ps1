@@ -418,11 +418,24 @@ $trayInfoSource = [IO.File]::ReadAllText(
     (Join-Path $repositoryRoot 'xucRunTray\TrayCommandViews.cpp'))
 foreach ($requiredInfoSourceContract in @(
     'ClientRuntimeInfo.h',
+    'ClientUiCommon.h',
     'runtime_info::Collect(maintenanceScript)',
-    'runtime_info::Format(commonInfo)'
+    'runtime_info::Format(commonInfo)',
+    'GetProductComputerContextWindowTitle',
+    'localization::TextId::InfoTitle'
 )) {
     if (-not $trayInfoSource.Contains($requiredInfoSourceContract)) {
         throw "Tray /info is missing source contract '$requiredInfoSourceContract'."
+    }
+}
+$trayMainSource = [IO.File]::ReadAllText(
+    (Join-Path $repositoryRoot 'xucRunTray\TrayMain.cpp'))
+foreach ($requiredNameMappingContract in @(
+    'DocumentationNameMapping.h',
+    'documentation_names::Initialize(documentationNameError)'
+)) {
+    if (-not $trayMainSource.Contains($requiredNameMappingContract)) {
+        throw "Tray startup is missing documentation-name mapping contract '$requiredNameMappingContract'."
     }
 }
 foreach ($requiredAutostartLabel in @(
