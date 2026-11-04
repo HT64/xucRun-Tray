@@ -7,11 +7,11 @@ publication processes are not listed.
 
 ## [Unreleased]
 
-## [0.9.1.2] - 2026-11-04
+## [0.9.1.3] - 2026-11-04
 
 ### Changed
 
-- Updated the Tray package and installer compatibility requirement to xucRun Core 0.9.1.2.
+- Updated the Tray package and installer compatibility requirement to xucRun Core 0.9.1.3.
 - The Tray runtime-information title now includes the computer name, and the documentation shows
   the current runtime-information view.
 - The documentation now clarifies that xucRun works without the Tray and explains how to disable
@@ -64,8 +64,8 @@ publication processes are not listed.
 
 - This is the initial public release of xucRun Tray.
 
-[Unreleased]: https://github.com/HT64/xucRun-Tray/compare/v0.9.1.2...HEAD
-[0.9.1.2]: https://github.com/HT64/xucRun-Tray/releases/tag/v0.9.1.2
+[Unreleased]: https://github.com/HT64/xucRun-Tray/compare/v0.9.1.3...HEAD
+[0.9.1.3]: https://github.com/HT64/xucRun-Tray/releases/tag/v0.9.1.3
 [0.9.1.1]: https://github.com/HT64/xucRun-Tray/releases/tag/v0.9.1.1
 [0.9.1.0]: https://github.com/HT64/xucRun-Tray/releases/tag/v0.9.1.0
 [0.9.0.3]: https://github.com/HT64/xucRun-Tray/releases/tag/v0.9.0.3
