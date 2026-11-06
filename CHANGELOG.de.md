@@ -7,6 +7,13 @@ relevant sind. Interne Entwicklungs- und Veröffentlichungsabläufe werden nicht
 
 ## [Unveröffentlicht]
 
+## [0.9.1.4] - 2026-11-07
+
+### Geändert
+
+- Die Kompatibilitätsanforderung des Tray-Pakets und -Installers wurde auf xucRun Core 0.9.1.4
+  aktualisiert.
+
 ## [0.9.1.3] - 2026-11-04
 
 ### Geändert
@@ -72,7 +79,8 @@ relevant sind. Interne Entwicklungs- und Veröffentlichungsabläufe werden nicht
 
 - Dies ist die erste öffentliche Veröffentlichung von xucRun Tray.
 
-[Unveröffentlicht]: https://github.com/HT64/xucRun-Tray/compare/v0.9.1.3...HEAD
+[Unveröffentlicht]: https://github.com/HT64/xucRun-Tray/compare/v0.9.1.4...HEAD
+[0.9.1.4]: https://github.com/HT64/xucRun-Tray/releases/tag/v0.9.1.4
 [0.9.1.3]: https://github.com/HT64/xucRun-Tray/releases/tag/v0.9.1.3
 [0.9.1.1]: https://github.com/HT64/xucRun-Tray/releases/tag/v0.9.1.1
 [0.9.1.0]: https://github.com/HT64/xucRun-Tray/releases/tag/v0.9.1.0
