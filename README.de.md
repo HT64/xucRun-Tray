@@ -207,6 +207,12 @@ Die Farbe des Symbols fasst den aktuellen Zustand zusammen:
 
 Ein rotes Symbol ist daher nicht immer ein Fehlerhinweis.
 
+Bei funktionierender Brokerkommunikation dient das rote Symbol als direkt sichtbarer Hinweis
+darauf, dass noch mindestens ein sichtbares Hauptfenster eines verfolgten erhöhten Prozesses
+geöffnet ist. So bleiben auch erhöhte Anwendungen erkennbar, deren Fenster von anderen Fenstern
+verdeckt sind. Das ist besonders hilfreich, wenn aus einem erhöhten Prozess weitere Anwendungen
+gestartet wurden, da diese ebenfalls im erhöhten Sicherheitskontext ausgeführt werden können.
+
 Läuft die Tray-Anwendung selbst mit erhöhten Rechten, erscheint zusätzlich das Windows-Schild auf
 dem Symbol. Die genaue Ursache eines Zustands zeigt der Text an, der beim Verweilen des Mauszeigers
 über dem Symbol erscheint.

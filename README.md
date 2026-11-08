@@ -197,6 +197,12 @@ The icon color summarizes the current state:
 
 A red icon therefore does not always indicate an error.
 
+When broker communication is working, the red icon provides an immediately visible indication
+that at least one visible main window belonging to a tracked elevated process is still open. This
+keeps elevated applications recognizable even when their windows are hidden behind other windows.
+It is particularly useful when additional applications have been started from an elevated process,
+because they may also run in the elevated security context.
+
 If the Tray application itself is running with elevated rights, the Windows shield is also shown
 on the icon. Hover over the icon to see text describing the specific state.
 
