@@ -324,8 +324,13 @@ function Get-CurrentSessionUserSid {
 
 function Invoke-HiddenPowerShell {
     param([Parameter(Mandatory)][string[]]$Arguments)
-    $powershell = Join-Path $env:SystemRoot `
-        'System32\WindowsPowerShell\v1.0\powershell.exe'
+    $systemDirectory = [Environment]::GetFolderPath(
+        [Environment+SpecialFolder]::System)
+    if ([string]::IsNullOrWhiteSpace($systemDirectory)) {
+        throw 'The Windows system directory could not be resolved.'
+    }
+    $powershell = Join-Path $systemDirectory `
+        'WindowsPowerShell\v1.0\powershell.exe'
     $id = [Guid]::NewGuid().ToString('N')
     $stdout = Join-Path $PackageDirectory "$id.stdout.log"
     $stderr = Join-Path $PackageDirectory "$id.stderr.log"

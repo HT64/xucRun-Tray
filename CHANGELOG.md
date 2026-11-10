@@ -7,6 +7,23 @@ publication processes are not listed.
 
 ## [Unreleased]
 
+## [0.9.1.6] - 2026-11-10
+
+This version contains security-relevant fixes that affect all earlier versions. The corrected
+weaknesses were found during an internal security review; no attacks are known. They can only
+be exploited by malicious code that is already running on the same computer. Updating xucRun
+and xucRun Tray to this version is recommended.
+
+### Security
+
+- The temporary working copies of the Tray package signing script are now accessible only to
+  administrators and SYSTEM.
+- Additionally hardened xucRun Tray and its installer against manipulated local environments.
+
+### Changed
+
+- Updated the Tray package and installer compatibility requirement to xucRun Core 0.9.1.6.
+
 ## [0.9.1.5] - 2026-11-09
 
 ### Added
@@ -90,7 +107,8 @@ publication processes are not listed.
 
 - This is the initial public release of xucRun Tray.
 
-[Unreleased]: https://github.com/HT64/xucRun-Tray/compare/v0.9.1.5...HEAD
+[Unreleased]: https://github.com/HT64/xucRun-Tray/compare/v0.9.1.6...HEAD
+[0.9.1.6]: https://github.com/HT64/xucRun-Tray/releases/tag/v0.9.1.6
 [0.9.1.5]: https://github.com/HT64/xucRun-Tray/releases/tag/v0.9.1.5
 [0.9.1.4]: https://github.com/HT64/xucRun-Tray/releases/tag/v0.9.1.4
 [0.9.1.3]: https://github.com/HT64/xucRun-Tray/releases/tag/v0.9.1.3

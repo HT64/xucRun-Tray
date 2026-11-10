@@ -6,8 +6,11 @@ Tests the standalone architecture and repository policy of xucRun Tray.
 Scans the worktree for copied Core source trees and secret-bearing file
 types, checks that build files contain only the supported sibling xucRun
 references and explicit signing hook, validates required public files and
-Dependencies.json, and verifies CI, packaging, installer-project, and
-machine-installer contracts. It compares FILE_REGISTER.md with every tracked
+Dependencies.json, and verifies CI, packaging, installer-project,
+machine-installer, and signing-script contracts, including that the signing
+script creates its staging directory together with the restricting access
+control list and that the installer scripts do not locate directories through
+environment variables. It compares FILE_REGISTER.md with every tracked
 and unignored file, validates structured file-head documentation according to
 each format's comment syntax except for the two explicitly path-bound changelog
 exceptions, and parses every repository script to require complete
@@ -381,6 +384,47 @@ foreach ($requiredContract in @(
 )) {
     if (-not $machineInstaller.Contains($requiredContract)) {
         throw "Tray machine installer is missing contract '$requiredContract'."
+    }
+}
+
+$signingScript = [IO.File]::ReadAllText(
+    (Join-Path $repositoryRoot 'Sign-xucRunTrayPackage.ps1'))
+foreach ($requiredContract in @(
+    'CommonApplicationData',
+    '[void][IO.Directory]::CreateDirectory($path, $acl)',
+    'Assert-ProtectedDirectory -Path $path',
+    'Staged Tray payload file does not match its source'
+)) {
+    if (-not $signingScript.Contains($requiredContract)) {
+        throw "Tray signing script is missing staging contract '$requiredContract'."
+    }
+}
+foreach ($forbiddenContract in @(
+    'New-Item -ItemType Directory -Path $path',
+    'Set-Acl -LiteralPath $path',
+    '$env:ProgramData',
+    'GetTempPath'
+)) {
+    if ($signingScript.Contains($forbiddenContract)) {
+        throw "Tray signing script stages without creation-time protection: " +
+            "'$forbiddenContract'."
+    }
+}
+
+foreach ($installerScript in @(
+    'Install-xucRunTray.ps1',
+    'xucRunTrayInstaller\Installer-Gui.ps1'
+)) {
+    $installerSource = [IO.File]::ReadAllText(
+        (Join-Path $repositoryRoot $installerScript))
+    foreach ($variable in @('$env:SystemRoot', '$env:ProgramFiles', '$env:ProgramData')) {
+        if ($installerSource.Contains($variable)) {
+            throw "$installerScript locates a path through the environment: $variable"
+        }
+    }
+    if ($installerSource.Contains(
+        'New-Item -ItemType Directory -Path $installerLogDirectory')) {
+        throw "$installerScript creates its log directory before restricting it."
     }
 }
 

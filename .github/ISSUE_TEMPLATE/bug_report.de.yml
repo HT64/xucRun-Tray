@@ -20,8 +20,8 @@ body:
     id: tray-version
     attributes:
       label: xucRun-Tray-Version
-      description: Wird in der Tray-Informationsansicht oder im Tooltip des Symbols angezeigt, zum Beispiel `0.9.1.5`. xucRun Tray setzt exakt dieselbe xucRun-Version voraus.
-      placeholder: "0.9.1.5"
+      description: Wird in der Tray-Informationsansicht oder im Tooltip des Symbols angezeigt, zum Beispiel `0.9.1.6`. xucRun Tray setzt exakt dieselbe xucRun-Version voraus.
+      placeholder: "0.9.1.6"
     validations:
       required: true
   - type: input

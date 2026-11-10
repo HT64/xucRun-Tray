@@ -6,8 +6,10 @@ Signs an xucRun Tray payload with the installed xucRun signing identity.
 Locates the supported installed xucRun executable, requires its valid
 Authenticode signer to have exactly one matching private key in the local
 machine certificate store, and copies the four Tray payload files into a
-new ACL-protected ProgramData staging directory. It signs and verifies every
-staged file, replaces the package files only after all signatures succeed,
+new ProgramData staging directory that is created together with an access
+control list for administrators and SYSTEM only. Each staged copy must match
+its source hash before it is signed and verified. The package files are
+replaced only after all signatures succeed,
 then recalculates every hash in TrayPackage.json. The protected staging
 directory is removed in a finally block.
 
@@ -31,8 +33,10 @@ them, verifies them, and refreshes the manifest hashes.
 Requires elevated Windows PowerShell 5.1, an installed and validly signed
 xucRun at the supported Program Files path, and exactly one corresponding
 code-signing certificate with a private key in Cert:\LocalMachine\My.
-Signing uses an ACL-protected temporary directory under ProgramData and
-overwrites payload files and manifest hashes only after all staged
+Signing uses a temporary directory under the ProgramData known folder that is
+accessible to administrators and SYSTEM only from the moment it is created; an
+existing or differently protected staging path aborts signing. Payload files
+and manifest hashes are overwritten only after all staged
 signatures validate. It never exports the private key. Normal completion
 returns 0 when run with powershell.exe -File. Missing files or certificates,
 invalid signatures, signing failures, manifest errors, and access failures
@@ -74,11 +78,44 @@ function Get-ValidSigner {
     return $signature.SignerCertificate
 }
 
+function Assert-ProtectedDirectory {
+    param([Parameter(Mandatory)][string]$Path)
+
+    $directory = [IO.DirectoryInfo]::new($Path)
+    if (-not $directory.Exists -or
+        ($directory.Attributes -band [IO.FileAttributes]::ReparsePoint) -ne 0) {
+        throw "Staging directory is missing or is a reparse point: $Path"
+    }
+    $trustedSids = @('S-1-5-18', 'S-1-5-32-544')
+    $sidType = [Security.Principal.SecurityIdentifier]
+    $acl = [IO.Directory]::GetAccessControl($Path,
+        [Security.AccessControl.AccessControlSections]'Owner, Access')
+    $rules = @($acl.GetAccessRules($true, $true, $sidType))
+    $unexpectedRules = @($rules | Where-Object {
+        $_.AccessControlType -ne [Security.AccessControl.AccessControlType]::Allow -or
+        $_.IdentityReference.Value -notin $trustedSids
+    })
+    if ($acl.GetOwner($sidType).Value -ne 'S-1-5-32-544' -or
+        -not $acl.AreAccessRulesProtected -or
+        $rules.Count -eq 0 -or $unexpectedRules.Count -ne 0) {
+        throw "Staging directory is not restricted to administrators and SYSTEM: $Path"
+    }
+    if (@([IO.Directory]::GetFileSystemEntries($Path)).Count -ne 0) {
+        throw "Staging directory was not created empty: $Path"
+    }
+}
+
 function New-ProtectedStagingDirectory {
     $programData = [Environment]::GetFolderPath(
         [Environment+SpecialFolder]::CommonApplicationData)
+    if ([string]::IsNullOrWhiteSpace($programData)) {
+        throw 'The Windows ProgramData directory could not be resolved.'
+    }
     $path = Join-Path $programData (
         'xucRun-Tray-Signing-' + [Guid]::NewGuid().ToString('N'))
+    if (Test-Path -LiteralPath $path) {
+        throw "Staging path already exists: $path"
+    }
     $inheritance = [Security.AccessControl.InheritanceFlags](
         [Security.AccessControl.InheritanceFlags]::ContainerInherit -bor
         [Security.AccessControl.InheritanceFlags]::ObjectInherit)
@@ -94,8 +131,11 @@ function New-ProtectedStagingDirectory {
         'FullControl', $inheritance, $propagation, $allow))
     $acl.AddAccessRule([Security.AccessControl.FileSystemAccessRule]::new(
         $administrators, 'FullControl', $inheritance, $propagation, $allow))
-    New-Item -ItemType Directory -Path $path | Out-Null
-    Set-Acl -LiteralPath $path -AclObject $acl
+    # The descriptor must be part of the creation call. A directory that is
+    # restricted only afterwards briefly inherits the ProgramData rights that
+    # let any account add entries it continues to own.
+    [void][IO.Directory]::CreateDirectory($path, $acl)
+    Assert-ProtectedDirectory -Path $path
     return $path
 }
 
@@ -135,6 +175,10 @@ try {
         New-Item -ItemType Directory -Path (Split-Path -Parent $target) `
             -Force | Out-Null
         Copy-Item -LiteralPath $source -Destination $target
+        if ((Get-FileHash -LiteralPath $source -Algorithm SHA256).Hash -ne
+            (Get-FileHash -LiteralPath $target -Algorithm SHA256).Hash) {
+            throw "Staged Tray payload file does not match its source: $relativePath"
+        }
         $arguments = @{
             FilePath = $target
             Certificate = $certificate

@@ -126,7 +126,8 @@ $coreUninstallPath =
     'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\xucRun'
 $coreParametersPath =
     'HKLM:\SYSTEM\CurrentControlSet\Services\xucRunBroker\Parameters'
-$installerLogDirectory = Join-Path $env:ProgramData 'xucRun\InstallerLogs'
+$installerLogDirectory = Join-Path ([Environment]::GetFolderPath(
+    [Environment+SpecialFolder]::CommonApplicationData)) 'xucRun\InstallerLogs'
 
 function Assert-WindowsPowerShell {
     if ($PSVersionTable.PSEdition -ne 'Desktop' -or
@@ -364,11 +365,47 @@ function Set-InstallerLogDirectoryAcl {
     Set-Acl -LiteralPath $Path -AclObject $acl
 }
 
+function Initialize-InstallerLogDirectory {
+    # The log directory and its parent may be missing or may have been created
+    # by another account before xucRun was installed. Missing directories are
+    # created already restricted, because a directory restricted afterwards
+    # briefly inherits the ProgramData rights that let any account add entries.
+    # Existing ones must belong to administrators or SYSTEM.
+    $inheritance =
+        [Security.AccessControl.InheritanceFlags]'ContainerInherit, ObjectInherit'
+    $propagation = [Security.AccessControl.PropagationFlags]::None
+    $allow = [Security.AccessControl.AccessControlType]::Allow
+    $sidType = [Security.Principal.SecurityIdentifier]
+    $systemSid = $sidType::new('S-1-5-18')
+    $administratorsSid = $sidType::new('S-1-5-32-544')
+    foreach ($directory in @(
+        (Split-Path -Parent $installerLogDirectory), $installerLogDirectory
+    )) {
+        if (-not (Test-Path -LiteralPath $directory)) {
+            $acl = [Security.AccessControl.DirectorySecurity]::new()
+            $acl.SetAccessRuleProtection($true, $false)
+            $acl.SetOwner($administratorsSid)
+            $acl.AddAccessRule([Security.AccessControl.FileSystemAccessRule]::new(
+                $systemSid, 'FullControl', $inheritance, $propagation, $allow))
+            $acl.AddAccessRule([Security.AccessControl.FileSystemAccessRule]::new(
+                $administratorsSid, 'FullControl', $inheritance, $propagation, $allow))
+            [void][IO.Directory]::CreateDirectory($directory, $acl)
+        }
+        Assert-NotReparsePoint -Path $directory
+        $owner = [IO.Directory]::GetAccessControl($directory,
+            [Security.AccessControl.AccessControlSections]::Owner).GetOwner($sidType)
+        if (-not (Test-Path -LiteralPath $directory -PathType Container) -or
+            $owner.Value -notin @('S-1-5-18', 'S-1-5-32-544')) {
+            throw "Log directory is not owned by administrators or SYSTEM: $directory"
+        }
+    }
+    Set-InstallerLogDirectoryAcl -Path $installerLogDirectory
+}
+
 function Write-TrayUninstallDiagnostic {
     param([Parameter(Mandatory)][Management.Automation.ErrorRecord]$ErrorRecord)
 
-    New-Item -ItemType Directory -Path $installerLogDirectory -Force | Out-Null
-    Set-InstallerLogDirectoryAcl -Path $installerLogDirectory
+    Initialize-InstallerLogDirectory
     $logPath = Join-Path $installerLogDirectory (
         'xucRunTray-Uninstall-' + (Get-Date -Format 'yyyyMMdd-HHmmss-fff') + '.log')
     $lines = @(
