@@ -21,6 +21,9 @@ plain semantic data—are documented only here rather than being modified with i
 | `.gitattributes` | Repository configuration | Defines Git text and line-ending handling. |
 | `.githooks/pre-push` | Git hook | Verifies the public repository and push destination before a push. |
 | `.github/FUNDING.yml` | GitHub configuration | Declares the optional Patreon funding link. |
+| `.github/ISSUE_TEMPLATE/bug_report.de.yml` | GitHub configuration | German issue form collecting Tray version, Windows build, affected area, and reproduction details for bug reports. |
+| `.github/ISSUE_TEMPLATE/bug_report.yml` | GitHub configuration | English issue form collecting Tray version, Windows build, affected area, and reproduction details for bug reports. |
+| `.github/ISSUE_TEMPLATE/config.yml` | GitHub configuration | Configures the issue chooser, routes suspected vulnerabilities to private reporting, and links Core problems to the xucRun repository. |
 | `.github/workflows/ci.yml` | CI workflow | Builds, tests, and packages Tray with its pinned xucRun dependency. |
 | `.gitignore` | Repository configuration | Excludes local IDE state, build outputs, and generated artifacts. |
 | `CHANGELOG.de.md` | User documentation | Records user-visible changes in German; its conventional title and version structure replace a metadata head. |

@@ -1,0 +1,10 @@
+# Purpose: Configures the xucRun Tray issue chooser so that vulnerabilities are routed to private reporting while other feedback remains possible.
+# Approach: Keeps blank issues enabled for general feedback and adds contact links to private vulnerability reporting and the main xucRun issue tracker.
+blank_issues_enabled: true
+contact_links:
+  - name: Report a security vulnerability / Sicherheitslücke melden
+    url: https://github.com/HT64/xucRun-Tray/security/advisories/new
+    about: Suspected vulnerabilities must be reported confidentially, never in a public issue. / Vermutete Sicherheitslücken ausschließlich vertraulich melden, nie in einem öffentlichen Issue.
+  - name: Problem with xucRun itself / Problem mit xucRun selbst
+    url: https://github.com/HT64/xucRun/issues
+    about: Launching, credentials, approvals, and the broker service belong to the main xucRun repository. / Programmstart, Anmeldedaten, Freigaben und Brokerdienst gehören in das xucRun-Hauptrepository.

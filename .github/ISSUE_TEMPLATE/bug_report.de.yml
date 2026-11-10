@@ -1,0 +1,96 @@
+# Purpose: Structured German bug report form for xucRun Tray that collects the environment and reproduction details needed for a single maintainer to investigate.
+# Approach: Uses a GitHub issue form with required version and reproduction fields and routes suspected vulnerabilities to private reporting.
+name: Fehlerbericht
+description: Ein reproduzierbares Problem mit xucRun Tray melden (Deutsch).
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Vielen Dank, dass Sie sich die Zeit für eine Fehlermeldung nehmen.
+
+        **Melden Sie vermutete Sicherheitslücken nicht hier.** Verwenden Sie stattdessen den
+        vertraulichen Weg aus [SECURITY.de.md](../blob/main/SECURITY.de.md) (GitHub Private
+        Vulnerability Reporting).
+
+        Probleme beim Starten von Programmen, mit Anmeldedaten, Freigaben oder dem Brokerdienst
+        gehören in das [xucRun-Hauptrepository](https://github.com/HT64/xucRun/issues). Dieses
+        Formular ist für das Tray-Symbol, sein Menü und seinen Installer.
+  - type: input
+    id: tray-version
+    attributes:
+      label: xucRun-Tray-Version
+      description: Wird in der Tray-Informationsansicht oder im Tooltip des Symbols angezeigt, zum Beispiel `0.9.1.5`. xucRun Tray setzt exakt dieselbe xucRun-Version voraus.
+      placeholder: "0.9.1.5"
+    validations:
+      required: true
+  - type: input
+    id: windows-version
+    attributes:
+      label: Windows-Version
+      description: Edition und Build, zum Beispiel `Windows 11 Pro 24H2 (26100.2605)` oder `Windows 10 Pro 22H2 (19045.5131)`.
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Betroffener Bereich
+      options:
+        - "Statussymbol (Farbe, Pulsieren, Tooltip)"
+        - "Liste erhöhter Prozesse oder Fensteraktivierung"
+        - "Menüaktionen (Anmeldedaten, Freigaben, Dienst, Sprache)"
+        - "Start bei der Windows-Anmeldung"
+        - "Installer oder Deinstallation"
+        - "Sonstiges"
+    validations:
+      required: true
+  - type: dropdown
+    id: tray-elevated
+    attributes:
+      label: Läuft der Tray-Prozess erhöht?
+      description: Der Tooltip zeigt dies an; bei erhöhtem Prozess trägt das Symbol ein Schildsymbol.
+      options:
+        - "Nein"
+        - "Ja"
+        - "Unbekannt"
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Schritte zur Reproduktion
+      description: Bitte angeben, welches Programm Sie über xucRun unter welchem Konto gestartet haben und ob dessen Hauptfenster sichtbar war.
+      placeholder: |
+        1. ...
+        2. ...
+        3. ...
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Erwartetes Verhalten
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Tatsächliches Verhalten
+      description: Bitte den genauen Text von Meldungen angeben. Screenshots von Symbol oder Menü sind willkommen; Kontonamen, die nicht veröffentlicht werden sollen, bitte unkenntlich machen.
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Diagnose (optional)
+      description: Relevante Zeilen aus dem Client-Log (`ClientLogDirectory` in `xucRun.ini`), die `xucRunBroker`-Einträge im Windows-Anwendungsereignisprotokoll oder die Ausgabe von `xucRun.exe /audit`. Entfernen Sie alles, was Sie als vertraulich ansehen.
+      render: text
+  - type: checkboxes
+    id: confirmations
+    attributes:
+      label: Bestätigungen
+      options:
+        - label: Dieser Bericht beschreibt keine Sicherheitslücke.
+          required: true
+        - label: Ich habe Kennwörter und andere Geheimnisse aus dem Bericht entfernt.
+          required: true
