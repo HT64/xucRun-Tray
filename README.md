@@ -194,6 +194,10 @@ The icon color summarizes the current state:
 - A gray icon indicates that the broker service is stopped, disabled, or not yet available.
 - A red icon indicates disrupted broker communication or at least one visible main window
   belonging to a tracked elevated process.
+- While broker communication is working, the red icon pulses once per second if at least one
+  visible main window belongs to a process with an effective
+  `NT SERVICE\TrustedInstaller` identity. Ordinary elevated and LocalSystem process windows keep
+  the icon continuously red.
 
 A red icon therefore does not always indicate an error.
 
@@ -202,6 +206,8 @@ that at least one visible main window belonging to a tracked elevated process is
 keeps elevated applications recognizable even when their windows are hidden behind other windows.
 It is particularly useful when additional applications have been started from an elevated process,
 because they may also run in the elevated security context.
+The pulsing TrustedInstaller indication follows validated child processes as long as they retain
+the effective TrustedInstaller identity and have a visible main window.
 
 If the Tray application itself is running with elevated rights, the Windows shield is also shown
 on the icon. Hover over the icon to see text describing the specific state.
@@ -225,10 +231,18 @@ Depending on the current xucRun configuration and permissions, the menu provides
 ![xucRun Tray management menu](docs/en/images/tray-menu.png)
 
 Under **Elevated processes**, the menu lists processes tracked by xucRun and their visible main
-windows. Selecting a window restores it if minimized and attempts to bring it to the foreground. If
-Windows prevents the foreground switch, the corresponding taskbar button flashes instead.
-Processes without a suitable visible window are listed but cannot be brought forward from the
-menu.
+windows. This list is not a system-wide overview of all elevated or SYSTEM processes: it contains
+the processes started through xucRun including their recognized follow-up processes, plus
+elevated administrator processes of the current Windows session. While at least one process with
+the LocalSystem or TrustedInstaller identity is tracked, every entry begins with the
+broker-validated effective identity: `[ADM]` and the Windows account name for an elevated
+administrator, `[SYS] SYSTEM` for LocalSystem, or `[TI] TrustedInstaller` for LocalSystem with an
+effective TrustedInstaller service SID. Without such a process, entries stay compact and only
+processes running under a different account than the signed-in user are prefixed with that
+account name. Selecting a window restores it if minimized and attempts to bring it to the
+foreground. If Windows prevents the foreground switch, the corresponding taskbar button flashes
+instead. Processes without a suitable visible window appear as grayed-out entries with the note
+`no window` and cannot be brought forward from the menu.
 
 ![Tracked elevated processes and their windows](docs/en/images/elevated-processes.png)
 

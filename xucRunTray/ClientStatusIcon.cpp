@@ -13,6 +13,61 @@
 
 namespace
 {
+	HICON CreateZoomedIcon(HICON sourceIcon)
+	{
+		if (!sourceIcon)
+			return nullptr;
+		const int width = GetSystemMetrics(SM_CXSMICON);
+		const int height = GetSystemMetrics(SM_CYSMICON);
+		BITMAPINFO bitmapInfo = {};
+		bitmapInfo.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
+		bitmapInfo.bmiHeader.biWidth = width;
+		bitmapInfo.bmiHeader.biHeight = -height;
+		bitmapInfo.bmiHeader.biPlanes = 1;
+		bitmapInfo.bmiHeader.biBitCount = 32;
+		bitmapInfo.bmiHeader.biCompression = BI_RGB;
+
+		HDC screen = GetDC(nullptr);
+		void* pixels = nullptr;
+		HBITMAP colorBitmap = screen ? CreateDIBSection(
+			screen, &bitmapInfo, DIB_RGB_COLORS, &pixels, nullptr, 0) : nullptr;
+		HDC memory = screen && colorBitmap ? CreateCompatibleDC(screen) : nullptr;
+		if (memory)
+		{
+			SecureZeroMemory(pixels,
+				static_cast<std::size_t>(width) * height * sizeof(std::uint32_t));
+			HGDIOBJ previousBitmap = SelectObject(memory, colorBitmap);
+			const int zoomedWidth = (std::max)(width + 2, width * 11 / 8);
+			const int zoomedHeight = (std::max)(height + 2, height * 11 / 8);
+			DrawIconEx(memory, (width - zoomedWidth) / 2,
+				(height - zoomedHeight) / 2, sourceIcon,
+				zoomedWidth, zoomedHeight, 0, nullptr, DI_NORMAL);
+			SelectObject(memory, previousBitmap);
+		}
+		const std::size_t maskStride =
+			((static_cast<std::size_t>(width) + 15) / 16) * 2;
+		const std::vector<std::uint8_t> maskBits(maskStride * height, 0);
+		HBITMAP maskBitmap = colorBitmap
+			? CreateBitmap(width, height, 1, 1, maskBits.data())
+			: nullptr;
+		ICONINFO iconInfo = {};
+		iconInfo.fIcon = TRUE;
+		iconInfo.hbmColor = colorBitmap;
+		iconInfo.hbmMask = maskBitmap;
+		HICON result = colorBitmap && maskBitmap
+			? CreateIconIndirect(&iconInfo)
+			: nullptr;
+		if (memory)
+			DeleteDC(memory);
+		if (colorBitmap)
+			DeleteObject(colorBitmap);
+		if (maskBitmap)
+			DeleteObject(maskBitmap);
+		if (screen)
+			ReleaseDC(nullptr, screen);
+		return result;
+	}
+
 	HICON CreateElevatedOverlayIcon(HICON sourceIcon)
 	{
 		if (!sourceIcon)
@@ -161,7 +216,8 @@ namespace xucrun::status_icon
 		const BrokerServiceState& serviceState,
 		bool brokerCommunicationAvailable,
 		std::uint32_t elevatedProcessCount,
-		bool elevatedProcessWindowActive,
+		bool showElevatedProcessWarning,
+		bool showLargeElevatedProcessWarning,
 		const broker::ProductVersion& brokerVersion,
 		const std::wstring& currentAccount,
 		bool currentProcessElevated,
@@ -180,6 +236,11 @@ namespace xucrun::status_icon
 			stoppedIcon ? stoppedIcon : statusIcon);
 		static HICON elevatedRedStatusIcon = CreateElevatedOverlayIcon(
 			redStatusIcon ? redStatusIcon : statusIcon);
+		static HICON largeRedStatusIcon = CreateZoomedIcon(
+			redStatusIcon ? redStatusIcon : statusIcon);
+		static HICON largeElevatedRedStatusIcon = CreateZoomedIcon(
+			elevatedRedStatusIcon ? elevatedRedStatusIcon :
+			redStatusIcon ? redStatusIcon : statusIcon);
 		NOTIFYICONDATAW icon = {};
 		icon.cbSize = sizeof(icon);
 		icon.hWnd = window;
@@ -190,10 +251,18 @@ namespace xucrun::status_icon
 			icon.hIcon = currentProcessElevated && elevatedStoppedIcon
 				? elevatedStoppedIcon
 				: stoppedIcon ? stoppedIcon : statusIcon;
-		else if (!brokerCommunicationAvailable || elevatedProcessWindowActive)
-			icon.hIcon = currentProcessElevated && elevatedRedStatusIcon
-				? elevatedRedStatusIcon
-				: redStatusIcon ? redStatusIcon : statusIcon;
+		else if (!brokerCommunicationAvailable || showElevatedProcessWarning)
+		{
+			if (brokerCommunicationAvailable && showLargeElevatedProcessWarning)
+				icon.hIcon = currentProcessElevated && largeElevatedRedStatusIcon
+					? largeElevatedRedStatusIcon
+					: largeRedStatusIcon ? largeRedStatusIcon :
+					redStatusIcon ? redStatusIcon : statusIcon;
+			else
+				icon.hIcon = currentProcessElevated && elevatedRedStatusIcon
+					? elevatedRedStatusIcon
+					: redStatusIcon ? redStatusIcon : statusIcon;
+		}
 		else
 			icon.hIcon = currentProcessElevated && elevatedStatusIcon
 				? elevatedStatusIcon

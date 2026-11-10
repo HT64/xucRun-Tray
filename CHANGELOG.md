@@ -7,6 +7,26 @@ publication processes are not listed.
 
 ## [Unreleased]
 
+## [0.9.1.5] - 2026-11-09
+
+### Added
+
+- While at least one tracked process runs as `LocalSystem` or with the TrustedInstaller identity,
+  every entry under **Elevated processes** begins with its broker-validated identity: `[ADM]` and
+  the account name for an elevated administrator, `[SYS] SYSTEM` for `LocalSystem`, or
+  `[TI] TrustedInstaller`. Otherwise entries stay compact and only processes running under a
+  different account than the signed-in user are prefixed with that account name.
+- While a tracked process with the TrustedInstaller identity has a visible main window, the red
+  warning icon pulses once per second. Ordinary elevated and `LocalSystem` windows keep the icon
+  steadily red.
+
+### Changed
+
+- Updated the Tray package and installer compatibility requirement to xucRun Core 0.9.1.5.
+- The documentation now explains which processes the **Elevated processes** list contains, that
+  it is not a system-wide overview of all elevated or SYSTEM processes, and that processes
+  without a suitable visible window appear as grayed-out entries marked `no window`.
+
 ## [0.9.1.4] - 2026-11-07
 
 ### Changed
@@ -70,7 +90,8 @@ publication processes are not listed.
 
 - This is the initial public release of xucRun Tray.
 
-[Unreleased]: https://github.com/HT64/xucRun-Tray/compare/v0.9.1.4...HEAD
+[Unreleased]: https://github.com/HT64/xucRun-Tray/compare/v0.9.1.5...HEAD
+[0.9.1.5]: https://github.com/HT64/xucRun-Tray/releases/tag/v0.9.1.5
 [0.9.1.4]: https://github.com/HT64/xucRun-Tray/releases/tag/v0.9.1.4
 [0.9.1.3]: https://github.com/HT64/xucRun-Tray/releases/tag/v0.9.1.3
 [0.9.1.1]: https://github.com/HT64/xucRun-Tray/releases/tag/v0.9.1.1

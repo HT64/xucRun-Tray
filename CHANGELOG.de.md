@@ -7,6 +7,29 @@ relevant sind. Interne Entwicklungs- und Veröffentlichungsabläufe werden nicht
 
 ## [Unveröffentlicht]
 
+## [0.9.1.5] - 2026-11-09
+
+### Hinzugefügt
+
+- Solange mindestens ein verfolgter Prozess als `LocalSystem` oder mit der
+  TrustedInstaller-Identität läuft, beginnt jeder Eintrag unter **Erhöhte Prozesse** mit seiner
+  vom Broker validierten Identität: `[ADM]` und dem Kontonamen für einen erhöhten
+  Administrator, `[SYS] SYSTEM` für `LocalSystem` oder `[TI] TrustedInstaller`. Andernfalls
+  bleiben die Einträge kompakt; nur Prozessen eines anderen Kontos als dem des angemeldeten
+  Benutzers wird dessen Kontoname vorangestellt.
+- Solange ein verfolgter Prozess mit TrustedInstaller-Identität ein sichtbares Hauptfenster
+  besitzt, pulsiert das rote Warnsymbol einmal pro Sekunde. Gewöhnliche erhöhte und
+  `LocalSystem`-Fenster halten das Symbol durchgehend rot.
+
+### Geändert
+
+- Die Kompatibilitätsanforderung des Tray-Pakets und -Installers wurde auf xucRun Core 0.9.1.5
+  aktualisiert.
+- Die Dokumentation erklärt jetzt, welche Prozesse die Liste **Erhöhte Prozesse** enthält, dass
+  sie keine systemweite Übersicht aller erhöhten oder SYSTEM-Prozesse ist und dass Prozesse ohne
+  geeignetes sichtbares Fenster als ausgegraute Einträge mit dem Zusatz `kein Fenster`
+  erscheinen.
+
 ## [0.9.1.4] - 2026-11-07
 
 ### Geändert
@@ -79,7 +102,8 @@ relevant sind. Interne Entwicklungs- und Veröffentlichungsabläufe werden nicht
 
 - Dies ist die erste öffentliche Veröffentlichung von xucRun Tray.
 
-[Unveröffentlicht]: https://github.com/HT64/xucRun-Tray/compare/v0.9.1.4...HEAD
+[Unveröffentlicht]: https://github.com/HT64/xucRun-Tray/compare/v0.9.1.5...HEAD
+[0.9.1.5]: https://github.com/HT64/xucRun-Tray/releases/tag/v0.9.1.5
 [0.9.1.4]: https://github.com/HT64/xucRun-Tray/releases/tag/v0.9.1.4
 [0.9.1.3]: https://github.com/HT64/xucRun-Tray/releases/tag/v0.9.1.3
 [0.9.1.1]: https://github.com/HT64/xucRun-Tray/releases/tag/v0.9.1.1

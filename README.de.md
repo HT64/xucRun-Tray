@@ -204,6 +204,10 @@ Die Farbe des Symbols fasst den aktuellen Zustand zusammen:
   verfügbar ist.
 - Ein rotes Symbol weist auf eine gestörte Brokerkommunikation oder auf mindestens ein sichtbares
   Hauptfenster eines verfolgten erhöhten Prozesses hin.
+- Bei funktionierender Brokerkommunikation pulsiert das rote Symbol einmal pro Sekunde, wenn
+  mindestens ein sichtbares Hauptfenster zu einem Prozess mit wirksamer
+  Identität `NT SERVICE\TrustedInstaller` gehört. Fenster gewöhnlicher erhöhter Prozesse und
+  LocalSystem-Prozesse lassen das Symbol durchgehend rot erscheinen.
 
 Ein rotes Symbol ist daher nicht immer ein Fehlerhinweis.
 
@@ -212,6 +216,8 @@ darauf, dass noch mindestens ein sichtbares Hauptfenster eines verfolgten erhöh
 geöffnet ist. So bleiben auch erhöhte Anwendungen erkennbar, deren Fenster von anderen Fenstern
 verdeckt sind. Das ist besonders hilfreich, wenn aus einem erhöhten Prozess weitere Anwendungen
 gestartet wurden, da diese ebenfalls im erhöhten Sicherheitskontext ausgeführt werden können.
+Die pulsierende TrustedInstaller-Anzeige folgt validierten Kindprozessen, solange sie die wirksame
+TrustedInstaller-Identität behalten und ein sichtbares Hauptfenster besitzen.
 
 Läuft die Tray-Anwendung selbst mit erhöhten Rechten, erscheint zusätzlich das Windows-Schild auf
 dem Symbol. Die genaue Ursache eines Zustands zeigt der Text an, der beim Verweilen des Mauszeigers
@@ -236,10 +242,19 @@ Abhängig von xucRun-Konfiguration und Berechtigungen bietet das Menü:
 ![Verwaltungsmenü von xucRun Tray](docs/de/images/tray-menu.png)
 
 Unter **Erhöhte Prozesse** führt das Menü die von xucRun verfolgten Prozesse und ihre sichtbaren
-Hauptfenster auf. Ein Klick auf einen Fenstereintrag stellt ein minimiertes Fenster wieder her und
-versucht, es in den Vordergrund zu holen. Verhindert Windows den Wechsel in den Vordergrund, blinkt
-stattdessen die zugehörige Schaltfläche in der Taskleiste. Prozesse ohne geeignetes sichtbares
-Fenster werden angezeigt, können von dort aber nicht hervorgeholt werden.
+Hauptfenster auf. Diese Liste ist keine systemweite Übersicht aller erhöhten oder
+SYSTEM-Prozesse: Sie enthält die über xucRun gestarteten Prozesse einschließlich ihrer erkannten
+Folgeprozesse sowie erhöhte Administratorprozesse der eigenen Windows-Sitzung. Solange mindestens
+ein Prozess mit der Identität LocalSystem oder TrustedInstaller verfolgt wird, beginnt jeder
+Eintrag mit der vom Broker validierten wirksamen Identität: `[ADM]` und dem Windows-Kontonamen
+für einen erhöhten Administrator, `[SYS] SYSTEM` für LocalSystem oder `[TI] TrustedInstaller` für
+LocalSystem mit wirksamer TrustedInstaller-Dienst-SID. Ohne einen solchen Prozess bleiben die
+Einträge kompakt; nur Prozessen eines anderen Kontos als dem des angemeldeten Benutzers wird
+dessen Kontoname vorangestellt. Ein Klick auf einen Fenstereintrag stellt ein minimiertes Fenster
+wieder her und versucht, es in den Vordergrund zu holen. Verhindert Windows den Wechsel in den
+Vordergrund, blinkt stattdessen die zugehörige Schaltfläche in der Taskleiste. Prozesse ohne
+geeignetes sichtbares Fenster erscheinen als ausgegraute Einträge mit dem Zusatz `kein Fenster`
+und können vom Menü aus nicht hervorgeholt werden.
 
 ![Verfolgte erhöhte Prozesse und ihre Fenster](docs/de/images/elevated-processes.png)
 

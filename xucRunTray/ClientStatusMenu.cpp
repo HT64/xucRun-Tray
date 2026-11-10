@@ -11,6 +11,7 @@
 
 #include "BrokerPipeClient.h"
 #include "ClientLogging.h"
+#include "DocumentationNameMapping.h"
 #include "TrayLocalization.h"
 
 namespace
@@ -44,6 +45,45 @@ namespace
 		xucrun::broker::TrackedProcessListEntry process;
 		HWND window = nullptr;
 	};
+
+	std::wstring GetProcessIdentityLabel(
+		const xucrun::broker::TrackedProcessListEntry& process)
+	{
+		if (process.trustedInstaller)
+			return L"[TI] TrustedInstaller";
+		if (_wcsicmp(process.accountSid.c_str(), L"S-1-5-18") == 0)
+			return L"[SYS] SYSTEM";
+		return L"[ADM] " +
+			xucrun::documentation_names::DisplayAccount(
+				process.canonicalAccountName);
+	}
+
+	// Identity markers are shown only while a SYSTEM or TrustedInstaller process is tracked.
+	bool HasPrivilegedProcessIdentity(
+		const std::vector<xucrun::broker::TrackedProcessListEntry>& processes)
+	{
+		return std::any_of(processes.begin(), processes.end(),
+			[](const auto& process) {
+				return process.trustedInstaller ||
+					_wcsicmp(process.accountSid.c_str(), L"S-1-5-18") == 0;
+			});
+	}
+
+	// Without privileged identities only foreign accounts are prefixed.
+	std::wstring GetProcessEntryPrefix(
+		const xucrun::broker::TrackedProcessListEntry& process,
+		bool showPrivilegedIdentities, const std::wstring& currentAccount)
+	{
+		if (showPrivilegedIdentities)
+			return GetProcessIdentityLabel(process) + L" \x2014 ";
+		if (_wcsicmp(process.canonicalAccountName.c_str(),
+			currentAccount.c_str()) != 0)
+		{
+			return xucrun::documentation_names::DisplayAccount(
+				process.canonicalAccountName) + L" \x2014 ";
+		}
+		return L"";
+	}
 
 	HBITMAP CreateMenuBitmap(HICON icon)
 	{
@@ -198,7 +238,7 @@ namespace
 	struct TrackedProcessWindowSearchContext
 	{
 		const std::vector<xucrun::broker::TrackedProcessListEntry>* processes = nullptr;
-		bool found = false;
+		xucrun::status_menu::TrackedProcessWindowState state;
 	};
 
 	BOOL CALLBACK FindTrackedProcessWindow(HWND candidate, LPARAM parameter)
@@ -211,10 +251,14 @@ namespace
 		DWORD processId = 0;
 		GetWindowThreadProcessId(candidate, &processId);
 		auto* context = reinterpret_cast<TrackedProcessWindowSearchContext*>(parameter);
-		context->found = std::any_of(
+		const auto process = std::find_if(
 			context->processes->begin(), context->processes->end(),
 			[processId](const auto& process) { return process.processId == processId; });
-		return context->found ? FALSE : TRUE;
+		if (process == context->processes->end())
+			return TRUE;
+		context->state.anyVisible = true;
+		context->state.trustedInstallerVisible = process->trustedInstaller;
+		return context->state.trustedInstallerVisible ? FALSE : TRUE;
 	}
 
 	std::vector<HWND> GetTrackedProcessWindows(DWORD processId)
@@ -301,12 +345,12 @@ namespace
 
 namespace xucrun::status_menu
 {
-	bool HasTrackedProcessWindow(
+	TrackedProcessWindowState GetTrackedProcessWindowState(
 		const std::vector<broker::TrackedProcessListEntry>& trackedProcesses)
 	{
-		TrackedProcessWindowSearchContext context{ &trackedProcesses, false };
+		TrackedProcessWindowSearchContext context{ &trackedProcesses };
 		EnumWindows(FindTrackedProcessWindow, reinterpret_cast<LPARAM>(&context));
-		return context.found;
+		return context.state;
 	}
 
 	status_actions::Selection Show(HWND owner, int x, int y, const Model& model)
@@ -416,12 +460,17 @@ namespace xucrun::status_menu
 				}
 				if (candidateListTruncated || processListTruncated)
 					AppendMenuW(processMenu, MF_SEPARATOR, 0, nullptr);
+				const bool showPrivilegedIdentities =
+					HasPrivilegedProcessIdentity(trackedProcesses);
 				for (const auto& [process, processWindows] : processEntries)
 				{
 					const std::wstring processRole =
 						process.processId == GetCurrentProcessId()
 						? localization::GetText(localization::TrayTextId::IconProcessRole) : L"";
-					const std::wstring processLabel = process.processBaseName + processRole +
+					const std::wstring processLabel =
+						GetProcessEntryPrefix(process, showPrivilegedIdentities,
+							model.currentAccount) +
+						process.processBaseName + processRole +
 						L" (PID " + std::to_wstring(process.processId) + L")";
 					if (processWindows.empty())
 					{

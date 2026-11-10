@@ -27,7 +27,13 @@ namespace xucrun::status_menu
 		autostart::Status autostartStatus = autostart::Status::Unavailable;
 	};
 
-	bool HasTrackedProcessWindow(
+	struct TrackedProcessWindowState
+	{
+		bool anyVisible = false;
+		bool trustedInstallerVisible = false;
+	};
+
+	TrackedProcessWindowState GetTrackedProcessWindowState(
 		const std::vector<broker::TrackedProcessListEntry>& trackedProcesses);
 	status_actions::Selection Show(HWND owner, int x, int y, const Model& model);
 }

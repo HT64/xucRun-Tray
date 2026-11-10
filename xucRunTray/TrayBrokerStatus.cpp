@@ -47,6 +47,7 @@ namespace xucrun::broker_status
 		constexpr UINT BROKER_STATUS_ACTIVATION_INTERVAL = 250;
 		constexpr ULONGLONG BROKER_STATUS_ACTIVATION_TIMEOUT = 15000;
 		constexpr UINT BROKER_STATUS_RETRY_INTERVAL = 1000;
+		constexpr UINT BROKER_STATUS_TRUSTED_INSTALLER_INTERVAL = 1000;
 		constexpr UINT BROKER_STATUS_ACTIVE_INTERVAL = 2000;
 		constexpr UINT BROKER_STATUS_IDLE_INTERVAL = 5000;
 		constexpr std::uint32_t BROKER_STATUS_FAILURE_THRESHOLD = 3;
@@ -367,7 +368,7 @@ namespace xucrun::broker_status
 		}
 
 		void ScheduleBrokerStatusTimer(HWND window, const BrokerServiceState& serviceState,
-			std::uint32_t elevatedProcessCount)
+			std::uint32_t elevatedProcessCount, bool trustedInstallerWindowActive)
 		{
 			KillTimer(window, BROKER_STATUS_TIMER);
 			const ULONGLONG now = GetTickCount64();
@@ -392,6 +393,8 @@ namespace xucrun::broker_status
 				SetTimer(window, BROKER_STATUS_TIMER,
 					consecutiveBrokerHealthFailures != 0
 						? BROKER_STATUS_RETRY_INTERVAL
+						: trustedInstallerWindowActive
+						? BROKER_STATUS_TRUSTED_INSTALLER_INTERVAL
 						: elevatedProcessCount == 0
 						? BROKER_STATUS_IDLE_INTERVAL
 						: BROKER_STATUS_ACTIVE_INTERVAL,
@@ -443,7 +446,10 @@ namespace xucrun::broker_status
 			bool& brokerCommunicationAvailable, broker::ProductVersion& brokerVersion,
 			std::vector<broker::TrackedProcessListEntry>& trackedProcesses,
 			std::vector<broker::StatusIconListEntry>& statusIcons,
-			bool& statusIconListAvailable)
+			bool& statusIconListAvailable,
+			bool advanceTrustedInstallerBlink,
+			bool& trustedInstallerWindowActive,
+			bool& trustedInstallerBlinkLarge)
 		{
 			serviceState = QueryBrokerServiceState();
 			if (serviceState.status != BrokerServiceStatus::Running)
@@ -547,8 +553,22 @@ namespace xucrun::broker_status
 				}
 			}
 
-			const bool elevatedProcessWindowActive =
-				status_menu::HasTrackedProcessWindow(trackedProcesses);
+			const auto processWindowState =
+				status_menu::GetTrackedProcessWindowState(trackedProcesses);
+			const bool wasTrustedInstallerWindowActive =
+				trustedInstallerWindowActive;
+			trustedInstallerWindowActive =
+				processWindowState.trustedInstallerVisible;
+			if (!trustedInstallerWindowActive)
+				trustedInstallerBlinkLarge = false;
+			else if (!wasTrustedInstallerWindowActive)
+				trustedInstallerBlinkLarge = false;
+			else if (advanceTrustedInstallerBlink)
+				trustedInstallerBlinkLarge = !trustedInstallerBlinkLarge;
+			const bool showElevatedProcessWarning =
+				processWindowState.anyVisible;
+			const bool showLargeElevatedProcessWarning =
+				trustedInstallerWindowActive && trustedInstallerBlinkLarge;
 			const bool otherStatusIconAvailable = statusIconListAvailable &&
 				std::any_of(statusIcons.begin(), statusIcons.end(), [](const auto& icon) {
 					return icon.processId != GetCurrentProcessId();
@@ -562,8 +582,9 @@ namespace xucrun::broker_status
 				!interactiveAccount.matchesStatusAccount;
 			NOTIFYICONDATAW icon = status_icon::Build(window, BROKER_STATUS_CALLBACK,
 				serviceState, brokerCommunicationAvailable, elevatedProcessCount,
-				elevatedProcessWindowActive, brokerVersion, GetStatusAccount(),
-				IsStatusProcessElevated(), showStatusIdentity);
+				showElevatedProcessWarning, showLargeElevatedProcessWarning,
+				brokerVersion, GetStatusAccount(), IsStatusProcessElevated(),
+				showStatusIdentity);
 			if (!iconVisible)
 			{
 				iconVisible = Shell_NotifyIconW(NIM_ADD, &icon) == TRUE;
@@ -588,14 +609,18 @@ namespace xucrun::broker_status
 			static std::vector<broker::TrackedProcessListEntry> trackedProcesses;
 			static std::vector<broker::StatusIconListEntry> statusIcons;
 			static bool statusIconListAvailable = false;
+			static bool trustedInstallerWindowActive = false;
+			static bool trustedInstallerBlinkLarge = false;
 			static const UINT taskbarCreated = RegisterWindowMessageW(L"TaskbarCreated");
 			if (message == taskbarCreated)
 			{
 				iconVisible = false;
 				UpdateBrokerStatusIcon(window, iconVisible, serviceState, elevatedProcessCount,
 					brokerCommunicationAvailable, brokerVersion, trackedProcesses,
-					statusIcons, statusIconListAvailable);
-				ScheduleBrokerStatusTimer(window, serviceState, elevatedProcessCount);
+					statusIcons, statusIconListAvailable, false,
+					trustedInstallerWindowActive, trustedInstallerBlinkLarge);
+				ScheduleBrokerStatusTimer(window, serviceState, elevatedProcessCount,
+					trustedInstallerWindowActive);
 				return 0;
 			}
 			switch (message)
@@ -603,8 +628,10 @@ namespace xucrun::broker_status
 			case WM_CREATE:
 				UpdateBrokerStatusIcon(window, iconVisible, serviceState, elevatedProcessCount,
 					brokerCommunicationAvailable, brokerVersion, trackedProcesses, statusIcons,
-					statusIconListAvailable);
-				ScheduleBrokerStatusTimer(window, serviceState, elevatedProcessCount);
+					statusIconListAvailable, false, trustedInstallerWindowActive,
+					trustedInstallerBlinkLarge);
+				ScheduleBrokerStatusTimer(window, serviceState, elevatedProcessCount,
+					trustedInstallerWindowActive);
 				ArmBrokerServiceStatusNotification(window);
 				return 0;
 			case WM_TIMER:
@@ -612,15 +639,19 @@ namespace xucrun::broker_status
 				{
 					UpdateBrokerStatusIcon(window, iconVisible, serviceState, elevatedProcessCount,
 						brokerCommunicationAvailable, brokerVersion, trackedProcesses, statusIcons,
-						statusIconListAvailable);
-					ScheduleBrokerStatusTimer(window, serviceState, elevatedProcessCount);
+						statusIconListAvailable, true, trustedInstallerWindowActive,
+						trustedInstallerBlinkLarge);
+					ScheduleBrokerStatusTimer(window, serviceState, elevatedProcessCount,
+						trustedInstallerWindowActive);
 				}
 				return 0;
 			case BROKER_SERVICE_STATUS_CHANGED:
 				UpdateBrokerStatusIcon(window, iconVisible, serviceState, elevatedProcessCount,
 					brokerCommunicationAvailable, brokerVersion, trackedProcesses, statusIcons,
-					statusIconListAvailable);
-				ScheduleBrokerStatusTimer(window, serviceState, elevatedProcessCount);
+					statusIconListAvailable, false, trustedInstallerWindowActive,
+					trustedInstallerBlinkLarge);
+				ScheduleBrokerStatusTimer(window, serviceState, elevatedProcessCount,
+					trustedInstallerWindowActive);
 				ArmBrokerServiceStatusNotification(window);
 				return 0;
 			case BROKER_STATUS_LANGUAGE_CHANGED:
@@ -644,8 +675,10 @@ namespace xucrun::broker_status
 					RefreshClientLoggingConfiguration();
 					UpdateBrokerStatusIcon(window, iconVisible, serviceState, elevatedProcessCount,
 						brokerCommunicationAvailable, brokerVersion, trackedProcesses, statusIcons,
-						statusIconListAvailable);
-					ScheduleBrokerStatusTimer(window, serviceState, elevatedProcessCount);
+						statusIconListAvailable, false, trustedInstallerWindowActive,
+						trustedInstallerBlinkLarge);
+					ScheduleBrokerStatusTimer(window, serviceState, elevatedProcessCount,
+						trustedInstallerWindowActive);
 					const status_menu::Model menuModel{
 						serviceState,
 						brokerCommunicationAvailable,
@@ -719,8 +752,10 @@ namespace xucrun::broker_status
 						}
 						UpdateBrokerStatusIcon(window, iconVisible, serviceState,
 							elevatedProcessCount, brokerCommunicationAvailable, brokerVersion,
-							trackedProcesses, statusIcons, statusIconListAvailable);
-						ScheduleBrokerStatusTimer(window, serviceState, elevatedProcessCount);
+							trackedProcesses, statusIcons, statusIconListAvailable, false,
+							trustedInstallerWindowActive, trustedInstallerBlinkLarge);
+						ScheduleBrokerStatusTimer(window, serviceState, elevatedProcessCount,
+							trustedInstallerWindowActive);
 					}
 					else if (selection.action == status_actions::Action::Exit)
 						DestroyWindow(window);
