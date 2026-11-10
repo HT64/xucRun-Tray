@@ -189,8 +189,12 @@ Windows-Anmeldung dieses Benutzers. Für einen manuellen Start öffne eine Einga
 führe aus:
 
 ```cmd
-"%ProgramFiles%\xucRun\xucRunTray.exe"
+"C:\Program Files\xucRun\xucRunTray.exe"
 ```
+
+Das Beispiel nimmt den Windows-Standardpfad an. Bei einer abweichenden Installation muss der
+tatsächliche absolute Pfad zu `xucRunTray.exe` verwendet werden; der Aufruf sollte den Pfad nicht
+über eine Umgebungsvariable oder `PATH` bestimmen.
 
 In derselben Benutzersitzung läuft nur eine Tray-Instanz. Bewege den Mauszeiger über das Symbol im
 Benachrichtigungsbereich der Windows-Taskleiste neben der Uhr, um Benutzer-, Brokerdienst-,
@@ -306,11 +310,11 @@ Dieselben benutzerbezogenen Aktionen stehen für Skripte und Problembehebung als
 Verfügung:
 
 ```cmd
-"%ProgramFiles%\xucRun\xucRunTray.exe" /enable-autostart
-"%ProgramFiles%\xucRun\xucRunTray.exe" /disable-autostart
-"%ProgramFiles%\xucRun\xucRunTray.exe" /autostart-status
-"%ProgramFiles%\xucRun\xucRunTray.exe" /info
-"%ProgramFiles%\xucRun\xucRunTray.exe" /help
+"C:\Program Files\xucRun\xucRunTray.exe" /enable-autostart
+"C:\Program Files\xucRun\xucRunTray.exe" /disable-autostart
+"C:\Program Files\xucRun\xucRunTray.exe" /autostart-status
+"C:\Program Files\xucRun\xucRunTray.exe" /info
+"C:\Program Files\xucRun\xucRunTray.exe" /help
 ```
 
 `/autostart-status` zeigt den ermittelten Zustand an und beendet sich mit Exitcode `0`, wenn der

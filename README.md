@@ -180,8 +180,12 @@ the non-elevated user task. Otherwise, xucRun Tray starts at that user's next Wi
 start it manually, open Command Prompt and run:
 
 ```cmd
-"%ProgramFiles%\xucRun\xucRunTray.exe"
+"C:\Program Files\xucRun\xucRunTray.exe"
 ```
+
+The example assumes the standard Windows path. For a different installation, use the actual
+absolute path to `xucRunTray.exe`; the invocation should not determine the path through an
+environment variable or `PATH`.
 
 Only one Tray instance runs for the same user session. Hover over its icon in the notification area
 of the Windows taskbar next to the clock to see the user, broker service, communication, and
@@ -288,11 +292,11 @@ The same per-user operations are available for scripts and troubleshooting throu
 arguments:
 
 ```cmd
-"%ProgramFiles%\xucRun\xucRunTray.exe" /enable-autostart
-"%ProgramFiles%\xucRun\xucRunTray.exe" /disable-autostart
-"%ProgramFiles%\xucRun\xucRunTray.exe" /autostart-status
-"%ProgramFiles%\xucRun\xucRunTray.exe" /info
-"%ProgramFiles%\xucRun\xucRunTray.exe" /help
+"C:\Program Files\xucRun\xucRunTray.exe" /enable-autostart
+"C:\Program Files\xucRun\xucRunTray.exe" /disable-autostart
+"C:\Program Files\xucRun\xucRunTray.exe" /autostart-status
+"C:\Program Files\xucRun\xucRunTray.exe" /info
+"C:\Program Files\xucRun\xucRunTray.exe" /help
 ```
 
 `/autostart-status` displays the detected state and exits with code `0` when autostart is fully

@@ -46,7 +46,21 @@ Verzeichnis nicht, solange der Core installiert bleibt.
 
 ## Verfahren zur manuellen Entfernung
 
-Führe die folgenden Befehle in einem als Administrator gestarteten Windows PowerShell 5.1 aus.
+Führe die folgenden Befehle in einem als Administrator gestarteten 64-Bit-Windows-PowerShell 5.1
+aus.
+Ermittle in diesem Fenster zuerst das vertrauenswürdige Windows-Programmverzeichnis über die
+Windows-API statt über eine geerbte Umgebungsvariable:
+
+```powershell
+if (-not [Environment]::Is64BitProcess) {
+    throw 'Die manuelle Entfernung erfordert eine 64-Bit-PowerShell.'
+}
+$programFilesDirectory = [Environment]::GetFolderPath(
+    [Environment+SpecialFolder]::ProgramFiles)
+if ([string]::IsNullOrWhiteSpace($programFilesDirectory)) {
+    throw 'Das Windows-Programmverzeichnis konnte nicht ermittelt werden.'
+}
+```
 
 ### 1. Alle installierten Tray-Instanzen beenden
 
@@ -54,7 +68,7 @@ Der folgende Befehl beschränkt das Beenden auf Prozesse, die das installierte T
 ausführen. Fremde Prozesse mit einem ähnlichen Namen werden nicht beendet:
 
 ```powershell
-$trayPath = Join-Path $env:ProgramFiles 'xucRun\xucRunTray.exe'
+$trayPath = Join-Path $programFilesDirectory 'xucRun\xucRunTray.exe'
 
 Get-CimInstance Win32_Process -Filter "Name = 'xucRunTray.exe'" |
     Where-Object {
@@ -106,7 +120,7 @@ Lösche den Ordner nicht, wenn ihn eine andere Aufgabe oder ein Unterordner verw
 ### 3. Tray-Dateien entfernen
 
 ```powershell
-$installDirectory = Join-Path $env:ProgramFiles 'xucRun'
+$installDirectory = Join-Path $programFilesDirectory 'xucRun'
 $trayFiles = @(
     (Join-Path $installDirectory 'xucRunTray.exe'),
     (Join-Path $installDirectory 'Install-xucRunTray.ps1'),
@@ -156,7 +170,7 @@ besitzen.
 ## Überprüfung
 
 ```powershell
-$installDirectory = Join-Path $env:ProgramFiles 'xucRun'
+$installDirectory = Join-Path $programFilesDirectory 'xucRun'
 
 Get-CimInstance Win32_Process -Filter "Name = 'xucRunTray.exe'" |
     Select-Object ProcessId, ExecutablePath

@@ -44,7 +44,20 @@ installed.
 
 ## Manual removal procedure
 
-Run the commands below in an elevated Windows PowerShell 5.1 window.
+Run the commands below in an elevated 64-bit Windows PowerShell 5.1 window.
+First resolve the trusted Windows Program Files directory in that window through the Windows API
+rather than an inherited environment variable:
+
+```powershell
+if (-not [Environment]::Is64BitProcess) {
+    throw 'Manual removal requires 64-bit PowerShell.'
+}
+$programFilesDirectory = [Environment]::GetFolderPath(
+    [Environment+SpecialFolder]::ProgramFiles)
+if ([string]::IsNullOrWhiteSpace($programFilesDirectory)) {
+    throw 'The Windows Program Files directory could not be resolved.'
+}
+```
 
 ### 1. Stop all installed Tray instances
 
@@ -52,7 +65,7 @@ The following command limits termination to processes running the installed Tray
 not stop unrelated processes with a similar name:
 
 ```powershell
-$trayPath = Join-Path $env:ProgramFiles 'xucRun\xucRunTray.exe'
+$trayPath = Join-Path $programFilesDirectory 'xucRun\xucRunTray.exe'
 
 Get-CimInstance Win32_Process -Filter "Name = 'xucRunTray.exe'" |
     Where-Object {
@@ -103,7 +116,7 @@ Do not delete the folder if another task or subfolder uses it.
 ### 3. Remove Tray files
 
 ```powershell
-$installDirectory = Join-Path $env:ProgramFiles 'xucRun'
+$installDirectory = Join-Path $programFilesDirectory 'xucRun'
 $trayFiles = @(
     (Join-Path $installDirectory 'xucRunTray.exe'),
     (Join-Path $installDirectory 'Install-xucRunTray.ps1'),
@@ -152,7 +165,7 @@ expanded path.
 ## Verification
 
 ```powershell
-$installDirectory = Join-Path $env:ProgramFiles 'xucRun'
+$installDirectory = Join-Path $programFilesDirectory 'xucRun'
 
 Get-CimInstance Win32_Process -Filter "Name = 'xucRunTray.exe'" |
     Select-Object ProcessId, ExecutablePath
