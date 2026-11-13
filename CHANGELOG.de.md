@@ -11,8 +11,6 @@ relevant sind. Interne Entwicklungs- und Veröffentlichungsabläufe werden nicht
 
 ### Geändert
 
-- Hinweise zu Lizenzbedingungen, Sicherheit und Projektstatus in Installer und Dokumentation aktualisiert;
-  die Hinweise von Tray an xucRun angeglichen.
 - Der Installer legt die Lizenz- und Urheberhinweise im Unterverzeichnis `Licenses` ab.
 - Der grafische Installer zeigt Lizenztext, Urheberhinweise sowie Status- und Sicherheitshinweise
   offline auf eigenen Registerkarten an und verlangt bei jeder Installation oder Aktualisierung

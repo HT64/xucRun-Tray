@@ -11,8 +11,6 @@ publication processes are not listed.
 
 ### Changed
 
-- Updated installer and documentation notices on licensing, security, and project status; aligned
-  Tray's notices with xucRun's.
 - The installer places the license and attribution notices in the `Licenses` subdirectory.
 - The graphical installer displays the license text, attribution notices, and status and security
   notices offline on separate tabs and requires their acknowledgment for every installation or
