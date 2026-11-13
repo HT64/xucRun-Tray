@@ -9,7 +9,7 @@ Approach: Führt Anwender von der Einordnung über sichere Nutzung und Entfernun
 **Dokumentation:** [Dateiregister](FILE_REGISTER.md) | [Änderungsprotokoll](CHANGELOG.de.md) |
 [Manuelle Entfernung](docs/de/MANUAL_REMOVAL.md) | [xucRun](https://github.com/HT64/xucRun)
 
-> **Status:** xucRun Tray befindet sich in Entwicklung. Die Dokumentation beschreibt das
+> **Status:** xucRun Tray wird aktiv weiterentwickelt. Die Dokumentation beschreibt das
 > vorgesehene Verhalten. Der aktuelle Stand kann Fehler enthalten, davon abweichen und sich ändern.
 > Das aktuelle Installationspaket und seine Prüfsummen stehen unter
 > [Releases](https://github.com/HT64/xucRun-Tray/releases) bereit.
@@ -68,14 +68,25 @@ verwalteten Rechnern sowie in persönlichen Entwicklungs- und Testsystemen. Es i
 unbeaufsichtigte oder zentrale Rechteverwaltung, Produktionsumgebungen oder Systeme mit erhöhtem
 Schutzbedarf vorgesehen.
 
-> **Wichtiger Sicherheitshinweis:** xucRun Tray zeigt Statusinformationen an und ruft vorhandene
+> **Wichtige Sicherheitshinweise:** xucRun Tray zeigt Statusinformationen an und ruft vorhandene
 > Verwaltungsfunktionen von xucRun auf. Es erweitert oder ersetzt die Sicherheitsmechanismen von
 > xucRun nicht. Aus den angezeigten Informationen lässt sich keine Garantie für die Sicherheit des
-> Systems, der Anmeldedaten oder gestarteter Programme ableiten. Für Voraussetzungen,
+> Systems, der Anmeldedaten oder gestarteter Programme ableiten. Der Quellcode von xucRun Tray wird
+> offengelegt, damit die eingesetzten technischen Maßnahmen, ihre Grenzen und die verbleibenden
+> Risiken nachvollzogen und unabhängig geprüft werden können. Die Offenlegung allein ist jedoch
+> weder eine Sicherheitsgarantie noch der Nachweis einer unabhängigen Sicherheitsprüfung.
+> Der Einsatz erfolgt eigenverantwortlich. xucRun Tray sollte nur auf vertrauenswürdigen, selbst
+> verwalteten Systemen ohne erhöhten Schutzbedarf eingesetzt werden. Für Voraussetzungen,
 > Schutzmechanismen, Einsatzgrenzen und verbleibende Risiken beachte die Sicherheitshinweise im
 > [README von xucRun](https://github.com/HT64/xucRun#voraussetzungen-und-einsatzbereich).
-> Soweit gesetzlich zulässig, sind für xucRun Tray der Gewährleistungsausschluss und die
-> Haftungsbegrenzung der [Apache License 2.0](LICENSE) maßgeblich.
+> Diese Sicherheitshinweise erheben keinen Anspruch auf Vollständigkeit; nicht alle Risiken und
+> Sicherheitslücken können vorausgesehen oder ausgeschlossen werden.
+> Soweit gesetzlich zulässig, übernehmen der Autor und die Mitwirkenden keine Haftung für Schäden,
+> Datenverluste oder sonstige Folgen, die aus der Nutzung oder fehlerhaften Anwendung von xucRun Tray,
+> aus Softwarefehlern oder Sicherheitslücken sowie durch Malware oder ein kompromittiertes System
+> entstehen. Dies umfasst insbesondere den Verlust, die Offenlegung oder den Missbrauch von
+> Anmeldedaten. Maßgeblich sind der Gewährleistungsausschluss und die Haftungsbegrenzung der
+> [Apache License 2.0](LICENSE).
 
 ## Installation in Kürze
 
@@ -93,6 +104,9 @@ Die von GitHub automatisch angebotenen ZIP- und TAR.GZ-Archive enthalten den Que
 installierbares Binärpaket. Der veröffentlichte Tray-Installer ist der unterstützte
 Installationsweg; ein manuelles Kopieren einzelner Tray-Dateien stellt weder die erforderliche
 gemeinsame Signiereridentität her noch richtet es die Anmeldeaufgabe ein.
+Der Installer legt außerdem `LICENSE-xucRun-Tray.txt` und `NOTICE-xucRun-Tray.txt` unter
+`%ProgramFiles%\xucRun\Licenses` ab. Diese Textdateien sind nicht Authenticode-signiert und werden mit
+Tray entfernt.
 
 Lade alle Dateien aus demselben offiziellen
 [xucRun-Tray-GitHub-Release](https://github.com/HT64/xucRun-Tray/releases) herunter. Der
@@ -123,6 +137,11 @@ sich die gesamte Installationsoberfläche unmittelbar zwischen Deutsch und Engli
 Diese Auswahl betrifft nur die Installer-Oberfläche und ändert nicht die computerweite
 xucRun-Programmsprache.
 
+Bei jeder Installation und Aktualisierung müssen die Benutzer den Lizenzbedingungen zustimmen und
+bestätigen, dass sie die Sicherheitshinweise verstanden haben. Lizenztext, Hinweise sowie der Statushinweis und die Sicherheitshinweise
+dieser README sind im Hauptfenster auf getrennten Laschen auch offline verfügbar. Weitere Laschen
+zeigen Einstellungen sowie Ablauf und Deinstallation. Ein Link führt zu dieser README.
+
 ![Grafischer xucRun-Tray-Installer](docs/de/images/installer.png)
 
 Starte `xucRun-Tray-<Version>-x64.exe`. Die Benutzerkontensteuerung fordert Administratorrechte an.
@@ -134,9 +153,11 @@ Der Installer:
 3. prüft, ob xucRun Tray und xucRun mit demselben gültigen lokalen xucRun-Signaturzertifikat
    signiert sind;
 4. fragt, für welchen vorhandenen lokalen Windows-Benutzer xucRun Tray automatisch starten soll;
-5. installiert `xucRunTray.exe` und beide Sprach-DLLs unter `%ProgramFiles%\xucRun`;
-6. erstellt die Anmeldeaufgabe des gewählten Benutzers;
-7. registriert unter **Installierte Apps** einen eigenen Eintrag **xucRun Tray**.
+5. verlangt die Zustimmung zu den Lizenzbedingungen und die Bestätigung des Verständnisses der
+   Sicherheitshinweise;
+6. installiert `xucRunTray.exe` und beide Sprach-DLLs unter `%ProgramFiles%\xucRun`;
+7. erstellt die Anmeldeaufgabe des gewählten Benutzers;
+8. registriert unter **Installierte Apps** einen eigenen Eintrag **xucRun Tray**.
 
 ![Erfolgreiche Installation von xucRun Tray](docs/de/images/installation-success.png)
 
@@ -322,7 +343,8 @@ Autostart vollständig gültig und aktiviert ist, mit `1`, wenn er fehlt, deakti
 konfiguriert ist, und mit `2`, wenn der Zustand nicht zuverlässig ermittelt werden konnte. `/info`
 zeigt ausschließlich Informationen über Tray-Programm und -Installation. Die gemeinsamen
 Programm-, Signatur-, Konto- und Konfigurationsbereiche stammen aus derselben Implementierung wie
-bei `xucRun.exe /info` und nennen Version, Copyright, Pfad, Architektur, wirksame Sprache und
+bei `xucRun.exe /info` und nennen Version, Copyright, Lizenz unter der Apache License 2.0,
+Pfad, Architektur, wirksame Sprache und
 geladene Sprach-DLL, Signierzertifikat, Konto, SID, Rechteerhöhung, Konfigurationsdatei und
 Client-Protokollierung. Der gemeinsame Konfigurationsabschnitt nennt außerdem das öffentliche
 Tray-Wartungsskript. Tray-spezifisch folgt die Windows-Anmeldeaufgabe ohne erhöhte Rechte zusammen
@@ -459,4 +481,5 @@ Externe Pull Requests werden derzeit nicht angenommen. Einzelheiten stehen in
 
 ## Lizenz
 
-xucRun Tray steht unter der Apache License 2.0. Maßgeblich sind `LICENSE` und `NOTICE`.
+xucRun Tray ist Open Source und wird unter der [Apache License 2.0](LICENSE) angeboten.
+[NOTICE](NOTICE) enthält Urheberhinweise.

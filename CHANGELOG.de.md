@@ -7,6 +7,24 @@ relevant sind. Interne Entwicklungs- und Veröffentlichungsabläufe werden nicht
 
 ## [Unveröffentlicht]
 
+## [0.9.1.7] - 2026-11-13
+
+### Geändert
+
+- Hinweise zu Lizenzbedingungen, Sicherheit und Projektstatus in Installer und Dokumentation aktualisiert;
+  die Hinweise von Tray an xucRun angeglichen.
+- Der Installer legt die Lizenz- und Urheberhinweise im Unterverzeichnis `Licenses` ab.
+- Der grafische Installer zeigt Lizenztext, Urheberhinweise sowie Status- und Sicherheitshinweise
+  offline auf eigenen Registerkarten an und verlangt bei jeder Installation oder Aktualisierung
+  deren Bestätigung.
+- Die Kompatibilitätsanforderung des Tray-Pakets und -Installers wurde auf xucRun Core 0.9.1.7
+  aktualisiert.
+
+### Behoben
+
+- Die anfängliche Sprache des Tray-Installers folgt jetzt den Windows-Sprachpräferenzen des
+  interaktiv angemeldeten Benutzers.
+
 ## [0.9.1.6] - 2026-11-10
 
 Diese Version enthält sicherheitsrelevante Korrekturen, die alle früheren Versionen betreffen.
@@ -121,7 +139,8 @@ ausgeführt wird. Eine Aktualisierung von xucRun und xucRun Tray auf diese Versi
 
 - Dies ist die erste öffentliche Veröffentlichung von xucRun Tray.
 
-[Unveröffentlicht]: https://github.com/HT64/xucRun-Tray/compare/v0.9.1.6...HEAD
+[Unveröffentlicht]: https://github.com/HT64/xucRun-Tray/compare/v0.9.1.7...HEAD
+[0.9.1.7]: https://github.com/HT64/xucRun-Tray/releases/tag/v0.9.1.7
 [0.9.1.6]: https://github.com/HT64/xucRun-Tray/releases/tag/v0.9.1.6
 [0.9.1.5]: https://github.com/HT64/xucRun-Tray/releases/tag/v0.9.1.5
 [0.9.1.4]: https://github.com/HT64/xucRun-Tray/releases/tag/v0.9.1.4

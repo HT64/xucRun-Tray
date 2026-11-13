@@ -5,9 +5,10 @@ Creates an xucRun Tray payload or release package from built artifacts.
 .DESCRIPTION
 Verifies the pinned sibling xucRun checkout against Dependencies.json, reads
 the shared product and protocol versions, and packages Tray build outputs.
-With SkipInstaller, it copies the executable, language assemblies, installer
-and signing helper into a payload directory and writes TrayPackage.json with
-SHA-256 hashes. Otherwise it verifies version and signing consistency between
+With SkipInstaller, it copies the executable, language assemblies, installer,
+signing helper, LICENSE and NOTICE into a payload directory and writes
+TrayPackage.json with separate SHA-256 entries for signed and legal files.
+Otherwise it verifies version and signing consistency between
 the bootstrap installer and payload, copies the versioned installer plus
 LICENSE and NOTICE, and writes SHA256SUMS.json.
 
@@ -128,6 +129,8 @@ if ($SkipInstaller) {
             Join-Path $repositoryRoot 'Install-xucRunTray.ps1'
         'Sign-xucRunTrayPackage.ps1' =
             Join-Path $repositoryRoot 'Sign-xucRunTrayPackage.ps1'
+        'LICENSE' = Join-Path $repositoryRoot 'LICENSE'
+        'NOTICE' = Join-Path $repositoryRoot 'NOTICE'
     }
     foreach ($entry in $payloadFiles.GetEnumerator()) {
         if (-not (Test-Path -LiteralPath $entry.Value -PathType Leaf)) {
@@ -171,8 +174,17 @@ if ($SkipInstaller) {
             }
         }
     )
+    $legalFiles = @(
+        foreach ($relativePath in @('LICENSE', 'NOTICE')) {
+            [ordered]@{
+                path = $relativePath
+                sha256 = (Get-FileHash -LiteralPath (
+                    Join-Path $destination $relativePath) -Algorithm SHA256).Hash
+            }
+        }
+    )
     [ordered]@{
-        schemaVersion = 1
+        schemaVersion = 2
         component = 'xucRun-Tray'
         productVersion = $productVersion
         requiredCoreProductVersion = $productVersion
@@ -180,6 +192,7 @@ if ($SkipInstaller) {
         coreCommit = $coreCommit
         signingPolicy = 'same-as-installed-core'
         files = $manifestFiles
+        legalFiles = $legalFiles
     } | ConvertTo-Json -Depth 5 |
         Set-Content -LiteralPath (Join-Path $destination 'TrayPackage.json') `
             -Encoding UTF8

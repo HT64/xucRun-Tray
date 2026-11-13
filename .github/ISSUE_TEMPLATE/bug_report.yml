@@ -19,8 +19,8 @@ body:
     id: tray-version
     attributes:
       label: xucRun Tray version
-      description: Shown in the Tray information view or the icon tooltip, for example `0.9.1.6`. xucRun Tray requires exactly the same xucRun version.
-      placeholder: "0.9.1.6"
+      description: Shown in the Tray information view or the icon tooltip, for example `0.9.1.7`. xucRun Tray requires exactly the same xucRun version.
+      placeholder: "0.9.1.7"
     validations:
       required: true
   - type: input

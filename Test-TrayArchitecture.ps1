@@ -10,11 +10,17 @@ Dependencies.json, and verifies CI, packaging, installer-project,
 machine-installer, and signing-script contracts, including that the signing
 script creates its staging directory together with the restricting access
 control list and that the installer scripts do not locate directories through
-environment variables. It compares FILE_REGISTER.md with every tracked
+environment variables. It tests the installer tabs, layout, language switching,
+account selection, acknowledgment gate and its localized label semantics,
+Apache license resources without
+additional selling restrictions, and consistency of its license introduction,
+security and status notices with both README languages. It compares FILE_REGISTER.md with every tracked
 and unignored file, validates structured file-head documentation according to
 each format's comment syntax except for the two explicitly path-bound changelog
 exceptions, and parses every repository script to require complete
-comment-based help for all declared parameters.
+comment-based help for all declared parameters. It verifies that Tray /info
+reuses the shared Core resource, including its Apache License 2.0 open-source
+designation.
 
 .EXAMPLE
 .\Test-TrayArchitecture.ps1
@@ -23,8 +29,8 @@ Runs the repository-boundary, dependency, safety, installer, file-register,
 file-head, and script-help checks against the current worktree.
 
 .NOTES
-Requires PowerShell and Git, a Git worktree rooted at the script directory,
-and the repository source files; built artifacts are not required. The test
+Requires Windows PowerShell, Windows Forms, and Git, a Git worktree rooted at
+the script directory, and the repository source files; built artifacts are not required. The test
 is read-only and does not contact GitHub or modify the worktree. Script
 discovery is limited to tracked and unignored .ps1, .bat, .cmd, and .py
 files; PowerShell scripts are syntax-checked and documentation-checked.
@@ -428,6 +434,309 @@ foreach ($installerScript in @(
     }
 }
 
+$guiPath = Join-Path $repositoryRoot 'xucRunTrayInstaller\Installer-Gui.ps1'
+$tokens = $null
+$errors = $null
+$guiSource = [IO.File]::ReadAllText($guiPath)
+$guiAst = [Management.Automation.Language.Parser]::ParseInput(
+    $guiSource, [ref]$tokens, [ref]$errors)
+if ($errors.Count -ne 0) {
+    throw "Tray installer GUI parser error: $($errors.Message -join '; ')"
+}
+$languageInitialization =
+    $guiSource.IndexOf('$script:language = Get-InitialInstallerLanguage')
+$translationInitialization =
+    $guiSource.IndexOf('$script:t = $texts[$script:language]')
+if ($languageInitialization -lt 0 -or
+    $translationInitialization -le $languageInitialization) {
+    throw 'Tray installer translations are initialized before the startup language.'
+}
+foreach ($contract in @(
+    '$acknowledgment.Checked = $false',
+    '$acknowledgment.Add_CheckedChanged({ Update-InstallAvailability })',
+    '$script:installInProgress = $true',
+    '$tabs.TabPages.AddRange(@($settingsTab, $detailsTab, $securityTab, $licenseTab))',
+    '$settingsTab.Controls.Add($languageCombo)',
+    '$settingsTab.Controls.Add($userBox)',
+    '$detailsTab.Controls.Add($details)',
+    '$securityTab.Controls.Add($securityDetails)',
+    '$licenseTab.Controls.Add($licenseIntroduction)',
+    '$licenseTab.Controls.Add($licenseDetails)',
+    '$readmeLink.Add_LinkClicked({',
+    '$userBox.Enabled = $false',
+    '$userBox.Enabled = $true'
+)) {
+    if (-not $guiSource.Contains($contract)) {
+        throw "Tray license and security acknowledgment contract is missing: $contract"
+    }
+}
+$textsAssignment = $guiAst.Find({
+    param($node)
+    $node -is [Management.Automation.Language.AssignmentStatementAst] -and
+    $node.Left.Extent.Text -eq '$texts'
+}, $true)
+if (-not $textsAssignment) {
+    throw 'Tray installer translations were not found.'
+}
+. ([scriptblock]::Create($textsAssignment.Extent.Text))
+$expectedAcknowledgments = @{
+    de = 'Ich stimme den Lizenzbedingungen zu und habe die Sicherheitshinweise verstanden.'
+    en = 'I agree to the license terms and understand the security information.'
+}
+foreach ($language in @('de', 'en')) {
+    if ($texts[$language].Acknowledgment -cne $expectedAcknowledgments[$language]) {
+        throw "Tray $language acknowledgment label is incorrect."
+    }
+}
+foreach ($language in @('de', 'en')) {
+    $readmeName = if ($language -eq 'de') { 'README.de.md' } else { 'README.md' }
+    $heading = if ($language -eq 'de') {
+        'Wichtige Sicherheitshinweise'
+    } else {
+        'Important security notices'
+    }
+    $completenessPattern = if ($language -eq 'de') {
+        'Diese Sicherheitshinweise erheben keinen Anspruch auf Vollst\u00e4ndigkeit; nicht alle Risiken und Sicherheitsl\u00fccken k\u00f6nnen vorausgesehen oder ausgeschlossen werden\.'
+    } else {
+        'These security notices are not exhaustive; not all risks and security vulnerabilities can be anticipated or ruled out\.'
+    }
+    if ($texts[$language].SecurityNotice -notmatch $completenessPattern) {
+        throw "Tray installer completeness notice is missing for '$language'."
+    }
+    $statusPattern = if ($language -eq 'de') {
+        'Die Dokumentation beschreibt das vorgesehene Verhalten\. Der aktuelle Stand kann Fehler enthalten, davon abweichen und sich \u00e4ndern\.'
+    } else {
+        'The documentation describes the intended behavior\. The current state may contain defects, differ from that behavior, and change\.'
+    }
+    if ($texts[$language].StatusNotice -notmatch $statusPattern) {
+        throw "Tray installer documentation status notice is missing for '$language'."
+    }
+    $sharedNoticePatterns = if ($language -eq 'de') {
+        @(
+            'Die Offenlegung allein ist jedoch weder eine Sicherheitsgarantie noch der Nachweis einer unabh\u00e4ngigen Sicherheitspr\u00fcfung\.',
+            'Der Einsatz erfolgt eigenverantwortlich\. xucRun Tray sollte nur auf vertrauensw\u00fcrdigen, selbst verwalteten Systemen ohne erh\u00f6hten Schutzbedarf eingesetzt werden\.',
+            'Soweit gesetzlich zul\u00e4ssig, \u00fcbernehmen der Autor und die Mitwirkenden keine Haftung f\u00fcr Sch\u00e4den, Datenverluste oder sonstige Folgen'
+        )
+    } else {
+        @(
+            'Disclosure alone is neither a security guarantee nor evidence of an independent security audit\.',
+            'Use xucRun Tray at your own responsibility\. xucRun Tray should be used only on trusted, self-managed systems that do not require an elevated level of protection\.',
+            'To the extent permitted by law, the author and contributors accept no liability for damage, data loss, or other consequences'
+        )
+    }
+    foreach ($pattern in $sharedNoticePatterns) {
+        if ($texts[$language].SecurityNotice -notmatch $pattern) {
+            throw "Tray installer shared security notice is missing for '$language': $pattern"
+        }
+    }
+    $readme = [IO.File]::ReadAllText((Join-Path $repositoryRoot $readmeName))
+    $licenseHeading = if ($language -eq 'de') { 'Lizenz' } else { 'License' }
+    $licenseSection = [regex]::Match($readme,
+        '(?ms)^## ' + $licenseHeading + '\s*\r?\n(?<body>.*?)(?=^## |\z)')
+    if (-not $licenseSection.Success -or
+        $texts[$language].LicenseIntroduction -notmatch 'Apache License 2\.0' -or
+        $licenseSection.Groups['body'].Value -notmatch 'Apache License 2\.0') {
+        throw "Tray installer license introduction differs from $readmeName."
+    }
+    foreach ($entry in @(
+        @{ Heading = $heading; Text = $texts[$language].SecurityNotice; Exact = $true },
+        @{ Heading = 'Status'; Text = $texts[$language].StatusNotice; Exact = $false }
+    )) {
+        $pattern = '(?ms)^> \*\*' + [regex]::Escape($entry.Heading) +
+            ':\*\* (?<body>.*?)(?:\r?\n\r?\n|\z)'
+        $match = [regex]::Match($readme, $pattern)
+        if (-not $match.Success) {
+            throw "$readmeName is missing the $($entry.Heading) block."
+        }
+        $expected = $match.Groups['body'].Value -replace '(?m)^> ?', '' `
+            -replace '\[([^\]]+)\]\([^)]+\)', '$1' -replace '\s+', ' '
+        $actual = $entry.Text -replace '\s+', ' '
+        $expected = $expected.Trim()
+        $actual = $actual.Trim()
+        if (($entry.Exact -and $expected -cne $actual) -or
+            (-not $entry.Exact -and -not $expected.StartsWith($actual))) {
+            throw "Tray installer $($entry.Heading) text differs from $readmeName."
+        }
+    }
+    if ($texts[$language].ReadmeUrl -cne
+        "https://github.com/HT64/xucRun-Tray/blob/main/$readmeName") {
+        throw "Tray installer documentation link is incorrect for '$language'."
+    }
+}
+$resources = [IO.File]::ReadAllText(
+    (Join-Path $repositoryRoot 'xucRunTrayInstaller\Installer.rc'))
+$installerMain = [IO.File]::ReadAllText(
+    (Join-Path $repositoryRoot 'xucRunTrayInstaller\main.cpp'))
+foreach ($entry in @(
+    @{ Resource = 'IDR_LICENSE RCDATA "..\\artifacts\\Payload\\Release\\LICENSE"'; Payload = '{ IDR_LICENSE, L"LICENSE", false }' },
+    @{ Resource = 'IDR_NOTICE RCDATA "..\\artifacts\\Payload\\Release\\NOTICE"'; Payload = '{ IDR_NOTICE, L"NOTICE", false }' },
+    @{ Resource = 'IDR_LICENSE RCDATA "..\\artifacts\\Payload\\Debug\\LICENSE"'; Payload = '{ IDR_LICENSE, L"LICENSE", false }' },
+    @{ Resource = 'IDR_NOTICE RCDATA "..\\artifacts\\Payload\\Debug\\NOTICE"'; Payload = '{ IDR_NOTICE, L"NOTICE", false }' }
+)) {
+    if (-not $resources.Contains($entry.Resource) -or
+        -not $installerMain.Contains($entry.Payload)) {
+        throw "Tray installer must embed and extract $($entry.Resource)."
+    }
+}
+$licenseText = [IO.File]::ReadAllText((Join-Path $repositoryRoot 'LICENSE'))
+$noticeText = [IO.File]::ReadAllText((Join-Path $repositoryRoot 'NOTICE'))
+if ($licenseText -notmatch '^\s*Apache License\r?\n\s*Version 2\.0, January 2004' -or
+    $licenseText -match '(?i)commons[\s-]+clause' -or
+    $noticeText -match '(?i)commons[\s-]+clause') {
+    throw 'The Tray license and notice must use Apache 2.0 without Commons Clause.'
+}
+$availabilityFunction = $guiAst.Find({
+    param($node)
+    $node -is [Management.Automation.Language.FunctionDefinitionAst] -and
+    $node.Name -eq 'Update-InstallAvailability'
+}, $true)
+if (-not $availabilityFunction) {
+    throw 'Tray installer Update-InstallAvailability was not found.'
+}
+. ([scriptblock]::Create($availabilityFunction.Extent.Text))
+$acknowledgment = [pscustomobject]@{ Checked = $false }
+$installButton = [pscustomobject]@{ Enabled = $true }
+$script:installInProgress = $false
+Update-InstallAvailability
+if ($installButton.Enabled) {
+    throw 'Tray installation must be disabled before acknowledgment.'
+}
+$acknowledgment.Checked = $true
+Update-InstallAvailability
+if (-not $installButton.Enabled) {
+    throw 'Tray installation must be enabled after acknowledgment.'
+}
+$script:installInProgress = $true
+Update-InstallAvailability
+if ($installButton.Enabled) {
+    throw 'Tray installation must remain disabled while an installation is in progress.'
+}
+$script:installInProgress = $false
+$acknowledgment.Checked = $false
+Update-InstallAvailability
+if ($installButton.Enabled) {
+    throw 'Withdrawing acknowledgment must disable Tray installation.'
+}
+
+& {
+    Add-Type -AssemblyName System.Windows.Forms
+    Add-Type -AssemblyName System.Drawing
+    foreach ($name in @(
+        'Get-SelectedCulture', 'Get-CertificateArguments', 'Get-InstalledTrayText'
+    )) {
+        $definition = $guiAst.Find({
+            param($node)
+            $node -is [Management.Automation.Language.FunctionDefinitionAst] -and
+                $node.Name -eq $name
+        }, $true)
+        if (-not $definition) {
+            throw "Tray installer GUI function is missing: $name"
+        }
+        . ([scriptblock]::Create($definition.Extent.Text))
+    }
+
+    $script:language = 'de'
+    $script:installInProgress = $false
+    $manifest = [pscustomobject]@{ productVersion = '0.9.1.6' }
+    $coreState = [pscustomobject]@{
+        Version = '0.9.1.6'
+        Signer = [pscustomobject]@{
+            NotBefore = [datetime]'2025-01-01'
+            NotAfter = [datetime]'2030-01-01'
+            Thumbprint = '0123456789ABCDEF0123456789ABCDEF01234567'
+        }
+    }
+    $certificateName = 'Test certificate with a sufficiently long name to wrap in the installer'
+    $installedTrayState = [pscustomobject]@{
+        Version = '0.9.1.6'
+        InstalledAt = [datetime]'2025-01-01'
+    }
+    $users = @(
+        [pscustomobject]@{ Sid = 'S-1-5-21-1'; DisplayName = 'First user' },
+        [pscustomobject]@{ Sid = 'S-1-5-21-2'; DisplayName = 'Session user' }
+    )
+    function Get-CurrentSessionUserSid { return 'S-1-5-21-2' }
+
+    $start = $guiSource.IndexOf('$form = [Windows.Forms.Form]::new()')
+    $end = $guiSource.IndexOf('$script:exitCode = 1602', $start)
+    if ($start -lt 0 -or $end -lt 0) {
+        throw 'Tray installer GUI construction could not be located.'
+    }
+    . ([scriptblock]::Create($guiSource.Substring($start, $end - $start)))
+    try {
+        $null = $form.Handle
+        $null = $tabs.Handle
+        $null = $settingsTab.Handle
+        $null = $securityTab.Handle
+        $null = $licenseTab.Handle
+        if ($tabs.TabPages.Count -ne 4 -or
+            $tabs.TabPages[0] -ne $settingsTab -or
+            $tabs.TabPages[1] -ne $detailsTab -or
+            $tabs.TabPages[2] -ne $securityTab -or
+            $tabs.TabPages[3] -ne $licenseTab) {
+            throw 'Tray installer tabs are not in the expected order.'
+        }
+        if ($userBox.SelectedItem.Sid -ne 'S-1-5-21-2') {
+            throw 'Tray installer did not select the current session user.'
+        }
+        if ($acknowledgment.Checked -or $installButton.Enabled) {
+            throw 'Tray installation must initially require acknowledgment.'
+        }
+        $expectedLicense = (($licenseText + "`n`nNOTICE`n`n" + $noticeText) `
+            -replace "`r?`n", "`r`n")
+        if ($licenseDetails.Text -cne $expectedLicense) {
+            throw 'Tray installer does not display the complete license and notice.'
+        }
+        $acknowledgment.Checked = $true
+        foreach ($index in @(0, 1)) {
+            $languageCombo.SelectedIndex = $index
+            $language = if ($index -eq 0) { 'de' } else { 'en' }
+            if ($settingsTab.Text -cne $texts[$language].SettingsTab -or
+                $detailsTab.Text -cne $texts[$language].DetailsTab -or
+                $securityTab.Text -cne $texts[$language].SecurityTab -or
+                $licenseTab.Text -cne $texts[$language].LicenseTab -or
+                $licenseIntroduction.Text -cne $texts[$language].LicenseIntroduction -or
+                $readmeLink.Text -cne $texts[$language].ReadmeLink -or
+                -not $securityDetails.Text.Contains($texts[$language].SecurityNotice.Trim())) {
+                throw "Tray installer tab translations are incorrect for $language."
+            }
+            if ($userBox.SelectedItem.Sid -ne 'S-1-5-21-2' -or
+                -not $acknowledgment.Checked -or -not $installButton.Enabled) {
+                throw "Changing to $language lost the selected user or acknowledgment."
+            }
+            foreach ($control in @($languageLabel, $languageCombo, $userLabel,
+                $userBox, $version, $coreVersion, $certificateGroup, $installedTray)) {
+                if ($control.Parent -ne $settingsTab -or
+                    $control.Bottom -gt $settingsTab.ClientSize.Height -or
+                    $control.Right -gt $settingsTab.ClientSize.Width) {
+                    throw "Tray installer settings control '$($control.Text)' " +
+                        "($($control.Bounds)) is outside its tab " +
+                        "($($settingsTab.ClientSize)) in $language."
+                }
+            }
+            if ($certificateGroup.Bottom -gt $installedTray.Top -or
+                $coreCertificate.Bottom -gt $certificateGroup.ClientSize.Height -or
+                $tabs.Bottom -gt $acknowledgment.Top -or
+                $readmeLink.Bottom -gt $securityTab.ClientSize.Height -or
+                $licenseIntroduction.Parent -ne $licenseTab -or
+                $licenseIntroduction.Bottom -ge $licenseDetails.Top -or
+                $licenseDetails.Bottom -gt $licenseTab.ClientSize.Height -or
+                $licenseDetails.Height -lt 100) {
+                throw "Tray installer controls overlap or are clipped in $language."
+            }
+        }
+        $script:installInProgress = $true
+        Update-InstallAvailability
+        if ($installButton.Enabled) {
+            throw 'Tray installation must be disabled while work is in progress.'
+        }
+    }
+    finally {
+        $form.Dispose()
+        $script:installInProgress = $false
+    }
+}
+
 $coreInfoResourcesPath = [IO.Path]::GetFullPath((Join-Path $repositoryRoot `
     '..\xucRun-Core\xucRunSharedResources\ClientResources.rc'))
 if (-not (Test-Path -LiteralPath $coreInfoResourcesPath -PathType Leaf)) {
@@ -442,6 +751,8 @@ foreach ($sharedInfoContract in @(
     'Program\nVersion:',
     'Programm\nVersion:',
     'Copyright:',
+    'License: Apache License 2.0 (open source)',
+    'Lizenz: Apache License 2.0 (Open Source)',
     'Architecture:',
     'Architektur:',
     'Signing certificate\n',

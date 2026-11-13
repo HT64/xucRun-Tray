@@ -11,5 +11,7 @@
 #define IDR_TRAY 205
 #define IDR_TRAY_LANGUAGE_DE 206
 #define IDR_TRAY_LANGUAGE_EN 207
+#define IDR_LICENSE 208
+#define IDR_NOTICE 209
 
 #endif

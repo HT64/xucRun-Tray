@@ -186,7 +186,9 @@ int WINAPI wWinMain(HINSTANCE, HINSTANCE, PWSTR, int)
             { IDR_MANIFEST, L"TrayPackage.json", false },
             { IDR_TRAY, L"xucRunTray.exe", false },
             { IDR_TRAY_LANGUAGE_DE, L"Languages\\xucRunTray.de-DE.dll", false },
-            { IDR_TRAY_LANGUAGE_EN, L"Languages\\xucRunTray.en-US.dll", false }
+            { IDR_TRAY_LANGUAGE_EN, L"Languages\\xucRunTray.en-US.dll", false },
+            { IDR_LICENSE, L"LICENSE", false },
+            { IDR_NOTICE, L"NOTICE", false }
         };
         for (const PayloadFile& file : files)
             ExtractResource(temporaryDirectory, file);

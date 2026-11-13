@@ -9,6 +9,8 @@
 IDI_INSTALLER ICON "..\\..\\xucRun-Core\\xucRunSharedResources\\xucRun.ico"
 IDR_GUI_SCRIPT RCDATA "Installer-Gui.ps1"
 #ifdef NDEBUG
+IDR_LICENSE RCDATA "..\\artifacts\\Payload\\Release\\LICENSE"
+IDR_NOTICE RCDATA "..\\artifacts\\Payload\\Release\\NOTICE"
 IDR_MACHINE_INSTALLER RCDATA "..\\artifacts\\Payload\\Release\\Install-xucRunTray.ps1"
 IDR_SIGN_PACKAGE RCDATA "..\\artifacts\\Payload\\Release\\Sign-xucRunTrayPackage.ps1"
 IDR_MANIFEST RCDATA "..\\artifacts\\Payload\\Release\\TrayPackage.json"
@@ -16,6 +18,8 @@ IDR_TRAY RCDATA "..\\artifacts\\Payload\\Release\\xucRunTray.exe"
 IDR_TRAY_LANGUAGE_DE RCDATA "..\\artifacts\\Payload\\Release\\Languages\\xucRunTray.de-DE.dll"
 IDR_TRAY_LANGUAGE_EN RCDATA "..\\artifacts\\Payload\\Release\\Languages\\xucRunTray.en-US.dll"
 #else
+IDR_LICENSE RCDATA "..\\artifacts\\Payload\\Debug\\LICENSE"
+IDR_NOTICE RCDATA "..\\artifacts\\Payload\\Debug\\NOTICE"
 IDR_MACHINE_INSTALLER RCDATA "..\\artifacts\\Payload\\Debug\\Install-xucRunTray.ps1"
 IDR_SIGN_PACKAGE RCDATA "..\\artifacts\\Payload\\Debug\\Sign-xucRunTrayPackage.ps1"
 IDR_MANIFEST RCDATA "..\\artifacts\\Payload\\Debug\\TrayPackage.json"

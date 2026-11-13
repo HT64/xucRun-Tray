@@ -7,8 +7,11 @@ In the Install parameter set, validates a Tray package manifest, hashes,
 versions, Authenticode signers, the installed xucRun version and broker
 authorization, and the selected local user. Unless ValidateOnly is specified,
 it stages and revalidates the payload, stops installed Tray processes, backs
-up replaced files, installs the Tray executable, language resources, and this
-installer, configures a per-user logon task, and writes a protected uninstall
+up replaced files, installs the Tray executable, language resources, this
+installer, and the separately hash-checked LICENSE and NOTICE as
+Licenses\LICENSE-xucRun-Tray.txt and Licenses\NOTICE-xucRun-Tray.txt,
+removes legacy copies from the installation root, configures a per-user
+logon task, and writes a protected uninstall
 entry including the contract version required by local development refreshes.
 Failed replacement is rolled back; previously running Tray instances
 are restarted where possible.
@@ -25,7 +28,7 @@ standalone Tray installation. These maintenance operations do not start or
 stop the running Tray process.
 
 .PARAMETER PackageDirectory
-Directory containing TrayPackage.json and the complete signed payload.
+Directory containing TrayPackage.json, the signed payload, LICENSE and NOTICE.
 Required for installation and validation. The directory and payload files
 must exist, must not be reparse points, and must satisfy the manifest and
 same-signer checks.
@@ -113,13 +116,14 @@ $programFiles = [Environment]::GetFolderPath(
     [Environment+SpecialFolder]::ProgramFiles)
 $installDirectory = Join-Path $programFiles 'xucRun'
 $languageDirectory = Join-Path $installDirectory 'Languages'
+$legalDirectory = Join-Path $installDirectory 'Licenses'
 $installedCore = Join-Path $installDirectory 'xucRun.exe'
 $installedTray = Join-Path $installDirectory 'xucRunTray.exe'
 $installedInstaller = Join-Path $installDirectory 'Install-xucRunTray.ps1'
 $trayLanguageFiles = @('xucRunTray.de-DE.dll', 'xucRunTray.en-US.dll')
 $taskPath = '\xucRun\'
 $taskPrefix = 'BrokerStatus-'
-$installationContractVersion = 1
+$installationContractVersion = 3
 $uninstallPath =
     'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\xucRun Tray'
 $coreUninstallPath =
@@ -541,8 +545,22 @@ function Show-TrayUninstallFailure {
 }
 
 function Remove-Tray {
+    Assert-NotReparsePoint -Path $installDirectory
+    Assert-NotReparsePoint -Path $legalDirectory
     Stop-InstalledTray
     Remove-StatusTasks
+    foreach ($name in @('LICENSE-xucRun-Tray.txt', 'NOTICE-xucRun-Tray.txt')) {
+        foreach ($directory in @($legalDirectory, $installDirectory)) {
+            $path = Join-Path $directory $name
+            Assert-NotReparsePoint -Path $path
+            if (Test-Path -LiteralPath $path) {
+                if (-not (Test-Path -LiteralPath $path -PathType Leaf)) {
+                    throw "Tray legal file is not a file: $path"
+                }
+                Remove-Item -LiteralPath $path -Force
+            }
+        }
+    }
     foreach ($path in @(
         $installedTray,
         (Join-Path $languageDirectory $trayLanguageFiles[0]),
@@ -565,7 +583,7 @@ function Show-TrayUninstallSuccess {
 xucRun Tray wurde erfolgreich deinstalliert.
 
 Entfernt wurden:
-- Tray-Programmdateien und Sprachressourcen
+- Tray-Programmdateien, Sprachressourcen und Lizenzdateien
 - alle xucRun-Tray-Autostartaufgaben
 - Deinstallationseintrag xucRun Tray
 
@@ -581,7 +599,7 @@ Beibehalten wurden:
 xucRun Tray was uninstalled successfully.
 
 Removed:
-- Tray program files and language resources
+- Tray program files, language resources, and license files
 - all xucRun Tray autostart tasks
 - xucRun Tray uninstall entry
 
@@ -655,7 +673,7 @@ if (-not (Test-Path -LiteralPath $manifestPath -PathType Leaf)) {
     throw "Tray package manifest is missing: $manifestPath"
 }
 $manifest = Get-Content -LiteralPath $manifestPath -Raw | ConvertFrom-Json
-if ($manifest.schemaVersion -ne 1 -or $manifest.component -ne 'xucRun-Tray' -or
+if ($manifest.schemaVersion -ne 2 -or $manifest.component -ne 'xucRun-Tray' -or
     $manifest.signingPolicy -ne 'same-as-installed-core') {
     throw 'The Tray package manifest is unsupported.'
 }
@@ -664,6 +682,7 @@ if (-not (Test-Path -LiteralPath $installedCore -PathType Leaf)) {
 }
 Assert-NotReparsePoint -Path $installDirectory
 Assert-NotReparsePoint -Path $languageDirectory
+Assert-NotReparsePoint -Path $legalDirectory
 if (-not (Test-Path -LiteralPath $coreParametersPath)) {
     throw 'The supported xucRun broker authorization is missing.'
 }
@@ -713,6 +732,14 @@ $payload = @(
     @{
         Relative = 'Install-xucRunTray.ps1'
         Destination = $installedInstaller
+    },
+    @{
+        Relative = 'LICENSE'
+        Destination = Join-Path $legalDirectory 'LICENSE-xucRun-Tray.txt'
+    },
+    @{
+        Relative = 'NOTICE'
+        Destination = Join-Path $legalDirectory 'NOTICE-xucRun-Tray.txt'
     }
 )
 foreach ($file in $payload) {
@@ -721,7 +748,9 @@ foreach ($file in $payload) {
         throw "Tray package file is missing: $source"
     }
     Assert-NotReparsePoint -Path $source
-    $entry = @($manifest.files | Where-Object {
+    $file.IsLegal = $file.Relative -in @('LICENSE', 'NOTICE')
+    $manifestEntries = if ($file.IsLegal) { $manifest.legalFiles } else { $manifest.files }
+    $entry = @($manifestEntries | Where-Object {
         $_.path -eq $file.Relative.Replace('\', '/')
     })
     if ($entry.Count -ne 1 -or
@@ -729,12 +758,14 @@ foreach ($file in $payload) {
         $entry[0].sha256) {
         throw "Tray package hash validation failed: $($file.Relative)"
     }
+    $file.VerifiedHash = $entry[0].sha256
     if ($file.Relative -eq 'xucRunTray.exe' -and
         (Get-Item -LiteralPath $source).VersionInfo.ProductVersion -ne
             $manifest.productVersion) {
         throw "Tray package version validation failed: $($file.Relative)"
     }
-    if ((Get-ValidSignerHash -Path $source) -ne $expectedSigner) {
+    if (-not $file.IsLegal -and
+        (Get-ValidSignerHash -Path $source) -ne $expectedSigner) {
         throw "Tray package signer does not match the installed xucRun: $($file.Relative)"
     }
 }
@@ -758,12 +789,10 @@ try {
             -Force | Out-Null
         Copy-Item -LiteralPath (Join-Path $packageRoot $file.Relative) `
             -Destination $target
-        $manifestEntry = @($manifest.files | Where-Object {
-            $_.path -eq $file.Relative.Replace('\', '/')
-        })[0]
         if ((Get-FileHash -LiteralPath $target -Algorithm SHA256).Hash -ne
-            $manifestEntry.sha256 -or
-            (Get-ValidSignerHash -Path $target) -ne $expectedSigner) {
+            $file.VerifiedHash -or
+            (-not $file.IsLegal -and
+                (Get-ValidSignerHash -Path $target) -ne $expectedSigner)) {
             throw "Protected Tray staging validation failed: $($file.Relative)"
         }
     }
@@ -772,6 +801,7 @@ try {
     New-Item -ItemType Directory -Path $backup | Out-Null
     Assert-NotReparsePoint -Path $backup
     foreach ($file in $payload) {
+        Assert-NotReparsePoint -Path $file.Destination
         if (Test-Path -LiteralPath $file.Destination -PathType Leaf) {
             $backupPath = Join-Path $backup $file.Relative
             New-Item -ItemType Directory -Path (Split-Path -Parent $backupPath) `
@@ -779,18 +809,42 @@ try {
             Copy-Item -LiteralPath $file.Destination -Destination $backupPath
         }
     }
+    foreach ($name in @('LICENSE-xucRun-Tray.txt', 'NOTICE-xucRun-Tray.txt')) {
+        $legacyPath = Join-Path $installDirectory $name
+        Assert-NotReparsePoint -Path $legacyPath
+        if (Test-Path -LiteralPath $legacyPath) {
+            if (-not (Test-Path -LiteralPath $legacyPath -PathType Leaf)) {
+                throw "Legacy Tray legal file is not a file: $legacyPath"
+            }
+            $legacyBackup = Join-Path (Join-Path $backup 'Legacy') $name
+            New-Item -ItemType Directory -Path (Split-Path -Parent $legacyBackup) `
+                -Force | Out-Null
+            Copy-Item -LiteralPath $legacyPath -Destination $legacyBackup
+        }
+    }
+    $legalDirectoryExisted = Test-Path -LiteralPath $legalDirectory -PathType Container
     try {
         New-Item -ItemType Directory -Path $languageDirectory -Force | Out-Null
+        Assert-NotReparsePoint -Path $legalDirectory
+        New-Item -ItemType Directory -Path $legalDirectory -Force | Out-Null
+        Set-Acl -LiteralPath $legalDirectory -AclObject (
+            Get-Acl -LiteralPath $installDirectory)
         foreach ($file in $payload) {
+            Assert-NotReparsePoint -Path $file.Destination
             Copy-Item -LiteralPath (Join-Path $staging $file.Relative) `
                 -Destination $file.Destination -Force
-            $manifestEntry = @($manifest.files | Where-Object {
-                $_.path -eq $file.Relative.Replace('\', '/')
-            })[0]
             if ((Get-FileHash -LiteralPath $file.Destination -Algorithm SHA256).
-                    Hash -ne $manifestEntry.sha256 -or
-                (Get-ValidSignerHash -Path $file.Destination) -ne $expectedSigner) {
+                    Hash -ne $file.VerifiedHash -or
+                (-not $file.IsLegal -and
+                    (Get-ValidSignerHash -Path $file.Destination) -ne $expectedSigner)) {
                 throw "Installed Tray validation failed: $($file.Destination)"
+            }
+        }
+        foreach ($name in @('LICENSE-xucRun-Tray.txt', 'NOTICE-xucRun-Tray.txt')) {
+            $legacyPath = Join-Path $installDirectory $name
+            Assert-NotReparsePoint -Path $legacyPath
+            if (Test-Path -LiteralPath $legacyPath -PathType Leaf) {
+                Remove-Item -LiteralPath $legacyPath -Force
             }
         }
         Set-StatusTask -Sid $UserSid
@@ -844,6 +898,21 @@ try {
             else {
                 Remove-Item -LiteralPath $file.Destination -Force `
                     -ErrorAction SilentlyContinue
+            }
+        }
+        foreach ($name in @('LICENSE-xucRun-Tray.txt', 'NOTICE-xucRun-Tray.txt')) {
+            $legacyBackup = Join-Path (Join-Path $backup 'Legacy') $name
+            if (Test-Path -LiteralPath $legacyBackup -PathType Leaf) {
+                $legacyPath = Join-Path $installDirectory $name
+                Assert-NotReparsePoint -Path $legacyPath
+                Copy-Item -LiteralPath $legacyBackup -Destination $legacyPath -Force
+            }
+        }
+        if (-not $legalDirectoryExisted -and
+            (Test-Path -LiteralPath $legalDirectory -PathType Container)) {
+            Assert-NotReparsePoint -Path $legalDirectory
+            if (@([IO.Directory]::EnumerateFileSystemEntries($legalDirectory)).Count -eq 0) {
+                Remove-Item -LiteralPath $legalDirectory -Force
             }
         }
         foreach ($sid in $runningTrayUserSids) {
