@@ -162,8 +162,8 @@ which was previously configured by xucRun, to sign the embedded Tray files local
 Windows and xucRun verify that xucRun and xucRun Tray belong to the same installation and have not
 been replaced with differently signed files. xucRun Tray does not create a certificate or add any
 trust entries. The
-[Local signing certificate](https://github.com/HT64/xucRun#local-signing-certificate) section in
-the xucRun README describes its purpose and storage locations.
+[graphical installation](https://github.com/HT64/xucRun/blob/main/docs/en/INSTALLATION.md#graphical-installation)
+section in the xucRun documentation describes its purpose and storage locations.
 
 The xucRun Tray installer does not install or modify xucRun components, stored credentials, or
 approvals.

@@ -171,8 +171,8 @@ Windows und xucRun prüfen, dass xucRun und xucRun Tray zur selben Installation 
 durch abweichend signierte Dateien ersetzt wurden. xucRun Tray erzeugt kein eigenes Zertifikat und
 fügt keine weiteren Vertrauenseinträge hinzu. Zweck und Speicherorte des Zertifikats beschreibt
 der Abschnitt
-[Lokales Signaturzertifikat](https://github.com/HT64/xucRun#lokales-signaturzertifikat) im
-xucRun-README.
+[Grafische Installation](https://github.com/HT64/xucRun/blob/main/docs/de/INSTALLATION.md#grafische-installation)
+in der xucRun-Dokumentation.
 
 Der Tray-Installer installiert oder verändert keine xucRun-Komponenten und keine gespeicherten
 Anmeldedaten oder Freigaben.
@@ -437,8 +437,8 @@ Die Entwicklung von xucRun Tray kann freiwillig über
 ## Schwachstellen melden
 
 Ungepatchte oder vermutete Schwachstellen dürfen nicht öffentlich gemeldet werden. Der vertrauliche
-Meldeweg über GitHub Private Vulnerability Reporting ist in [SECURITY.de.md](SECURITY.de.md)
-beschrieben.
+Meldeweg über GitHub Private Vulnerability Reporting für `HT64/xucRun-Tray` ist in
+[SECURITY.de.md](SECURITY.de.md) beschrieben.
 
 ## Selbst bauen und paketieren
 
