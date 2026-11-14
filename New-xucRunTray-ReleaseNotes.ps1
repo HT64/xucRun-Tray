@@ -158,9 +158,9 @@ Installieren Sie xucRun Tray ausschließlich zusammen mit xucRun $Version. Entfe
 
 ## Build provenance / Build-Herkunft
 
-The official release files were built and verified automatically from the tagged source on a fresh GitHub Actions runner. `BUILD-TOOLCHAIN.txt` records the build tools actually used. GitHub build provenance attestations are also available for the files.
+The official release files were built and verified automatically from the tagged source on a fresh GitHub Actions runner, independently of the local development system. `BUILD-TOOLCHAIN.txt` records the build tools actually used. GitHub build provenance attestations are also available for the files.
 
-Die offiziellen Release-Dateien wurden automatisiert aus dem getaggten Quellstand auf einem frischen GitHub-Actions-Runner erstellt und geprüft. `BUILD-TOOLCHAIN.txt` dokumentiert die tatsächlich verwendeten Buildwerkzeuge. Für die Dateien steht außerdem ein GitHub-Herkunftsnachweis zur Verfügung.
+Die offiziellen Release-Dateien wurden automatisiert aus dem getaggten Quellstand auf einem frischen GitHub-Actions-Runner und damit unabhängig vom lokalen Entwicklungssystem erstellt und geprüft. `BUILD-TOOLCHAIN.txt` dokumentiert die tatsächlich verwendeten Buildwerkzeuge. Für die Dateien steht außerdem ein GitHub-Herkunftsnachweis zur Verfügung.
 
 ## Release information
 
