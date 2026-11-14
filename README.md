@@ -75,7 +75,7 @@ elevated level of protection.
 > responsibility. xucRun Tray should be used only on trusted, self-managed systems that do not require
 > an elevated level of protection. For requirements, safeguards, operating limits, and remaining risks,
 > follow the security guidance in the
-> [xucRun README](https://github.com/HT64/xucRun#requirements-and-intended-use).
+> [xucRun README](https://github.com/HT64/xucRun/blob/main/README.md#requirements-and-security-information).
 > These security notices are not exhaustive; not all risks and security vulnerabilities can be
 > anticipated or ruled out.
 > To the extent permitted by law, the author and contributors accept no liability for damage, data

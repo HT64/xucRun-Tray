@@ -78,7 +78,7 @@ Schutzbedarf vorgesehen.
 > Der Einsatz erfolgt eigenverantwortlich. xucRun Tray sollte nur auf vertrauenswürdigen, selbst
 > verwalteten Systemen ohne erhöhten Schutzbedarf eingesetzt werden. Für Voraussetzungen,
 > Schutzmechanismen, Einsatzgrenzen und verbleibende Risiken beachte die Sicherheitshinweise im
-> [README von xucRun](https://github.com/HT64/xucRun#voraussetzungen-und-einsatzbereich).
+> [README von xucRun](https://github.com/HT64/xucRun/blob/main/README.de.md#voraussetzungen-und-sicherheitshinweise).
 > Diese Sicherheitshinweise erheben keinen Anspruch auf Vollständigkeit; nicht alle Risiken und
 > Sicherheitslücken können vorausgesehen oder ausgeschlossen werden.
 > Soweit gesetzlich zulässig, übernehmen der Autor und die Mitwirkenden keine Haftung für Schäden,
