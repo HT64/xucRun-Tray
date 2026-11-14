@@ -94,10 +94,15 @@ Das öffentliche Tray-Releasepaket enthält:
 
 ```text
 xucRun-Tray-<Version>-x64.exe
-SHA256SUMS.json
+BUILD-TOOLCHAIN.txt
+SHA256SUMS.txt
 LICENSE
 NOTICE
 ```
+
+`BUILD-TOOLCHAIN.txt` nennt den Quellcommit und die beim Build tatsächlich aufgelösten Versionen
+von Visual Studio, MSBuild, MSVC und Windows SDK. Seine SHA-256-Prüfsumme steht ebenfalls in
+`SHA256SUMS.txt`.
 
 Das Release enthält bewusst kein separates Binär-ZIP mit `xucRunTray.exe` und den Sprach-DLLs.
 Die von GitHub automatisch angebotenen ZIP- und TAR.GZ-Archive enthalten den Quelltext, nicht ein
@@ -110,10 +115,9 @@ Tray entfernt.
 
 Lade alle Dateien aus demselben offiziellen
 [xucRun-Tray-GitHub-Release](https://github.com/HT64/xucRun-Tray/releases) herunter. Der
-bereitgestellte Installer besitzt derzeit keine Signatur eines öffentlich vertrauenswürdigen
-Herausgebers; Windows kann deshalb beim Start einen unbekannten Herausgeber melden. Vergleiche vor
-dem Start seine SHA-256-Prüfsumme mit `SHA256SUMS.json` und prüfe eine vorhandene
-Authenticode-Signatur.
+bereitgestellte Installer ist nicht Authenticode-signiert; Windows kann deshalb beim Start einen
+unbekannten Herausgeber melden. Vergleiche vor dem Start seine SHA-256-Prüfsumme mit
+`SHA256SUMS.txt`.
 
 ### Grafische Installation
 
@@ -457,7 +461,15 @@ Baue und prüfe ein unsigniertes Debug-Paket:
 & MSBuild.exe .\XUCRun-Tray.sln `
   /t:Build /p:Configuration=Debug /p:Platform=x64 /m
 
-.\New-xucRunTray-Package.ps1 -Configuration Debug
+.\New-BuildToolchainReport.ps1 `
+  -ProjectPath .\xucRunTray\xucRunTray.vcxproj `
+  -ProductName 'xucRun Tray' `
+  -Configuration Debug `
+  -DestinationPath .\artifacts\BUILD-TOOLCHAIN.txt
+
+.\New-xucRunTray-Package.ps1 `
+  -Configuration Debug `
+  -BuildToolchainReportPath .\artifacts\BUILD-TOOLCHAIN.txt
 .\Test-TrayAddonPackage.ps1 -Configuration Debug
 ```
 
@@ -467,7 +479,14 @@ Ein Release-Paket wird entsprechend mit `Release` erzeugt:
 & MSBuild.exe .\XUCRun-Tray.sln `
   /t:Build /p:Configuration=Release /p:Platform=x64 /m
 
-.\New-xucRunTray-Package.ps1 -Configuration Release
+.\New-BuildToolchainReport.ps1 `
+  -ProjectPath .\xucRunTray\xucRunTray.vcxproj `
+  -ProductName 'xucRun Tray' `
+  -DestinationPath .\artifacts\BUILD-TOOLCHAIN.txt
+
+.\New-xucRunTray-Package.ps1 `
+  -Configuration Release `
+  -BuildToolchainReportPath .\artifacts\BUILD-TOOLCHAIN.txt
 .\Test-TrayAddonPackage.ps1 -Configuration Release
 ```
 

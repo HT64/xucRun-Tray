@@ -25,6 +25,7 @@ plain semantic data—are documented only here rather than being modified with i
 | `.github/ISSUE_TEMPLATE/bug_report.yml` | GitHub configuration | English issue form collecting Tray version, Windows build, affected area, and reproduction details for bug reports. |
 | `.github/ISSUE_TEMPLATE/config.yml` | GitHub configuration | Configures the issue chooser, routes suspected vulnerabilities to private reporting, and links Core problems to the xucRun repository. |
 | `.github/workflows/ci.yml` | CI workflow | Builds, tests, and packages Tray with its pinned xucRun dependency. |
+| `.github/workflows/release.yml` | Release workflow | Builds, tests, attests, and stages unsigned Tray release assets as an unpublished draft. |
 | `.gitignore` | Repository configuration | Excludes local IDE state, build outputs, and generated artifacts. |
 | `CHANGELOG.de.md` | User documentation | Records user-visible changes in German; its conventional title and version structure replace a metadata head. |
 | `CHANGELOG.md` | User documentation | Records user-visible changes in English; its conventional title and version structure replace a metadata head. |
@@ -37,7 +38,9 @@ plain semantic data—are documented only here rather than being modified with i
 | `Install-GitHooks.ps1` | Repository tool | Enables and verifies the version-controlled Git safety hooks. |
 | `Install-xucRunTray.ps1` | Installer script | Validates, installs, updates, or removes the Tray add-on. |
 | `LICENSE` | Legal text | Contains the Apache License 2.0 terms. |
+| `New-BuildToolchainReport.ps1` | PowerShell script | Records the exact Visual Studio, MSBuild, MSVC, and Windows SDK versions resolved for a build. |
 | `New-xucRunTray-Package.ps1` | Packaging script | Creates a Tray payload or release package from built artifacts. |
+| `New-xucRunTray-ReleaseNotes.ps1` | Release script | Creates bilingual Tray release notes from the changelogs and release checksums. |
 | `NOTICE` | Legal text | Provides the product copyright notice. |
 | `README.de.md` | User documentation | Describes xucRun Tray and its use in German. |
 | `README.md` | User documentation | Describes xucRun Tray and its use in English. |

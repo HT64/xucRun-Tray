@@ -7,6 +7,18 @@ publication processes are not listed.
 
 ## [Unreleased]
 
+## [0.9.1.8] - 2026-11-14
+
+### Changed
+
+- The official Core and Tray release files are now built and verified automatically from the
+  tagged source on GitHub Actions runners and published with provenance attestations and a report
+  of the build toolchain used.
+- The public checksum format was standardized from `SHA256SUMS.json` to the conventional
+  `SHA256SUMS.txt`. The unsigned installer continues to sign the installed Tray components locally
+  with the installed Core certificate.
+- Updated the Tray package and installer compatibility requirement to xucRun Core 0.9.1.8.
+
 ## [0.9.1.7] - 2026-11-13
 
 ### Changed
@@ -122,7 +134,8 @@ and xucRun Tray to this version is recommended.
 
 - This is the initial public release of xucRun Tray.
 
-[Unreleased]: https://github.com/HT64/xucRun-Tray/compare/v0.9.1.7...HEAD
+[Unreleased]: https://github.com/HT64/xucRun-Tray/compare/v0.9.1.8...HEAD
+[0.9.1.8]: https://github.com/HT64/xucRun-Tray/releases/tag/v0.9.1.8
 [0.9.1.7]: https://github.com/HT64/xucRun-Tray/releases/tag/v0.9.1.7
 [0.9.1.6]: https://github.com/HT64/xucRun-Tray/releases/tag/v0.9.1.6
 [0.9.1.5]: https://github.com/HT64/xucRun-Tray/releases/tag/v0.9.1.5

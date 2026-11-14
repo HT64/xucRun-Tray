@@ -234,10 +234,19 @@ elseif ($installerSignature.Status.ToString() -in @('Valid', 'NotTrusted') -and
 else {
     throw "Tray package installer signature is invalid: $($installerSignature.Status)"
 }
-$checksums = Get-Content -LiteralPath (
-    Join-Path $packageRoot 'SHA256SUMS.json') -Raw | ConvertFrom-Json
+$checksumPath = Join-Path $packageRoot 'SHA256SUMS.txt'
+$checksums = @{}
+foreach ($line in [IO.File]::ReadAllLines($checksumPath)) {
+    if ($line -notmatch '^([0-9A-F]{64})  (.+)$') {
+        throw "Tray release checksum line is invalid: $line"
+    }
+    if ($checksums.ContainsKey($matches[2])) {
+        throw "Tray release checksum file contains duplicate '$($matches[2])'."
+    }
+    $checksums[$matches[2]] = $matches[1]
+}
 $installerName = Split-Path -Leaf $versionedInstaller
-$expectedHash = $checksums.$installerName
+$expectedHash = $checksums[$installerName]
 if ($expectedHash -ne
     (Get-FileHash -LiteralPath $versionedInstaller -Algorithm SHA256).Hash) {
     throw 'Tray bootstrap installer checksum is invalid.'
@@ -247,7 +256,7 @@ foreach ($legalFileName in @('LICENSE', 'NOTICE')) {
     if (-not (Test-Path -LiteralPath $legalFile -PathType Leaf)) {
         throw "Public Tray release is missing $legalFileName."
     }
-    if ($checksums.$legalFileName -ne
+    if ($checksums[$legalFileName] -ne
         (Get-FileHash -LiteralPath $legalFile -Algorithm SHA256).Hash) {
         throw "Public Tray release checksum is invalid for $legalFileName."
     }
@@ -257,6 +266,43 @@ foreach ($legalFileName in @('LICENSE', 'NOTICE')) {
         throw 'Tray release NOTICE does not identify the expected copyright holder.'
     }
 }
+$toolchainReport = Join-Path $packageRoot 'BUILD-TOOLCHAIN.txt'
+if (-not (Test-Path -LiteralPath $toolchainReport -PathType Leaf)) {
+    throw 'Public Tray release is missing BUILD-TOOLCHAIN.txt.'
+}
+if ($checksums['BUILD-TOOLCHAIN.txt'] -ne
+    (Get-FileHash -LiteralPath $toolchainReport -Algorithm SHA256).Hash) {
+    throw 'Tray release BUILD-TOOLCHAIN.txt checksum is invalid.'
+}
+$expectedChecksumNames = @(
+    'BUILD-TOOLCHAIN.txt',
+    $installerName,
+    'LICENSE',
+    'NOTICE'
+) | Sort-Object
+$actualChecksumNames = @($checksums.Keys | Sort-Object)
+if (($actualChecksumNames -join "`n") -cne
+    ($expectedChecksumNames -join "`n")) {
+    throw "Tray release checksum entries differ from the exact contract: " +
+        ($actualChecksumNames -join ', ')
+}
+$toolchainText = [IO.File]::ReadAllText($toolchainReport)
+foreach ($requiredToolchainLine in @(
+    'Format-Version: 1',
+    'Product: xucRun Tray',
+    "Configuration: $Configuration",
+    'Platform: x64',
+    'Visual-Studio-Version:',
+    'MSBuild-Version:',
+    'MSVC-Toolset-Version:',
+    'MSVC-Compiler-Version:',
+    'Windows-SDK-Version:'
+)) {
+    if ($toolchainText -notmatch
+        "(?m)^$([regex]::Escape($requiredToolchainLine))") {
+        throw "Tray release toolchain report is missing '$requiredToolchainLine'."
+    }
+}
 $publishedFiles = @(
     Get-ChildItem -LiteralPath $packageRoot -Recurse -File |
         ForEach-Object {
@@ -264,10 +310,11 @@ $publishedFiles = @(
         } | Sort-Object
 )
 $expectedPublishedFiles = @(
+    'BUILD-TOOLCHAIN.txt',
     $installerName,
     'LICENSE',
     'NOTICE',
-    'SHA256SUMS.json'
+    'SHA256SUMS.txt'
 ) | Sort-Object
 if (($publishedFiles -join "`n") -ne ($expectedPublishedFiles -join "`n")) {
     throw "Tray release package contains unexpected files: $($publishedFiles -join ', ')"

@@ -10,7 +10,8 @@ signing helper, LICENSE and NOTICE into a payload directory and writes
 TrayPackage.json with separate SHA-256 entries for signed and legal files.
 Otherwise it verifies version and signing consistency between
 the bootstrap installer and payload, copies the versioned installer plus
-LICENSE and NOTICE, and writes SHA256SUMS.json.
+LICENSE, NOTICE, and the supplied build toolchain report, and writes
+SHA256SUMS.txt.
 
 .PARAMETER Configuration
 Build configuration whose artifacts are packaged. Allowed values are Debug
@@ -35,11 +36,22 @@ permitted only with SkipInstaller.
 Path to the signing script used when SignPayloadScript is set. It has no
 default and must name an existing file when signing is requested.
 
+.PARAMETER BuildToolchainReportPath
+Path to the BUILD-TOOLCHAIN.txt source for a complete release package. It is
+mandatory unless SkipInstaller is set and must describe this repository commit
+and selected configuration.
+
 .EXAMPLE
 .\New-xucRunTray-Package.ps1 -Configuration Release -SkipInstaller
 
 Recreates the default Release payload and its TrayPackage.json manifest from
 the Release build artifacts.
+
+.EXAMPLE
+.\New-xucRunTray-Package.ps1 -Configuration Release `
+    -BuildToolchainReportPath .\artifacts\BUILD-TOOLCHAIN.txt
+
+Creates a complete Release package containing the verified toolchain report.
 
 .NOTES
 Requires PowerShell, Git, the pinned sibling xucRun checkout, a valid
@@ -49,8 +61,9 @@ recreates its destination, so that location must not contain unrelated data.
 It does not sign binaries; optional signing applies only to the staged
 installer script through the explicitly supplied helper. Normal completion
 returns 0 when run with powershell.exe -File. Missing or mismatched
-dependencies, artifacts, versions, signatures, legal files, or a failed
-signing helper cause a terminating error and a nonzero process exit code.
+dependencies, artifacts, versions, signatures, legal files, toolchain report,
+or a failed signing helper cause a terminating error and a nonzero process
+exit code.
 #>
 [CmdletBinding()]
 param(
@@ -59,7 +72,8 @@ param(
     [string]$DestinationDirectory,
     [switch]$SkipInstaller,
     [switch]$SignPayloadScript,
-    [string]$SignScriptPath
+    [string]$SignScriptPath,
+    [string]$BuildToolchainReportPath
 )
 
 $ErrorActionPreference = 'Stop'
@@ -79,6 +93,15 @@ if ($SignPayloadScript -and
     (-not $SignScriptPath -or
         -not (Test-Path -LiteralPath $SignScriptPath -PathType Leaf))) {
     throw 'SignPayloadScript requires an existing SignScriptPath.'
+}
+if ($SkipInstaller -and -not [string]::IsNullOrWhiteSpace(
+        $BuildToolchainReportPath)) {
+    throw 'BuildToolchainReportPath is supported only for a complete release package.'
+}
+if (-not $SkipInstaller -and
+    ([string]::IsNullOrWhiteSpace($BuildToolchainReportPath) -or
+        -not (Test-Path -LiteralPath $BuildToolchainReportPath -PathType Leaf))) {
+    throw 'A complete release package requires BuildToolchainReportPath.'
 }
 
 if (-not (Test-Path -LiteralPath $versionHeaderPath -PathType Leaf) -or
@@ -255,6 +278,33 @@ Copy-Item -LiteralPath $installerSource -Destination $installerTarget
 $checksums = [ordered]@{}
 $checksums[$installerName] = (Get-FileHash -LiteralPath $installerTarget `
     -Algorithm SHA256).Hash
+$toolchainReport = [IO.File]::ReadAllText(
+    (Resolve-Path -LiteralPath $BuildToolchainReportPath).ProviderPath)
+$trayCommit = (& git -c "safe.directory=$repositoryRoot" -C $repositoryRoot `
+    rev-parse HEAD 2>&1)
+if ($LASTEXITCODE -ne 0 -or $trayCommit -notmatch '^[0-9a-f]{40}$') {
+    throw "Could not determine the xucRun Tray commit: $trayCommit"
+}
+$trayCommit = $trayCommit.Trim()
+foreach ($requiredReportLine in @(
+    'Format-Version: 1',
+    'Product: xucRun Tray',
+    "Source-Commit: $trayCommit",
+    "Configuration: $Configuration",
+    'Platform: x64'
+)) {
+    if ($toolchainReport -notmatch
+        "(?m)^$([regex]::Escape($requiredReportLine))\r?$") {
+        throw "Build toolchain report is missing '$requiredReportLine'."
+    }
+}
+$toolchainReportTarget = Join-Path $destination 'BUILD-TOOLCHAIN.txt'
+[IO.File]::WriteAllText(
+    $toolchainReportTarget,
+    $toolchainReport,
+    [Text.UTF8Encoding]::new($false))
+$checksums['BUILD-TOOLCHAIN.txt'] =
+    (Get-FileHash -LiteralPath $toolchainReportTarget -Algorithm SHA256).Hash
 foreach ($legalFileName in @('LICENSE', 'NOTICE')) {
     $legalFileSource = Join-Path $repositoryRoot $legalFileName
     if (-not (Test-Path -LiteralPath $legalFileSource -PathType Leaf)) {
@@ -265,8 +315,14 @@ foreach ($legalFileName in @('LICENSE', 'NOTICE')) {
     $checksums[$legalFileName] = (Get-FileHash -LiteralPath $legalFileTarget `
         -Algorithm SHA256).Hash
 }
-$checksums | ConvertTo-Json |
-    Set-Content -LiteralPath (Join-Path $destination 'SHA256SUMS.json') `
-        -Encoding UTF8
+$checksumLines = @(
+    foreach ($entry in $checksums.GetEnumerator()) {
+        "$($entry.Value)  $($entry.Key)"
+    }
+)
+[IO.File]::WriteAllText(
+    (Join-Path $destination 'SHA256SUMS.txt'),
+    ($checksumLines -join [Environment]::NewLine) + [Environment]::NewLine,
+    [Text.UTF8Encoding]::new($false))
 
 Write-Host "xucRun Tray $Configuration release package created: $destination"

@@ -306,10 +306,28 @@ $workflow = [IO.File]::ReadAllText(
 foreach ($requiredContract in @(
     'Dependencies.json',
     'steps.core_dependency.outputs.repository',
-    'steps.core_dependency.outputs.commit'
+    'steps.core_dependency.outputs.commit',
+    'New-BuildToolchainReport.ps1',
+    'BuildToolchainReportPath'
 )) {
     if (-not $workflow.Contains($requiredContract)) {
         throw "Tray CI is missing dependency contract '$requiredContract'."
+    }
+}
+$releaseWorkflow = [IO.File]::ReadAllText(
+    (Join-Path $repositoryRoot '.github\workflows\release.yml'))
+foreach ($requiredContract in @(
+    'tags:',
+    "- 'v*.*.*.*'",
+    'steps.core_dependency.outputs.commit',
+    'New-BuildToolchainReport.ps1',
+    'BUILD-TOOLCHAIN.txt',
+    'actions/attest-build-provenance@',
+    'gh release create',
+    '--draft'
+)) {
+    if (-not $releaseWorkflow.Contains($requiredContract)) {
+        throw "Tray release workflow is missing contract '$requiredContract'."
     }
 }
 $packageScript = [IO.File]::ReadAllText(
@@ -317,7 +335,10 @@ $packageScript = [IO.File]::ReadAllText(
 foreach ($requiredContract in @(
     'Dependencies.json',
     '$dependencies.core.commit',
-    '$coreCommit -ne $dependencies.core.commit'
+    '$coreCommit -ne $dependencies.core.commit',
+    'BuildToolchainReportPath',
+    'Source-Commit: $trayCommit',
+    "checksums['BUILD-TOOLCHAIN.txt']"
 )) {
     if (-not $packageScript.Contains($requiredContract)) {
         throw "Tray package creation is missing dependency contract '$requiredContract'."

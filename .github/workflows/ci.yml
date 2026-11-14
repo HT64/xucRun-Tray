@@ -83,12 +83,23 @@ jobs:
             throw "Tray build failed with exit code $LASTEXITCODE."
           }
 
+      - name: Record build toolchain
+        shell: powershell
+        working-directory: xucRun-Tray
+        run: |
+          .\New-BuildToolchainReport.ps1 `
+            -ProjectPath .\xucRunTray\xucRunTray.vcxproj `
+            -ProductName 'xucRun Tray' `
+            -Configuration ${{ matrix.configuration }} `
+            -DestinationPath .\artifacts\BUILD-TOOLCHAIN.txt
+
       - name: Create exact Tray package
         shell: powershell
         working-directory: xucRun-Tray
         run: |
           .\New-xucRunTray-Package.ps1 `
-            -Configuration ${{ matrix.configuration }}
+            -Configuration ${{ matrix.configuration }} `
+            -BuildToolchainReportPath .\artifacts\BUILD-TOOLCHAIN.txt
 
       - name: Verify Tray add-on package
         shell: powershell
