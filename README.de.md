@@ -116,8 +116,8 @@ Tray entfernt.
 Lade alle Dateien aus demselben offiziellen
 [xucRun-Tray-GitHub-Release](https://github.com/HT64/xucRun-Tray/releases) herunter. Der
 bereitgestellte Installer ist nicht Authenticode-signiert; Windows kann deshalb beim Start einen
-unbekannten Herausgeber melden. Vergleiche vor dem Start seine SHA-256-Prüfsumme mit
-`SHA256SUMS.txt`.
+unbekannten Herausgeber melden. Optional kann vor dem Start seine SHA-256-Prüfsumme mit
+`SHA256SUMS.txt` verglichen werden. Bei Abweichung den Installer nicht ausführen.
 
 ### Grafische Installation
 

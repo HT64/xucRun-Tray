@@ -111,7 +111,8 @@ The installer also places `LICENSE-xucRun-Tray.txt` and `NOTICE-xucRun-Tray.txt`
 Download all files from the same official
 [xucRun Tray GitHub release](https://github.com/HT64/xucRun-Tray/releases). The provided installer
 is not Authenticode-signed; Windows may therefore report an unknown publisher when it starts.
-Before starting it, compare its SHA-256 checksum with `SHA256SUMS.txt`.
+Optionally compare its SHA-256 checksum with `SHA256SUMS.txt` before starting it.
+If the hashes differ, do not run the installer.
 
 ### Graphical installation
 
