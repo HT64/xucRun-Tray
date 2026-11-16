@@ -9,10 +9,9 @@ Approach: Guides users from product context through safe use and removal to buil
 **Documentation:** [File register](FILE_REGISTER.md) | [Changelog](CHANGELOG.md) |
 [Manual removal](docs/en/MANUAL_REMOVAL.md) | [xucRun](https://github.com/HT64/xucRun)
 
-> **Status:** xucRun Tray is actively maintained and continues to evolve. The documentation describes
-> the intended behavior. The current state may contain defects, differ from that behavior, and change. The current
-> installer package and its checksums are available under
-> [Releases](https://github.com/HT64/xucRun-Tray/releases).
+**Project status:** xucRun Tray is actively maintained.<br>
+**License:** [Apache License 2.0](LICENSE)<br>
+**Download:** [Current installer package and checksums](https://github.com/HT64/xucRun-Tray/releases)
 
 ## Motivation and purpose
 
@@ -66,23 +65,12 @@ and personal development or test systems as xucRun. It is not intended for unatt
 centralized privilege management, production environments, or systems requiring a
 elevated level of protection.
 
-> **Important security notices:** xucRun Tray displays status information and invokes existing xucRun
-> management functions. It neither extends nor replaces xucRun's security mechanisms. The displayed
-> information does not guarantee the security of the system, credentials, or launched programs.
-> The source code of xucRun Tray is disclosed so that the implemented technical measures, their limits,
-> and the remaining risks can be understood and independently reviewed. Disclosure alone is neither a
-> security guarantee nor evidence of an independent security audit. Use xucRun Tray at your own
-> responsibility. xucRun Tray should be used only on trusted, self-managed systems that do not require
-> an elevated level of protection. For requirements, safeguards, operating limits, and remaining risks,
-> follow the security guidance in the
-> [xucRun README](https://github.com/HT64/xucRun/blob/main/README.md#requirements-and-security-information).
-> These security notices are not exhaustive; not all risks and security vulnerabilities can be
-> anticipated or ruled out.
-> To the extent permitted by law, the author and contributors accept no liability for damage, data
-> loss, or other consequences arising from the use or incorrect use of xucRun Tray, software defects
-> or security vulnerabilities, malware, or a compromised system. This includes, in particular, the
-> loss, disclosure, or misuse of credentials. The disclaimer of warranty and limitation of liability
-> in the [Apache License 2.0](LICENSE) govern.
+> **Protection boundaries:** xucRun Tray displays status information and invokes existing xucRun
+> management functions. It neither extends xucRun's permissions nor replaces its security
+> mechanisms. The displayed information does not guarantee the security of the system,
+> credentials, or launched programs. For the complete intended use, safeguards, operating limits,
+> and remaining risks, follow the
+> [xucRun security model](https://github.com/HT64/xucRun/blob/main/docs/en/SECURITY_MODEL.md).
 
 ## Installation overview
 

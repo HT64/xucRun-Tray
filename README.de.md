@@ -9,10 +9,9 @@ Approach: Führt Anwender von der Einordnung über sichere Nutzung und Entfernun
 **Dokumentation:** [Dateiregister](FILE_REGISTER.md) | [Änderungsprotokoll](CHANGELOG.de.md) |
 [Manuelle Entfernung](docs/de/MANUAL_REMOVAL.md) | [xucRun](https://github.com/HT64/xucRun)
 
-> **Status:** xucRun Tray wird aktiv weiterentwickelt. Die Dokumentation beschreibt das
-> vorgesehene Verhalten. Der aktuelle Stand kann Fehler enthalten, davon abweichen und sich ändern.
-> Das aktuelle Installationspaket und seine Prüfsummen stehen unter
-> [Releases](https://github.com/HT64/xucRun-Tray/releases) bereit.
+**Projektstatus:** xucRun Tray wird aktiv gepflegt.<br>
+**Lizenz:** [Apache License 2.0](LICENSE)<br>
+**Download:** [Aktuelles Installationspaket und Prüfsummen](https://github.com/HT64/xucRun-Tray/releases)
 
 ## Motivation und Zweck
 
@@ -68,25 +67,13 @@ verwalteten Rechnern sowie in persönlichen Entwicklungs- und Testsystemen. Es i
 unbeaufsichtigte oder zentrale Rechteverwaltung, Produktionsumgebungen oder Systeme mit erhöhtem
 Schutzbedarf vorgesehen.
 
-> **Wichtige Sicherheitshinweise:** xucRun Tray zeigt Statusinformationen an und ruft vorhandene
-> Verwaltungsfunktionen von xucRun auf. Es erweitert oder ersetzt die Sicherheitsmechanismen von
-> xucRun nicht. Aus den angezeigten Informationen lässt sich keine Garantie für die Sicherheit des
-> Systems, der Anmeldedaten oder gestarteter Programme ableiten. Der Quellcode von xucRun Tray wird
-> offengelegt, damit die eingesetzten technischen Maßnahmen, ihre Grenzen und die verbleibenden
-> Risiken nachvollzogen und unabhängig geprüft werden können. Die Offenlegung allein ist jedoch
-> weder eine Sicherheitsgarantie noch der Nachweis einer unabhängigen Sicherheitsprüfung.
-> Der Einsatz erfolgt eigenverantwortlich. xucRun Tray sollte nur auf vertrauenswürdigen, selbst
-> verwalteten Systemen ohne erhöhten Schutzbedarf eingesetzt werden. Für Voraussetzungen,
-> Schutzmechanismen, Einsatzgrenzen und verbleibende Risiken beachte die Sicherheitshinweise im
-> [README von xucRun](https://github.com/HT64/xucRun/blob/main/README.de.md#voraussetzungen-und-sicherheitshinweise).
-> Diese Sicherheitshinweise erheben keinen Anspruch auf Vollständigkeit; nicht alle Risiken und
-> Sicherheitslücken können vorausgesehen oder ausgeschlossen werden.
-> Soweit gesetzlich zulässig, übernehmen der Autor und die Mitwirkenden keine Haftung für Schäden,
-> Datenverluste oder sonstige Folgen, die aus der Nutzung oder fehlerhaften Anwendung von xucRun Tray,
-> aus Softwarefehlern oder Sicherheitslücken sowie durch Malware oder ein kompromittiertes System
-> entstehen. Dies umfasst insbesondere den Verlust, die Offenlegung oder den Missbrauch von
-> Anmeldedaten. Maßgeblich sind der Gewährleistungsausschluss und die Haftungsbegrenzung der
-> [Apache License 2.0](LICENSE).
+> **Schutzgrenzen:** xucRun Tray zeigt Statusinformationen an und ruft vorhandene
+> Verwaltungsfunktionen von xucRun auf. Es erweitert weder die Berechtigungen von xucRun noch
+> ersetzt es dessen Sicherheitsmechanismen. Aus den angezeigten Informationen lässt sich keine
+> Garantie für die Sicherheit des Systems, der Anmeldedaten oder gestarteter Programme ableiten.
+> Für den vollständigen Einsatzbereich, die Schutzmechanismen, Einsatzgrenzen und verbleibenden
+> Risiken gilt das
+> [Sicherheitsmodell von xucRun](https://github.com/HT64/xucRun/blob/main/docs/de/SECURITY_MODEL.md).
 
 ## Installation in Kürze
 

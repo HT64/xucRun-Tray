@@ -512,45 +512,27 @@ foreach ($language in @('de', 'en')) {
 foreach ($language in @('de', 'en')) {
     $readmeName = if ($language -eq 'de') { 'README.de.md' } else { 'README.md' }
     $heading = if ($language -eq 'de') {
-        'Wichtige Sicherheitshinweise'
+        'Schutzgrenzen'
     } else {
-        'Important security notices'
+        'Protection boundaries'
     }
-    $completenessPattern = if ($language -eq 'de') {
-        'Diese Sicherheitshinweise erheben keinen Anspruch auf Vollst\u00e4ndigkeit; nicht alle Risiken und Sicherheitsl\u00fccken k\u00f6nnen vorausgesehen oder ausgeschlossen werden\.'
+    $expectedStatus = if ($language -eq 'de') {
+        'xucRun Tray wird aktiv gepflegt.'
     } else {
-        'These security notices are not exhaustive; not all risks and security vulnerabilities can be anticipated or ruled out\.'
+        'xucRun Tray is actively maintained.'
     }
-    if ($texts[$language].SecurityNotice -notmatch $completenessPattern) {
-        throw "Tray installer completeness notice is missing for '$language'."
+    if ($texts[$language].StatusNotice -cne $expectedStatus) {
+        throw "Tray installer project status is incorrect for '$language'."
     }
-    $statusPattern = if ($language -eq 'de') {
-        'Die Dokumentation beschreibt das vorgesehene Verhalten\. Der aktuelle Stand kann Fehler enthalten, davon abweichen und sich \u00e4ndern\.'
+    $statusLabel = if ($language -eq 'de') {
+        'Projektstatus'
     } else {
-        'The documentation describes the intended behavior\. The current state may contain defects, differ from that behavior, and change\.'
-    }
-    if ($texts[$language].StatusNotice -notmatch $statusPattern) {
-        throw "Tray installer documentation status notice is missing for '$language'."
-    }
-    $sharedNoticePatterns = if ($language -eq 'de') {
-        @(
-            'Die Offenlegung allein ist jedoch weder eine Sicherheitsgarantie noch der Nachweis einer unabh\u00e4ngigen Sicherheitspr\u00fcfung\.',
-            'Der Einsatz erfolgt eigenverantwortlich\. xucRun Tray sollte nur auf vertrauensw\u00fcrdigen, selbst verwalteten Systemen ohne erh\u00f6hten Schutzbedarf eingesetzt werden\.',
-            'Soweit gesetzlich zul\u00e4ssig, \u00fcbernehmen der Autor und die Mitwirkenden keine Haftung f\u00fcr Sch\u00e4den, Datenverluste oder sonstige Folgen'
-        )
-    } else {
-        @(
-            'Disclosure alone is neither a security guarantee nor evidence of an independent security audit\.',
-            'Use xucRun Tray at your own responsibility\. xucRun Tray should be used only on trusted, self-managed systems that do not require an elevated level of protection\.',
-            'To the extent permitted by law, the author and contributors accept no liability for damage, data loss, or other consequences'
-        )
-    }
-    foreach ($pattern in $sharedNoticePatterns) {
-        if ($texts[$language].SecurityNotice -notmatch $pattern) {
-            throw "Tray installer shared security notice is missing for '$language': $pattern"
-        }
+        'Project status'
     }
     $readme = [IO.File]::ReadAllText((Join-Path $repositoryRoot $readmeName))
+    if (-not $readme.Contains("**${statusLabel}:** $expectedStatus")) {
+        throw "$readmeName differs from the installer project status."
+    }
     $licenseHeading = if ($language -eq 'de') { 'Lizenz' } else { 'License' }
     $licenseSection = [regex]::Match($readme,
         '(?ms)^## ' + $licenseHeading + '\s*\r?\n(?<body>.*?)(?=^## |\z)')
@@ -560,8 +542,7 @@ foreach ($language in @('de', 'en')) {
         throw "Tray installer license introduction differs from $readmeName."
     }
     foreach ($entry in @(
-        @{ Heading = $heading; Text = $texts[$language].SecurityNotice; Exact = $true },
-        @{ Heading = 'Status'; Text = $texts[$language].StatusNotice; Exact = $false }
+        @{ Heading = $heading; Text = $texts[$language].SecurityNotice; Exact = $true }
     )) {
         $pattern = '(?ms)^> \*\*' + [regex]::Escape($entry.Heading) +
             ':\*\* (?<body>.*?)(?:\r?\n\r?\n|\z)'

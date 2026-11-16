@@ -144,13 +144,9 @@ $texts = @{
         LicenseTab = 'Lizenz'
         LicenseIntroduction = 'xucRun Tray ist Open Source und steht unter der Apache License 2.0. Der vollständige Lizenztext und die Urheberhinweise werden unten angezeigt.'
         Acknowledgment = 'Ich stimme den Lizenzbedingungen zu und habe die Sicherheitshinweise verstanden.'
-        StatusNotice = 'xucRun Tray wird aktiv weiterentwickelt. Die Dokumentation beschreibt das vorgesehene Verhalten. Der aktuelle Stand kann Fehler enthalten, davon abweichen und sich ändern.'
+        StatusNotice = 'xucRun Tray wird aktiv gepflegt.'
         SecurityNotice = @'
-xucRun Tray zeigt Statusinformationen an und ruft vorhandene Verwaltungsfunktionen von xucRun auf. Es erweitert oder ersetzt die Sicherheitsmechanismen von xucRun nicht. Aus den angezeigten Informationen lässt sich keine Garantie für die Sicherheit des Systems, der Anmeldedaten oder gestarteter Programme ableiten. Der Quellcode von xucRun Tray wird offengelegt, damit die eingesetzten technischen Maßnahmen, ihre Grenzen und die verbleibenden Risiken nachvollzogen und unabhängig geprüft werden können. Die Offenlegung allein ist jedoch weder eine Sicherheitsgarantie noch der Nachweis einer unabhängigen Sicherheitsprüfung. Der Einsatz erfolgt eigenverantwortlich. xucRun Tray sollte nur auf vertrauenswürdigen, selbst verwalteten Systemen ohne erhöhten Schutzbedarf eingesetzt werden. Für Voraussetzungen, Schutzmechanismen, Einsatzgrenzen und verbleibende Risiken beachte die Sicherheitshinweise im README von xucRun.
-
-Diese Sicherheitshinweise erheben keinen Anspruch auf Vollständigkeit; nicht alle Risiken und Sicherheitslücken können vorausgesehen oder ausgeschlossen werden.
-
-Soweit gesetzlich zulässig, übernehmen der Autor und die Mitwirkenden keine Haftung für Schäden, Datenverluste oder sonstige Folgen, die aus der Nutzung oder fehlerhaften Anwendung von xucRun Tray, aus Softwarefehlern oder Sicherheitslücken sowie durch Malware oder ein kompromittiertes System entstehen. Dies umfasst insbesondere den Verlust, die Offenlegung oder den Missbrauch von Anmeldedaten. Maßgeblich sind der Gewährleistungsausschluss und die Haftungsbegrenzung der Apache License 2.0.
+xucRun Tray zeigt Statusinformationen an und ruft vorhandene Verwaltungsfunktionen von xucRun auf. Es erweitert weder die Berechtigungen von xucRun noch ersetzt es dessen Sicherheitsmechanismen. Aus den angezeigten Informationen lässt sich keine Garantie für die Sicherheit des Systems, der Anmeldedaten oder gestarteter Programme ableiten. Für den vollständigen Einsatzbereich, die Schutzmechanismen, Einsatzgrenzen und verbleibenden Risiken gilt das Sicherheitsmodell von xucRun.
 '@
         ReadmeLink = 'Anwenderdokumentation auf GitHub öffnen'
         ReadmeUrl = 'https://github.com/HT64/xucRun-Tray/blob/main/README.de.md'
@@ -213,13 +209,9 @@ unverändert geblieben sind.
         LicenseTab = 'License'
         LicenseIntroduction = 'xucRun Tray is open source and is licensed under the Apache License 2.0. The complete license text and attribution notices are shown below.'
         Acknowledgment = 'I agree to the license terms and understand the security information.'
-        StatusNotice = 'xucRun Tray is actively maintained and continues to evolve. The documentation describes the intended behavior. The current state may contain defects, differ from that behavior, and change.'
+        StatusNotice = 'xucRun Tray is actively maintained.'
         SecurityNotice = @'
-xucRun Tray displays status information and invokes existing xucRun management functions. It neither extends nor replaces xucRun's security mechanisms. The displayed information does not guarantee the security of the system, credentials, or launched programs. The source code of xucRun Tray is disclosed so that the implemented technical measures, their limits, and the remaining risks can be understood and independently reviewed. Disclosure alone is neither a security guarantee nor evidence of an independent security audit. Use xucRun Tray at your own responsibility. xucRun Tray should be used only on trusted, self-managed systems that do not require an elevated level of protection. For requirements, safeguards, operating limits, and remaining risks, follow the security guidance in the xucRun README.
-
-These security notices are not exhaustive; not all risks and security vulnerabilities can be anticipated or ruled out.
-
-To the extent permitted by law, the author and contributors accept no liability for damage, data loss, or other consequences arising from the use or incorrect use of xucRun Tray, software defects or security vulnerabilities, malware, or a compromised system. This includes, in particular, the loss, disclosure, or misuse of credentials. The disclaimer of warranty and limitation of liability in the Apache License 2.0 govern.
+xucRun Tray displays status information and invokes existing xucRun management functions. It neither extends xucRun's permissions nor replaces its security mechanisms. The displayed information does not guarantee the security of the system, credentials, or launched programs. For the complete intended use, safeguards, operating limits, and remaining risks, follow the xucRun security model.
 '@
         ReadmeLink = 'Open user documentation on GitHub'
         ReadmeUrl = 'https://github.com/HT64/xucRun-Tray/blob/main/README.md'
