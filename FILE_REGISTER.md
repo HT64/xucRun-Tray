@@ -51,6 +51,8 @@ plain semantic data—are documented only here rather than being modified with i
 | `Test-TrayAddonPackage.ps1` | Package test | Validates built payload and release-package contracts. |
 | `Test-TrayArchitecture.ps1` | Architecture test | Enforces repository boundaries, documentation, and architecture contracts. |
 | `XUCRun-Tray.sln` | Visual Studio solution | Groups the Tray executable, installer, and language projects. |
+| `docs/de/BUILDING.md` | User documentation | Explains how users build and package xucRun Tray in German. |
+| `docs/de/INSTALLATION.md` | User documentation | Explains installation, update, repair, and uninstallation of xucRun Tray in German. |
 | `docs/de/MANUAL_REMOVAL.md` | User documentation | Explains safe manual Tray removal in German. |
 | `docs/de/images/elevated-processes.png` | Documentation image | Shows the German elevated-processes menu. |
 | `docs/de/images/installation-success.png` | Documentation image | Shows the German successful-installation message. |
@@ -59,6 +61,8 @@ plain semantic data—are documented only here rather than being modified with i
 | `docs/de/images/tray-menu.png` | Documentation image | Shows the German Tray context menu. |
 | `docs/de/images/uninstallation-success.png` | Documentation image | Shows the German successful-uninstallation message. |
 | `docs/de/images/unsupported-core-installation.png` | Documentation image | Shows the German unsupported-xucRun warning. |
+| `docs/en/BUILDING.md` | User documentation | Explains how users build and package xucRun Tray in English. |
+| `docs/en/INSTALLATION.md` | User documentation | Explains installation, update, repair, and uninstallation of xucRun Tray in English. |
 | `docs/en/MANUAL_REMOVAL.md` | User documentation | Explains safe manual Tray removal in English. |
 | `docs/en/images/elevated-processes.png` | Documentation image | Shows the English elevated-processes menu. |
 | `docs/en/images/installation-success.png` | Documentation image | Shows the English successful-installation message. |

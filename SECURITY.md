@@ -8,9 +8,7 @@ Approach: Separates public version support from private reporting steps and resp
 
 ## Supported versions
 
-After the first public xucRun Tray release, only the latest released version is supported.
-
-No public version is supported before the first release.
+Only the latest released version of xucRun Tray is supported.
 
 ## Reporting a vulnerability
 

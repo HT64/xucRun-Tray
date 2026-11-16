@@ -11,4 +11,5 @@ Approach: Nennt die aktuelle Beitragsregel und verweist Schwachstellen auf den v
 Externe Pull Requests werden derzeit nicht angenommen.
 
 Fehlerberichte und reproduzierbare Testfälle sind dennoch hilfreich. Vermutete Schwachstellen
-dürfen niemals öffentlich gemeldet werden; verwende den vertraulichen Weg aus `SECURITY.de.md`.
+dürfen niemals öffentlich gemeldet werden; verwende den vertraulichen Weg aus
+[SECURITY.de.md](SECURITY.de.md).

@@ -8,22 +8,19 @@ Approach: Trennt öffentliche Versionsunterstützung von privaten Meldeschritten
 
 ## Unterstützte Versionen
 
-Nach der ersten öffentlichen xucRun-Tray-Veröffentlichung wird ausschließlich die neueste
-veröffentlichte Version unterstützt.
-
-Vor der ersten Veröffentlichung wird keine öffentliche Version unterstützt.
+Ausschließlich die neueste veröffentlichte Version von xucRun Tray wird unterstützt.
 
 ## Schwachstelle melden
 
 Ungepatchte oder vermutete Schwachstellen dürfen nicht in einem öffentlichen Issue, einer
 Discussion, einem Pull Request oder einem anderen öffentlichen Kanal gemeldet werden.
 
-Verwende GitHub Private Vulnerability Reporting für `HT64/xucRun-Tray`:
+Verwenden Sie GitHub Private Vulnerability Reporting für `HT64/xucRun-Tray`:
 
-1. Öffne im Repository den Bereich **Security**.
-2. Wähle **Report a vulnerability**.
-3. Beschreibe die betroffene Version oder den Commit, Reproduktionsschritte, erwartete Auswirkungen
-   und bekannte Gegenmaßnahmen.
+1. Öffnen Sie im Repository den Bereich **Security**.
+2. Wählen Sie **Report a vulnerability**.
+3. Beschreiben Sie die betroffene Version oder den Commit, Reproduktionsschritte, erwartete
+   Auswirkungen und bekannte Gegenmaßnahmen.
 
 Wenn das Problem die Verbindung zwischen xucRun Tray und dem xucRun-Hauptprogramm oder Broker
 betrifft und die verursachende Komponente noch unklar ist, kann es vertraulich über
@@ -31,7 +28,7 @@ betrifft und die verursachende Komponente noch unklar ist, kann es vertraulich �
 xucRun-Hauptprogramm oder den Broker betreffen, sollten über das Private Vulnerability Reporting
 von `HT64/xucRun` gemeldet werden.
 
-Übermittle nur sensible Daten, die zum Verständnis erforderlich sind. Reale Kennwörter, private
+Übermitteln Sie nur sensible Daten, die zum Verständnis erforderlich sind. Reale Kennwörter, private
 Schlüssel, Zugriffstoken und nicht betroffene personenbezogene Daten dürfen nicht eingereicht
 werden.
 

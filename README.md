@@ -6,7 +6,8 @@ Approach: Guides users from product context through safe use and removal to buil
 
 **Language:** [Deutsch](README.de.md) | English
 
-**Documentation:** [File register](FILE_REGISTER.md) | [Changelog](CHANGELOG.md) |
+**Documentation:** [Installation](docs/en/INSTALLATION.md) |
+[Build instructions](docs/en/BUILDING.md) | [Changelog](CHANGELOG.md) |
 [Manual removal](docs/en/MANUAL_REMOVAL.md) | [xucRun](https://github.com/HT64/xucRun)
 
 **Project status:** xucRun Tray is actively maintained.<br>
@@ -28,8 +29,6 @@ responsibilities.
 The Tray can run continuously or only when needed. It is particularly helpful during initial
 setup, when checking the operating state, and when later changing credentials, approvals, or
 configuration. xucRun and its broker service remain fully usable while the Tray is not running.
-
-## Relationship to xucRun
 
 The broker service belongs to xucRun. It starts automatically when needed and then runs in the
 background. The Tray application displays its state and provides controls through existing xucRun
@@ -60,10 +59,10 @@ xucRun Tray supports Windows 10 and Windows 11 on x64 systems. It requires:
   xucRun;
 - an existing local Windows user profile for Tray autostart.
 
-xucRun Tray is intended for the same experienced home users and developers, self-managed computers,
-and personal development or test systems as xucRun. It is not intended for unattended or
-centralized privilege management, production environments, or systems requiring a
-elevated level of protection.
+xucRun Tray is intended, like xucRun, for experienced private users and developers on self-managed
+computers and in personal development and test systems. It is not a solution for unattended
+elevation, centralized privilege management, or systems requiring an elevated level of
+protection.
 
 > **Protection boundaries:** xucRun Tray displays status information and invokes existing xucRun
 > management functions. It neither extends xucRun's permissions nor replaces its security
@@ -72,117 +71,20 @@ elevated level of protection.
 > and remaining risks, follow the
 > [xucRun security model](https://github.com/HT64/xucRun/blob/main/docs/en/SECURITY_MODEL.md).
 
-## Installation overview
+## Installation
 
-The public Tray release package contains:
-
-```text
-xucRun-Tray-<Version>-x64.exe
-BUILD-TOOLCHAIN.txt
-SHA256SUMS.txt
-LICENSE
-NOTICE
-```
-
-`BUILD-TOOLCHAIN.txt` identifies the source commit and the Visual Studio, MSBuild, MSVC, and
-Windows SDK versions actually resolved for the build. Its SHA-256 checksum is also included in
-`SHA256SUMS.txt`.
-
-The release intentionally provides no separate binary ZIP containing `xucRunTray.exe` and its
-language DLLs. The ZIP and TAR.GZ archives generated automatically by GitHub contain source code,
-not an installable binary package. The published Tray installer is the supported installation
-method; copying individual Tray files manually establishes neither the required common signer
-identity nor the logon task.
-The installer also places `LICENSE-xucRun-Tray.txt` and `NOTICE-xucRun-Tray.txt` in
-`%ProgramFiles%\xucRun\Licenses`. These text files are not Authenticode-signed and are removed with Tray.
-
-Download all files from the same official
-[xucRun Tray GitHub release](https://github.com/HT64/xucRun-Tray/releases). The provided installer
-is not Authenticode-signed; Windows may therefore report an unknown publisher when it starts.
-Optionally compare its SHA-256 checksum with `SHA256SUMS.txt` before starting it.
-If the hashes differ, do not run the installer.
-
-### Graphical installation
-
-Before opening the installation interface, the installer checks for a compatible xucRun
-installation. It checks the required installed xucRun files, their signatures, installation paths,
-version, and compatibility. A properly configured manual installation is therefore not rejected
-solely because its Windows uninstall entry is missing. The installer stops with an error if xucRun
-is missing, incompatible, or unverifiable.
-
-![Installer rejection when a supported xucRun installation is missing](docs/en/images/unsupported-core-installation.png)
-
-After successful validation, the interface shows the installed xucRun version. For an existing
-Tray installation, it also shows the registered Tray version and the time it was installed or
-last updated. It also identifies the local xucRun signing certificate used to sign the xucRun Tray
-files, including its name, validity period, and thumbprint. The success confirmation repeats this
-certificate information.
-
-The installer initially uses the Windows display language. Select **Installer language** to switch
-the complete installation interface between German and English immediately. This selection affects
-only the installer interface and does not change the machine-wide xucRun application language.
-
-Every installation and update requires users to agree to the license terms and confirm that they
-understand the security information. The main window provides the license text, notices, and this README's status and
-security notices offline on separate tabs. Other tabs show settings and the installation and
-uninstallation process. A link opens this README.
+1. Install the exactly matching xucRun version first.
+2. Download the Tray installer and `SHA256SUMS.txt` from the same
+   [xucRun Tray release](https://github.com/HT64/xucRun-Tray/releases).
+3. Optionally compare the SHA-256 checksum and do not run the installer if it differs.
+4. Run `xucRun-Tray-<Version>-x64.exe`, approve the Windows UAC request, and select the local user
+   for Tray autostart.
 
 ![xucRun Tray graphical installer](docs/en/images/installer.png)
 
-Start `xucRun-Tray-<Version>-x64.exe`. User Account Control requests administrator rights. The
-installer then:
-
-1. verifies its embedded package and product version;
-2. checks the required installed xucRun files, their signatures, installation paths, version, and
-   compatibility;
-3. checks whether xucRun Tray and xucRun are signed with the same valid local xucRun signing
-   certificate;
-4. asks which existing local Windows user should start xucRun Tray automatically;
-5. requires users to agree to the license terms and confirm that they understand the security
-   information;
-6. installs `xucRunTray.exe` and both language DLLs under `%ProgramFiles%\xucRun`;
-7. creates the selected user's logon task;
-8. registers a separate **xucRun Tray** entry under **Installed apps**.
-
-![Successful xucRun Tray installation](docs/en/images/installation-success.png)
-
-xucRun uses a machine-local signing certificate. The xucRun Tray installer uses this certificate,
-which was previously configured by xucRun, to sign the embedded Tray files locally. This lets
-Windows and xucRun verify that xucRun and xucRun Tray belong to the same installation and have not
-been replaced with differently signed files. xucRun Tray does not create a certificate or add any
-trust entries. The
-[graphical installation](https://github.com/HT64/xucRun/blob/main/docs/en/INSTALLATION.md#graphical-installation)
-section in the xucRun documentation describes its purpose and storage locations.
-
-The xucRun Tray installer does not install or modify xucRun components, stored credentials, or
-approvals.
-
-### Update and uninstall
-
-xucRun and xucRun Tray currently require an exact four-part version match. When reinstalling the
-same xucRun version, xucRun Tray can remain installed if its version and signing certificate still
-match exactly. Before changing versions or uninstalling xucRun, remove **xucRun Tray** through its
-separate entry under **Installed apps**. After updating xucRun, install the public xucRun Tray
-release with the matching version.
-
-To repair or reinstall the same matching version, run the xucRun Tray installer again and select
-the required local user. It validates the existing installation and replaces only Tray files. It
-briefly stops running Tray applications while replacing those files. After successful
-installation, it restarts those applications and xucRun Tray for the newly selected signed-in
-user.
-
-Uninstalling xucRun Tray removes its files, logon tasks, and uninstall registration. xucRun,
-including its broker service, local signing certificate, stored credentials, approvals, and
-configuration, remains unchanged. A visible success confirmation lists removed and unchanged
-components separately.
-
-![Successful xucRun Tray uninstallation](docs/en/images/uninstallation-success.png)
-
-When uninstall is started through **Installed apps**, its PowerShell window remains hidden. A
-failure is shown in a visible dialog instead. The technical diagnostic log is stored under
-`%ProgramData%\xucRun\InstallerLogs`; the dialog shows the full path of the specific file in a
-copyable field and can open the log folder directly. The log contains error, script, and system
-information, but no stored passwords. The path shown in the dialog is authoritative.
+The [installation guide](docs/en/INSTALLATION.md) describes package contents and verification,
+local signing, graphical installation, repair, update, and uninstallation. If normal
+uninstallation is unavailable, follow the [manual removal guide](docs/en/MANUAL_REMOVAL.md).
 
 ## Quick start
 
@@ -324,8 +226,7 @@ their exit codes. The Help submenu opens either `xucRun.exe /help` or the Tray-s
 directly in the running Tray instance. The information
 submenu opens either `xucRun.exe /info` or the Tray-specific information view directly in the
 running Tray instance. Other arguments are rejected with an error message and
-`ERROR_INVALID_PARAMETER`. The internal `/broker-policy-test` integration-test argument is not
-intended for normal use.
+`ERROR_INVALID_PARAMETER`.
 
 ![xucRun Tray runtime information](docs/en/images/runtime-information.png)
 
@@ -343,11 +244,9 @@ xucRun Tray does not:
 - provide an alternative path around xucRun approvals or UAC;
 - modify xucRun files during uninstallation.
 
-A correctly signed xucRun Tray installation cannot make an already compromised computer
-trustworthy. Malware with
-sufficient privileges may manipulate processes, windows, configuration, or displayed information.
-The same operating limits and residual risks documented for xucRun therefore also apply to
-xucRun Tray.
+The operating limits and remaining risks documented in the
+[xucRun security model](https://github.com/HT64/xucRun/blob/main/docs/en/SECURITY_MODEL.md) also
+apply to xucRun Tray.
 
 ## Language and log files
 
@@ -402,55 +301,8 @@ Reporting for `HT64/xucRun-Tray` as described in [SECURITY.md](SECURITY.md).
 
 ## Build and package
 
-Use the xucRun and xucRun Tray repositories as sibling checkouts:
-
-```text
-repos\
-├── xucRun-Core\
-└── xucRun-Tray\
-```
-
-A direct build uses the sibling repository checkout `..\xucRun-Core` by default.
-`XucRunCoreRoot` can select another controlled xucRun checkout. `Dependencies.json` identifies the
-xucRun revision required for the build; the selected checkout must match it.
-
-Build and test an unsigned Debug package:
-
-```powershell
-& MSBuild.exe .\XUCRun-Tray.sln `
-  /t:Build /p:Configuration=Debug /p:Platform=x64 /m
-
-.\New-BuildToolchainReport.ps1 `
-  -ProjectPath .\xucRunTray\xucRunTray.vcxproj `
-  -ProductName 'xucRun Tray' `
-  -Configuration Debug `
-  -DestinationPath .\artifacts\BUILD-TOOLCHAIN.txt
-
-.\New-xucRunTray-Package.ps1 `
-  -Configuration Debug `
-  -BuildToolchainReportPath .\artifacts\BUILD-TOOLCHAIN.txt
-.\Test-TrayAddonPackage.ps1 -Configuration Debug
-```
-
-A Release package is created in the same way with `Release`:
-
-```powershell
-& MSBuild.exe .\XUCRun-Tray.sln `
-  /t:Build /p:Configuration=Release /p:Platform=x64 /m
-
-.\New-BuildToolchainReport.ps1 `
-  -ProjectPath .\xucRunTray\xucRunTray.vcxproj `
-  -ProductName 'xucRun Tray' `
-  -DestinationPath .\artifacts\BUILD-TOOLCHAIN.txt
-
-.\New-xucRunTray-Package.ps1 `
-  -Configuration Release `
-  -BuildToolchainReportPath .\artifacts\BUILD-TOOLCHAIN.txt
-.\Test-TrayAddonPackage.ps1 -Configuration Release
-```
-
-Build outputs are written below `artifacts\<Configuration>` and complete packages below
-`artifacts\Package\<Configuration>`.
+The [build guide](docs/en/BUILDING.md) describes prerequisites, the Core dependency, toolchain
+report, packaging, and validation.
 
 ## Contributing
 
