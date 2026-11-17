@@ -59,6 +59,7 @@ plain semantic data—are documented only here rather than being modified with i
 | `docs/de/images/installer.png` | Documentation image | Shows the German graphical installer. |
 | `docs/de/images/runtime-information.png` | Documentation image | Shows the German Tray runtime information. |
 | `docs/de/images/tray-menu.png` | Documentation image | Shows the German Tray context menu. |
+| `docs/de/images/tray-tooltip.png` | Documentation image | Shows the German status tooltip and Tray icon. |
 | `docs/de/images/uninstallation-success.png` | Documentation image | Shows the German successful-uninstallation message. |
 | `docs/de/images/unsupported-core-installation.png` | Documentation image | Shows the German unsupported-xucRun warning. |
 | `docs/en/BUILDING.md` | User documentation | Explains how users build and package xucRun Tray in English. |
@@ -69,6 +70,7 @@ plain semantic data—are documented only here rather than being modified with i
 | `docs/en/images/installer.png` | Documentation image | Shows the English graphical installer. |
 | `docs/en/images/runtime-information.png` | Documentation image | Shows the English Tray runtime information. |
 | `docs/en/images/tray-menu.png` | Documentation image | Shows the English Tray context menu. |
+| `docs/en/images/tray-tooltip.png` | Documentation image | Shows the English status tooltip and Tray icon. |
 | `docs/en/images/uninstallation-success.png` | Documentation image | Shows the English successful-uninstallation message. |
 | `docs/en/images/unsupported-core-installation.png` | Documentation image | Shows the English unsupported-xucRun warning. |
 | `xucRunTray/ClientStatusActionRouting.h` | C++ header | Maps typed Tray actions to xucRun client arguments. |

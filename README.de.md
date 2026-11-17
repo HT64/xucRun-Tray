@@ -132,9 +132,13 @@ gestartet wurden, da diese ebenfalls im erhöhten Sicherheitskontext ausgeführt
 Die pulsierende TrustedInstaller-Anzeige folgt validierten Kindprozessen, solange sie die wirksame
 TrustedInstaller-Identität behalten und ein sichtbares Hauptfenster besitzen.
 
+Beim Verweilen des Mauszeigers über dem Symbol zeigt ein Tooltip den aktuellen Status von
+xucRun Tray.
+
+![Status-Tooltip von xucRun Tray](docs/de/images/tray-tooltip.png)
+
 Läuft die Tray-Anwendung selbst mit erhöhten Rechten, erscheint zusätzlich das Windows-Schild auf
-dem Symbol. Die genaue Ursache eines Zustands zeigt der Text an, der beim Verweilen des Mauszeigers
-über dem Symbol erscheint.
+dem Symbol.
 
 ## Statusanzeige und Menü
 
@@ -231,7 +235,7 @@ Autostart vollständig gültig und aktiviert ist, mit `1`, wenn er fehlt, deakti
 konfiguriert ist, und mit `2`, wenn der Zustand nicht zuverlässig ermittelt werden konnte. `/info`
 zeigt ausschließlich Informationen über Tray-Programm und -Installation. Die gemeinsamen
 Programm-, Signatur-, Konto- und Konfigurationsbereiche stammen aus derselben Implementierung wie
-bei `xucRun.exe /info` und nennen Version, Copyright, Lizenz unter der Apache License 2.0,
+bei `xucRun /info` und nennen Version, Copyright, Lizenz unter der Apache License 2.0,
 Pfad, Architektur, wirksame Sprache und
 geladene Sprach-DLL, Signierzertifikat, Konto, SID, Rechteerhöhung, Konfigurationsdatei und
 Client-Protokollierung. Der gemeinsame Konfigurationsabschnitt nennt außerdem das öffentliche
@@ -239,8 +243,8 @@ Tray-Wartungsskript. Tray-spezifisch folgt die Windows-Anmeldeaufgabe ohne erhö
 mit ihrem Zustand. Angezeigt wird nur der Pfad der für diese Ausgabe geladenen
 Sprach-DLL; die andere installierte Sprach-DLL wird nicht aufgeführt. `/help` erläutert die
 öffentlichen Tray-Aufrufe und ihre Exitcodes. Das Hilfe-Untermenü öffnet wahlweise
-`xucRun.exe /help` oder die Tray-eigene Hilfe direkt in der laufenden Tray-Instanz. Das
-Informations-Untermenü öffnet wahlweise `xucRun.exe /info` oder die Tray-eigene Informationsansicht
+`xucRun /help` oder die Tray-eigene Hilfe direkt in der laufenden Tray-Instanz. Das
+Informations-Untermenü öffnet wahlweise `xucRun /info` oder die Tray-eigene Informationsansicht
 direkt in der laufenden Tray-Instanz. Andere Aufrufparameter werden mit einer Fehlermeldung und
 `ERROR_INVALID_PARAMETER` abgewiesen.
 ![xucRun-Tray-Laufzeitinformationen](docs/de/images/runtime-information.png)
@@ -301,7 +305,7 @@ speichert keine benutzerdefinierte Ansicht und löscht oder konfiguriert keine E
   bleiben. Der Installer lehnt Pakete ab, deren Tray-Dateien nur teilweise oder nicht einheitlich
   signiert sind.
 - **Die Kommunikation wird als gestört angezeigt:** Prüfen Sie den Brokerdienst und führen Sie
-  über das Tray-Menü oder mit `xucRun.exe /audit` die xucRun-Sicherheitsdiagnose aus. Die Diagnose
+  über das Tray-Menü oder mit `xucRun /audit` die xucRun-Sicherheitsdiagnose aus. Die Diagnose
   prüft die installierten Tray-Dateien und Signaturen, die Deinstallationsregistrierung und die
   benutzerbezogenen Autostartaufgaben.
 - **Menüaktionen sind nicht verfügbar:** Der Brokerdienst kann beendet, die Kommunikation kann

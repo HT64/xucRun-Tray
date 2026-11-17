@@ -126,8 +126,12 @@ because they may also run in the elevated security context.
 The pulsing TrustedInstaller indication follows validated child processes as long as they retain
 the effective TrustedInstaller identity and have a visible main window.
 
+Hovering over the icon displays a tooltip with the current xucRun Tray status.
+
+![xucRun Tray status tooltip](docs/en/images/tray-tooltip.png)
+
 If the Tray application itself is running with elevated rights, the Windows shield is also shown
-on the icon. Hover over the icon to see text describing the specific state.
+on the icon.
 
 ## Status display and menu
 
@@ -216,15 +220,15 @@ arguments:
 valid and enabled, `1` when it is missing, disabled, or configured incorrectly, and `2` when its
 state cannot be determined reliably. `/info` displays only Tray program and installation details.
 Its shared program, signature, account, and configuration sections come from the same implementation
-as `xucRun.exe /info` and show version, copyright, the Apache License 2.0, path, architecture, effective language and loaded
+as `xucRun /info` and show version, copyright, the Apache License 2.0, path, architecture, effective language and loaded
 language DLL, signing certificate, account, SID, elevation, configuration file, and client logging.
 The common configuration section also identifies the public Tray maintenance script. The
 Tray-specific section then shows the Windows logon task without elevated privileges together with its state. Only
 the path of the language DLL loaded for that output is listed; the other
 installed language DLL is not. `/help` explains the public Tray commands and
-their exit codes. The Help submenu opens either `xucRun.exe /help` or the Tray-specific help
+their exit codes. The Help submenu opens either `xucRun /help` or the Tray-specific help
 directly in the running Tray instance. The information
-submenu opens either `xucRun.exe /info` or the Tray-specific information view directly in the
+submenu opens either `xucRun /info` or the Tray-specific information view directly in the
 running Tray instance. Other arguments are rejected with an error message and
 `ERROR_INVALID_PARAMETER`.
 
@@ -281,7 +285,7 @@ unfiltered. The action does not save a custom view or delete or configure events
   existing non-exportable private key to remain available on that computer. The installer rejects
   packages whose Tray files are only partially or inconsistently signed.
 - **Communication is shown as degraded:** Check the broker service state and run the xucRun security
-  diagnostics from the xucRun Tray menu or with `xucRun.exe /audit`. The diagnostics check the
+  diagnostics from the xucRun Tray menu or with `xucRun /audit`. The diagnostics check the
   installed Tray files and signatures, uninstall registration, and per-user autostart tasks.
 - **Menu actions are unavailable:** The broker service may be stopped, communication may be
   unavailable, or the current account may lack the required permissions.
